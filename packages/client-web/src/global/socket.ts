@@ -1310,6 +1310,36 @@ export class Socket {
             });
           };
 
+          const track = new MediaStreamTrackGenerator({
+            kind: {
+              [CallStreamType.Audio]: "audio",
+              [CallStreamType.Video]: "video",
+              [CallStreamType.DisplayVideo]: "video",
+              [CallStreamType.DisplayAudio]: "audio",
+            }[dataDecrypted.st],
+          });
+
+          const writer = track.writable.getWriter();
+
+          const decoderInit = {
+            async output(data: MediaData) {
+              await writer.write(data);
+            },
+            error() {
+              //
+            },
+          };
+
+          let decoder!: MediaDecoder;
+
+          if (track.kind === "video") {
+            decoder = new VideoDecoder(decoderInit);
+          }
+
+          if (track.kind === "audio") {
+            decoder = new AudioDecoder(decoderInit);
+          }
+
           pc.addEventListener("icecandidate", ({ candidate }) => {
             if (!candidate) {
               return;
@@ -1323,38 +1353,6 @@ export class Socket {
           });
 
           pc.addEventListener("datachannel", ({ channel: dc }) => {
-            console.log(dc);
-
-            const track = new MediaStreamTrackGenerator({
-              kind: {
-                [CallStreamType.Audio]: "audio",
-                [CallStreamType.Video]: "video",
-                [CallStreamType.DisplayVideo]: "video",
-                [CallStreamType.DisplayAudio]: "audio",
-              }[dataDecrypted.st],
-            });
-
-            const writer = track.writable.getWriter();
-
-            const decoderInit = {
-              async output(data: MediaData) {
-                await writer.write(data);
-              },
-              error() {
-                //
-              },
-            };
-
-            let decoder!: MediaDecoder;
-
-            if (track.kind === "video") {
-              decoder = new VideoDecoder(decoderInit);
-            }
-
-            if (track.kind === "audio") {
-              decoder = new AudioDecoder(decoderInit);
-            }
-
             let packets: Uint8Array[] = [];
 
             dc.addEventListener("message", async ({ data }) => {
@@ -1440,16 +1438,6 @@ export class Socket {
                 );
             });
 
-            const stream: ICallRemoteStream = {
-              userId: data.userId,
-              type: dataDecrypted.st,
-              pc,
-              track,
-              config: {},
-            };
-
-            store.state.value.call?.remoteStreams.push(stream);
-
             if (ctx) {
               const el2 = document.createElement("audio");
 
@@ -1486,6 +1474,16 @@ export class Socket {
           pc.addEventListener("connectionstatechange", () => {
             console.debug(`c_rtc/peer: ${pc.connectionState}`);
           });
+
+          const stream: ICallRemoteStream = {
+            userId: data.userId,
+            type: dataDecrypted.st,
+            pc,
+            track,
+            config: {},
+          };
+
+          store.state.value.call?.remoteStreams.push(stream);
 
           await pc.setRemoteDescription(
             new RTCSessionDescription({
