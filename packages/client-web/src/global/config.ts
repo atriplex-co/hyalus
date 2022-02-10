@@ -3,7 +3,7 @@ import MarkdownItEmoji from "markdown-it-emoji";
 import MarkdownItLinkAttr from "markdown-it-link-attributes";
 import highlight from "highlight.js";
 
-export const RTCMaxMessageSize = 1024 * 16;
+export const RTCMaxMessageSize = 1024 * 256;
 
 export const iceServers = [
   {

@@ -97,6 +97,8 @@ export const store = {
       return;
     }
 
+    await sodium.ready;
+
     (
       axios.defaults.headers as {
         authorization?: string;
@@ -575,9 +577,14 @@ export const store = {
         }
 
         if (!encoder.encodeQueueSize) {
-          encoder.encode(value, {
-            keyFrame: stream.config.requestKeyFrame,
-          });
+          encoder.encode(
+            value,
+            stream.config.requestKeyFrame
+              ? {
+                  keyFrame: true,
+                }
+              : {} // lets the encoder decide whether to insert an I-frame.
+          );
         }
 
         value.close();
