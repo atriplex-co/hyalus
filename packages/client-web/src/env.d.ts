@@ -102,15 +102,6 @@ declare interface MediaDecoderConfig {
   sampleRate?: number;
   numberOfChannels?: number;
   description?: Uint8Array;
-  codecWidth?: number;
-  codedHeight?: number;
-  displayAspectWidth?: number;
-  displayAspectHeight?: number;
-  colorSpace?: {
-    primaries: string;
-    transfer: string;
-    matrix: string;
-  };
   hardwareAcceleration?: string;
   optimizeForLatency?: boolean;
 }

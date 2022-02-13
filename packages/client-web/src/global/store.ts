@@ -242,7 +242,10 @@ export const store = {
     };
 
     const pc = new RTCPeerConnection({ iceServers });
-    const dc = pc.createDataChannel("");
+    const dc = pc.createDataChannel("", {
+      // maxRetransmits: 0,
+      // ordered: false,
+    });
     const peer: ICallLocalStreamPeer = {
       userId,
       pc,
@@ -492,7 +495,6 @@ export const store = {
       const settings = track.getSettings() as {
         width: number;
         height: number;
-        frameRate: number;
         sampleRate: number;
         channelCount: number;
       };
@@ -555,14 +557,46 @@ export const store = {
 
       if (track.kind === "video") {
         encoder = new VideoEncoder(encoderInit);
-        encoder.configure({
+
+        const encoderConfig = {
           codec: "avc1.42001e",
-          bitrate: 6e6,
-          width: settings.width,
-          height: settings.height,
           hardwareAcceleration: "prefer-hardware",
           latencyMode: "realtime",
-        });
+          bitrate: {
+            ["480p30"]: 1500e3,
+            ["480p60"]: 1500e3,
+            ["720p30"]: 3000e3,
+            ["720p60"]: 4000e3,
+            ["1080p30"]: 4000e3,
+            ["1080p60"]: 5000e3,
+          }[this.state.value.config.videoMode],
+        };
+
+        let lastSettings = "";
+
+        const updateEncoderConfig = () => {
+          {
+            const settings = opts.track?.getSettings() as {
+              width: number;
+              height: number;
+            };
+
+            if (lastSettings === JSON.stringify(settings)) {
+              return;
+            }
+
+            encoder.configure({
+              ...encoderConfig,
+              width: Math.ceil(settings.width / 2) * 2,
+              height: Math.ceil(settings.height / 2) * 2,
+            });
+
+            lastSettings = JSON.stringify(settings);
+          }
+        };
+
+        setInterval(updateEncoderConfig, 1000);
+        updateEncoderConfig();
       }
 
       const reader = new MediaStreamTrackProcessor({

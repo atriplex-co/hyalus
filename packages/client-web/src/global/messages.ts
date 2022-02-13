@@ -20,8 +20,8 @@ export class CallStreamDecoderConfig extends protobuf.Message<CallStreamDecoderC
   public codec?: string;
   @protobuf.Field.d(2, "bytes")
   public description?: Uint8Array;
-  @protobuf.Field.d(3, "int64")
+  @protobuf.Field.d(3, "int64", "optional")
   public numberOfChannels?: number;
-  @protobuf.Field.d(4, "int64")
+  @protobuf.Field.d(4, "int64", "optional")
   public sampleRate?: number;
 }

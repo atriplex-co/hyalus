@@ -1361,6 +1361,10 @@ export class Socket {
                 return;
               }
 
+              if (!packets.length) {
+                return;
+              }
+
               const combined = new Uint8Array(
                 packets.map((p) => p.length).reduce((a, b) => a + b)
               );
