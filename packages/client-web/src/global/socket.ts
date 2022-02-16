@@ -1436,6 +1436,9 @@ export class Socket {
                 return;
               }
 
+              stream.decoder.close();
+              stream.writer.close();
+
               store.state.value.call.remoteStreams =
                 store.state.value.call.remoteStreams.filter(
                   (stream) => stream.pc !== pc
@@ -1485,9 +1488,11 @@ export class Socket {
             pc,
             track,
             config: {},
+            decoder,
+            writer,
           };
 
-          store.state.value.call?.remoteStreams.push(stream);
+          store.state.value.call.remoteStreams.push(stream);
 
           await pc.setRemoteDescription(
             new RTCSessionDescription({

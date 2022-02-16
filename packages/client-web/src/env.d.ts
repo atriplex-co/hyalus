@@ -139,6 +139,7 @@ declare class MediaEncoder {
   constructor(init: MediaEncoderInit);
   configure(config: MediaEncoderConfig): void;
   encode(frame: MediaData, opts?: MediaEncoderEncodeOpts): void;
+  close(): void;
   state: string;
   encodeQueueSize: number;
 }
@@ -147,6 +148,7 @@ declare class MediaDecoder {
   constructor(init: MediaDecoderInit);
   configure(config: MediaDecoderConfig): void;
   decode(chunk: EncodedMediaChunk): void;
+  close(): void;
   state: string;
   decodeQueueSize: number;
 }

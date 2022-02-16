@@ -83,6 +83,7 @@ export interface ICallLocalStream {
   track: MediaStreamTrack;
   peers: ICallLocalStreamPeer[];
   config: ICallLocalStreamConfig;
+  encoder: MediaEncoder;
 }
 
 export interface ICallLocalStreamPeer {
@@ -102,6 +103,8 @@ export interface ICallRemoteStream {
   pc: RTCPeerConnection;
   track: MediaStreamTrackGenerator;
   config: ICallRemoteStreamConfig;
+  decoder: MediaDecoder;
+  writer: WritableStreamDefaultWriter; // allows us to close the MediaStreamTrackGenerator.
 }
 
 export interface ICallRemoteStreamConfig {
