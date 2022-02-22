@@ -191,7 +191,7 @@ export const processAvatar = (
     multer({
       dest: "/tmp",
       limits: {
-        fileSize: 20 * 1024 * 1024,
+        fileSize: 1024 * 1024 * 20,
         files: 1,
       },
     }).single("avatar")(req, res, async () => {

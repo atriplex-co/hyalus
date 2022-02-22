@@ -187,6 +187,7 @@ import {
 import sodium from "libsodium-wrappers";
 import ChannelCall from "../components/ChannelCall.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
+import { MaxFileSize, MaxFileChunkSize } from "../global/config";
 
 const route = useRoute();
 const router = useRouter();
@@ -510,11 +511,9 @@ const callStart = async (e: MouseEvent) => {
 };
 
 const uploadFile = async (file: File) => {
-  const maxFileSize = 1024 * 1024 * 200;
-  const maxFileChunkSize = 1024 * 1024 * 2;
-
-  if (file.size > maxFileSize) {
-    throw new Error("File is too large (max: 200MB)");
+  if (file.size > MaxFileSize) {
+    console.warn(`file too large: ${file.size} > ${MaxFileChunkSize}`);
+    return;
   }
 
   const key = sodium.crypto_secretstream_xchacha20poly1305_keygen();
@@ -523,15 +522,15 @@ const uploadFile = async (file: File) => {
   const chunks = [];
   const reader = new FileReader();
 
-  for (let i = 0; i < Math.ceil(file.size / maxFileChunkSize); i++) {
+  for (let i = 0; i < Math.ceil(file.size / MaxFileChunkSize); i++) {
     const data = sodium.crypto_secretstream_xchacha20poly1305_push(
       state,
       await new Promise((cb) => {
         reader.onload = () => cb(new Uint8Array(reader.result as ArrayBuffer));
         reader.readAsArrayBuffer(
           file.slice(
-            i * maxFileChunkSize,
-            i * maxFileChunkSize + maxFileChunkSize
+            i * MaxFileChunkSize,
+            i * MaxFileChunkSize + MaxFileChunkSize
           )
         );
       }),

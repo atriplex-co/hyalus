@@ -220,12 +220,10 @@ import { axios } from "../global/helpers";
 import { store } from "../global/store";
 import { IChannel, IMessage, ISocketMessage } from "../global/types";
 import { idbGet, idbSet } from "../global/idb";
-import { iceServers } from "../global/config";
+import { iceServers, MaxFileSize, MaxFileChunkSize } from "../global/config";
 import {
   MessageType,
   ChannelType,
-  MaxFileSize,
-  MaxFileChunkSize,
   SocketMessageType,
   FileChunkRTCType,
 } from "common";
@@ -357,23 +355,22 @@ const fileDownload = async (save: boolean) => {
     return;
   }
 
-  if (
-    file.value.size > MaxFileSize ||
-    file.value.chunks.length > Math.ceil(MaxFileSize / MaxFileChunkSize)
-  ) {
+  if (file.value.size > MaxFileSize) {
     console.warn(`file too large: ${props.message.id}`);
     return;
   }
 
   fileDownloadActive.value = true;
 
-  const data = new Uint8Array(file.value.size);
   const state = crypto_secretstream_xchacha20poly1305_init_pull(
     file.value.header,
     file.value.key
   );
 
-  for (const [i, hash] of Object.entries(file.value.chunks)) {
+  const data = new Uint8Array(file.value.size);
+  let dataOffset = 0;
+
+  for (const hash of file.value.chunks) {
     let chunk = (await idbGet(`file:${hash}`)) as Uint8Array | undefined;
 
     if (!chunk) {
@@ -437,14 +434,26 @@ const fileDownload = async (save: boolean) => {
           });
 
           dc.addEventListener("message", async ({ data }) => {
+            const chunkLength =
+              packets.length &&
+              packets.map((p) => p.length).reduce((a, b) => a + b);
+
+            if (
+              chunkLength > MaxFileChunkSize + 4096 ||
+              chunkLength + dataOffset > MaxFileSize + 4096 // should include crypto_secretstream_MACBYTES's
+            ) {
+              console.warn(`file chunk too large: ${hash}`);
+              fileDownloadActive.value = false;
+              pc.close();
+              return;
+            }
+
             if (data) {
               packets.push(new Uint8Array(data));
               return;
             }
 
-            chunk = new Uint8Array(
-              packets.map((p) => p.length).reduce((a, b) => a + b)
-            );
+            chunk = new Uint8Array(chunkLength);
 
             for (let i = 0, j = 0; i < packets.length; i++) {
               chunk.set(packets[i], j);
@@ -563,7 +572,14 @@ const fileDownload = async (save: boolean) => {
       return;
     }
 
-    data.set(pull.message, +i * MaxFileChunkSize);
+    if (pull.message.length > data.length - dataOffset) {
+      console.warn(`error writing chunk: ${hash}`);
+      fileDownloadActive.value = false;
+      return;
+    }
+
+    data.set(pull.message, dataOffset);
+    dataOffset += pull.message.length;
   }
 
   const url = URL.createObjectURL(
@@ -663,7 +679,7 @@ onMounted(async () => {
       file.value &&
       ["audio", "video", "image"].indexOf(file.value.type.split("/")[0]) !==
         -1 &&
-      file.value.size < 1024 * 1024 * 10 &&
+      file.value.size < 1024 * 1024 * 20 &&
       previewUrl.value === ""
     ) {
       previewUrl.value = (await fileDownload(false)) || "";

@@ -13,10 +13,16 @@ declare module "*.vue" {
 // App stuff
 
 declare interface HyalusDev {
-  store?: unknown;
+  store: unknown;
   enabled: boolean;
   stop(): void;
   start(): void;
+  idb: {
+    keys: unknown;
+    get: unknown;
+    set: unknown;
+    del: unknown;
+  };
 }
 
 declare interface HyalusDesktop {

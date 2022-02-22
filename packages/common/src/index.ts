@@ -3,8 +3,6 @@ export const PushProtocol = 1;
 export const MaxAvatarWidth = 256;
 export const MaxAvatarFPS = 30;
 export const MaxAvatarDuration = 10;
-export const MaxFileSize = 1024 * 1024 * 200;
-export const MaxFileChunkSize = 1024 * 1024 * 2;
 
 export enum ChannelType {
   Private = 0,

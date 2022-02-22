@@ -4,6 +4,7 @@ import { router } from "./router";
 import { store } from "./global/store";
 import ServiceWorker from "./shared/serviceWorker?worker";
 import { getWorkerUrl } from "./global/helpers";
+import { idbDel, idbGet, idbKeys, idbSet } from "./global/idb";
 
 await store.start();
 
@@ -20,6 +21,12 @@ window.dev = {
   stop() {
     this.enabled = false;
     console.clear();
+  },
+  idb: {
+    keys: idbKeys,
+    get: idbGet,
+    set: idbSet,
+    del: idbDel,
   },
 };
 

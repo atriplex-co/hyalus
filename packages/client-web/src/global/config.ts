@@ -4,6 +4,8 @@ import MarkdownItLinkAttr from "markdown-it-link-attributes";
 import highlight from "highlight.js";
 
 export const RTCMaxMessageSize = 1024 * 256;
+export const MaxFileSize = 1024 * 1024 * 256;
+export const MaxFileChunkSize = 1024 * 1024 * 8;
 
 export const iceServers = [
   {
