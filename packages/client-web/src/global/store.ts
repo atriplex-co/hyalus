@@ -546,7 +546,6 @@ export const store = {
 
       const encoderConfig = {
         codec: "avc1.42001e",
-        hardwareAcceleration: "prefer-hardware",
         latencyMode: "realtime",
         bitrate: {
           ["480p30"]: 1500e3,

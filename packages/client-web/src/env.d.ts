@@ -87,13 +87,6 @@ declare interface MediaEncoderConfig {
   bitrate?: number;
   width?: number;
   height?: number;
-  displayWidth?: number;
-  displayHeight?: number;
-  hardwareAcceleration?: string;
-  framerate?: number;
-  alpha?: string;
-  scalabilityMode?: string;
-  bitrateMode?: string;
   latencyMode?: string;
 }
 
@@ -102,7 +95,6 @@ declare interface MediaDecoderConfig {
   sampleRate?: number;
   numberOfChannels?: number;
   description?: Uint8Array;
-  hardwareAcceleration?: string;
   optimizeForLatency?: boolean;
 }
 
