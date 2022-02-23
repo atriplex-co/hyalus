@@ -13,7 +13,10 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 const { version } = require("../package.json");
 const fs = require("fs");
-const { spawn, fork } = require("child_process");
+const { fork } = require("child_process");
+
+app.commandLine.appendSwitch("disable-renderer-backgrounding");
+app.commandLine.appendSwitch("force_high_performance_gpu");
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
