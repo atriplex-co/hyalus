@@ -1,7 +1,8 @@
 FROM alpine:latest
-RUN apk add nodejs yarn git ffmpeg
+RUN apk add nodejs npm git ffmpeg
+RUN npm i -g pnpm
 RUN yes | adduser app
 USER app
 WORKDIR /home/app/app
 ENV NODE_ENV=development
-CMD [ "sh", "-c", "yarn && yarn dev" ]
+CMD [ "sh", "-c", "pnpm i && pnpm dev" ]

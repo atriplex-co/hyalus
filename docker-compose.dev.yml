@@ -9,7 +9,7 @@ services:
       - ${PORT}:3001
     volumes:
       - ".:/home/app/app"
-      - "$HOME/.cache:/home/app/.cache"
+      - "$HOME/.pnpm-store:/home/app/.pnpm-store"
     environment:
       - VAPID_SUBJECT=${VAPID_SUBJECT}
       - VAPID_PUBLIC=${VAPID_PUBLIC}

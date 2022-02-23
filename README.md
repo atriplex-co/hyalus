@@ -57,5 +57,5 @@ $ yarn test:common
 - Generating VAPID keys (for push notifications) can be done like this.
 
 ```sh
-yarn exec -- web-push generate-vapid-keys
+pnpm web-push generate-vapid-keys
 ```
