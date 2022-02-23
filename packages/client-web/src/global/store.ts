@@ -545,7 +545,9 @@ export const store = {
       encoder = new VideoEncoder(encoderInit);
 
       const encoderConfig = {
-        codec: "avc1.42001e",
+        codec: "avc1.42e01f",
+        // codec: "vp8",
+        // codec: "vp09.00.10.08",
         latencyMode: "realtime",
         bitrate: {
           ["480p30"]: 1500e3,
