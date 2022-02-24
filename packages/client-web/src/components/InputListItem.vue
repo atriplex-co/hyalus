@@ -1,6 +1,6 @@
 <template>
   <div
-    class="px-2 py-1 hover:bg-gray-800 flex items-center space-x-2 transition"
+    class="flex items-center space-x-2 px-2 py-1 transition hover:bg-gray-800"
   >
     <slot />
   </div>

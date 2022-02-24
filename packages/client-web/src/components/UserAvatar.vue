@@ -1,6 +1,6 @@
 <template>
   <div
-    class="overflow-hidden flex"
+    class="flex overflow-hidden"
     :class="{
       'border-2': status !== undefined,
       'border-green-500': status === Status.Online,
@@ -9,21 +9,21 @@
       'border-gray-400': status === Status.Offline,
     }"
   >
-    <div v-if="id" class="w-full h-full">
+    <div v-if="id" class="h-full w-full">
       <img
         v-if="type === 'image'"
         :src="url"
-        class="object-cover w-full h-full"
+        class="h-full w-full object-cover"
         :class="{
-          'border border-transparent rounded-full': status !== undefined,
+          'rounded-full border border-transparent': status !== undefined,
         }"
       />
       <video
         v-if="type === 'video'"
         :src="url"
-        class="object-cover w-full h-full"
+        class="h-full w-full object-cover"
         :class="{
-          'border border-transparent rounded-full': status !== undefined,
+          'rounded-full border border-transparent': status !== undefined,
         }"
         muted
         loop
@@ -33,12 +33,12 @@
     </div>
     <div
       v-else
-      class="rounded-full bg-primary-500 w-full flex items-center justify-center text-white"
+      class="bg-primary-500 flex w-full items-center justify-center rounded-full text-white"
       :class="{
         'm-px': status !== undefined,
       }"
     >
-      <UserIcon class="w-2/3 h-2/3" />
+      <UserIcon class="h-2/3 w-2/3" />
     </div>
   </div>
 </template>

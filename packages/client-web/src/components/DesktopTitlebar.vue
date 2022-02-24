@@ -1,12 +1,12 @@
 <template>
-  <div class="flex text-sm border-b border-gray-700 z-10 bg-gray-900 h-8">
-    <div class="flex items-center flex-1 px-2 space-x-2 select-none draggable">
-      <AppIcon class="w-4 h-4" />
+  <div class="z-10 flex h-8 border-b border-gray-700 bg-gray-900 text-sm">
+    <div class="draggable flex flex-1 select-none items-center space-x-2 px-2">
+      <AppIcon class="h-4 w-4" />
       <p class="text-gray-200">{{ title }}</p>
     </div>
     <div class="flex">
       <div
-        class="w-10 h-8 p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200 flex items-center justify-center"
+        class="flex h-8 w-10 items-center justify-center p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200"
         @click="minimize"
       >
         <svg width="11" height="1" viewBox="0 0 11 1" fill="currentColor">
@@ -14,7 +14,7 @@
         </svg>
       </div>
       <div
-        class="w-10 h-8 p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200 flex items-center justify-center"
+        class="flex h-8 w-10 items-center justify-center p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200"
         @click="maximize"
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
@@ -25,7 +25,7 @@
         </svg>
       </div>
       <div
-        class="w-10 h-8 p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200 flex items-center justify-center"
+        class="flex h-8 w-10 items-center justify-center p-2 text-gray-400 transition hover:bg-gray-700 hover:text-gray-200"
         @click="close"
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">

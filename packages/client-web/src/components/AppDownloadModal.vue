@@ -7,7 +7,7 @@
           href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-win32.exe"
           target="_blank"
           rel="noreferrer noopener"
-          class="w-20 h-20 transition hover:text-white"
+          class="h-20 w-20 transition hover:text-white"
         >
           <WindowsIcon />
         </a>
@@ -15,7 +15,7 @@
           href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-osx.zip"
           target="_blank"
           rel="noreferrer noopener"
-          class="w-20 h-20 transition hover:text-white"
+          class="h-20 w-20 transition hover:text-white"
         >
           <AppleIcon />
         </a>
@@ -23,16 +23,16 @@
           href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-linux.AppImage"
           target="_blank"
           rel="noreferrer noopener"
-          class="w-20 h-20 transition hover:text-white"
+          class="h-20 w-20 transition hover:text-white"
         >
           <LinuxIcon />
         </a>
       </div>
-      <p class="mt-8 px-4 py-2 bg-gray-800 border border-gray-600 rounded-md">
+      <p class="mt-8 rounded-md border border-gray-600 bg-gray-800 px-4 py-2">
         iOS &amp; Android apps coming soon.
       </p>
       <p
-        class="transition cursor-pointer text-primary-500 hover:text-primary-600 mt-6"
+        class="text-primary-500 hover:text-primary-600 mt-6 cursor-pointer transition"
         @click="$emit('close')"
       >
         Close

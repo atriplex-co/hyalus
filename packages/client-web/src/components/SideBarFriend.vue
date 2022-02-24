@@ -4,22 +4,22 @@
       <UserAvatar
         :id="friend.avatarId"
         :status="friend.status"
-        class="w-8 h-8 rounded-full"
+        class="h-8 w-8 rounded-full"
       />
       <div>
-        <p class="font-bold text-sm">{{ friend.name }}</p>
-        <p class="text-gray-300 text-sm">@{{ friend.username }}</p>
+        <p class="text-sm font-bold">{{ friend.name }}</p>
+        <p class="text-sm text-gray-300">@{{ friend.username }}</p>
       </div>
     </div>
     <div class="flex space-x-2">
       <div v-if="friend.acceptable" @click="setAccepted(true)">
         <CheckIcon
-          class="w-6 h-6 bg-primary-500 text-white rounded-full p-1 hover:bg-primary-600 transition cursor-pointer"
+          class="bg-primary-500 hover:bg-primary-600 h-6 w-6 cursor-pointer rounded-full p-1 text-white transition"
         />
       </div>
       <div @click="setAccepted(false)">
         <CloseIcon
-          class="w-6 h-6 bg-gray-600 text-gray-300 rounded-full p-1 hover:bg-gray-500 hover:text-gray-200 transition cursor-pointer"
+          class="h-6 w-6 cursor-pointer rounded-full bg-gray-600 p-1 text-gray-300 transition hover:bg-gray-500 hover:text-gray-200"
         />
       </div>
     </div>

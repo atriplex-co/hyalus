@@ -1,12 +1,12 @@
 <template>
   <div ref="root" class="cursor-pointer" @click="open = !open">
     <div
-      class="flex items-center justify-between px-2 py-1 transition border border-gray-700 bg-gray-900 rounded-md hover:border-gray-600 w-96"
+      class="flex w-96 items-center justify-between rounded-md border border-gray-700 bg-gray-900 px-2 py-1 transition hover:border-gray-600"
     >
       <div class="flex items-center space-x-2">
         <slot name="selected" />
       </div>
-      <ArrowDownIcon class="w-4 h-4 text-gray-400" />
+      <ArrowDownIcon class="h-4 w-4 text-gray-400" />
     </div>
     <div class="relative z-20">
       <transition
@@ -19,7 +19,7 @@
       >
         <div
           v-if="open"
-          class="absolute flex flex-col -mt-px space-y-1 bg-gray-900 border border-gray-700 rounded-md w-96 max-h-32 overflow-auto shadow-lg"
+          class="absolute -mt-px flex max-h-32 w-96 flex-col space-y-1 overflow-auto rounded-md border border-gray-700 bg-gray-900 shadow-lg"
         >
           <slot name="items" />
         </div>

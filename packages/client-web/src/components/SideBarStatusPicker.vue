@@ -9,34 +9,34 @@
   >
     <div
       v-if="show"
-      class="absolute my-2 bg-gray-800 border border-gray-600 w-32 rounded-md select-none text-sm shadow-md z-10"
+      class="absolute z-10 my-2 w-32 select-none rounded-md border border-gray-600 bg-gray-800 text-sm shadow-md"
     >
       <div
-        class="flex items-center py-2 px-3 space-x-3 hover:bg-gray-700 transition"
+        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
         @click="submit(Status.Online)"
       >
-        <div class="p-2 rounded-full bg-green-500" />
+        <div class="rounded-full bg-green-500 p-2" />
         <p>Online</p>
       </div>
       <div
-        class="flex items-center py-2 px-3 space-x-3 hover:bg-gray-700 transition"
+        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
         @click="submit(Status.Away)"
       >
-        <div class="p-2 rounded-full bg-amber-500" />
+        <div class="rounded-full bg-amber-500 p-2" />
         <p>Away</p>
       </div>
       <div
-        class="flex items-center py-2 px-3 space-x-3 hover:bg-gray-700 transition"
+        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
         @click="submit(Status.Busy)"
       >
-        <div class="p-2 rounded-full bg-rose-500" />
+        <div class="rounded-full bg-rose-500 p-2" />
         <p>Busy</p>
       </div>
       <div
-        class="flex items-center py-2 px-3 space-x-3 hover:bg-gray-700 transition"
+        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
         @click="submit(Status.Offline)"
       >
-        <div class="p-2 rounded-full bg-gray-400" />
+        <div class="rounded-full bg-gray-400 p-2" />
         <p>Invisible</p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col h-screen min-h-0 text-white bg-gray-800 selection:bg-primary-400 selection:text-black select-none"
+    class="selection:bg-primary-400 flex h-screen min-h-0 select-none flex-col bg-gray-800 text-white selection:text-black"
     :class="{
       'accent-red': store.state.value.config.colorTheme === ColorTheme.Red,
       'accent-orange':
@@ -26,11 +26,11 @@
         store.state.value.config.colorTheme === ColorTheme.Fuchsia,
       'accent-pink': store.state.value.config.colorTheme === ColorTheme.Pink,
       'accent-rose': store.state.value.config.colorTheme === ColorTheme.Rose,
-      'filter grayscale': store.state.value.config.grayscale,
+      'grayscale filter': store.state.value.config.grayscale,
     }"
   >
     <DesktopTitlebar v-if="isDesktop" />
-    <div class="flex-1 min-h-0">
+    <div class="min-h-0 flex-1">
       <template v-if="inApp">
         <LoadingView
           v-show="!store.state.value.updateRequired && !store.state.value.ready"
@@ -54,7 +54,7 @@
               <component
                 :is="Component"
                 :key="$route.path"
-                class="flex-1 w-full h-full"
+                class="h-full w-full flex-1"
               />
             </transition>
           </router-view>
@@ -154,19 +154,19 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-white bg-opacity-10 rounded-sm;
+  @apply rounded-sm bg-white bg-opacity-10;
 }
 
 pre {
-  @apply bg-gray-800 p-2 rounded-md -m-2;
+  @apply -m-2 rounded-md bg-gray-800 p-2;
 }
 
 pre code {
-  @apply p-0 border-none;
+  @apply border-none p-0;
 }
 
 code {
-  @apply py-1 px-2 rounded-md bg-gray-800 text-gray-200 border border-gray-600;
+  @apply rounded-md border border-gray-600 bg-gray-800 py-1 px-2 text-gray-200;
 }
 
 .hljs-doctag,

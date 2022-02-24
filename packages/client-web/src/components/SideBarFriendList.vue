@@ -1,15 +1,15 @@
 <template>
-  <div class="w-full bg-gray-700 flex flex-col h-full">
-    <div class="h-16 flex items-center justify-between px-4 text-gray-200">
-      <p class="font-bold text-2xl">Friends</p>
+  <div class="flex h-full w-full flex-col bg-gray-700">
+    <div class="flex h-16 items-center justify-between px-4 text-gray-200">
+      <p class="text-2xl font-bold">Friends</p>
       <div @click="addFriendModal = true">
         <UserAddIcon
-          class="w-8 h-8 p-2 text-white rounded-full bg-primary-500 cursor-pointer hover:bg-primary-600 transition"
+          class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
         />
       </div>
     </div>
     <div
-      class="flex-1 overflow-auto divide-y divide-gray-600 border-t border-gray-600"
+      class="flex-1 divide-y divide-gray-600 overflow-auto border-t border-gray-600"
     >
       <SideBarFriend
         v-for="friend in friends"

@@ -4,7 +4,7 @@
       <UserAvatar
         :id="user.avatarId"
         :status="status"
-        class="w-8 h-8 rounded-full"
+        class="h-8 w-8 rounded-full"
       />
       <div>
         <p class="font-bold">{{ user.name }}</p>
@@ -15,7 +15,7 @@
       <div @click="remove">
         <TrashIcon
           v-if="removable"
-          class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer hover:bg-gray-500 hover:text-white"
+          class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500 hover:text-white"
         />
       </div>
     </div>

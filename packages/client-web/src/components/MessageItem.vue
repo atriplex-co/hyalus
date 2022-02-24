@@ -8,13 +8,13 @@
   >
     <p
       v-if="showDate && !embedded"
-      class="text-center text-sm text-gray-300 py-4 border-t border-gray-700 mt-4 mb-2"
+      class="mt-4 mb-2 border-t border-gray-700 py-4 text-center text-sm text-gray-300"
     >
       {{ date }}
     </p>
     <div
       v-if="isEvent(message)"
-      class="bg-gray-700 p-3 flex items-center text-sm justify-between group border-l-2"
+      class="group flex items-center justify-between border-l-2 bg-gray-700 p-3 text-sm"
       :class="{
         'border-gray-500': !sentByMe,
         'border-primary-500': sentByMe,
@@ -23,41 +23,41 @@
       <div class="flex space-x-3">
         <FriendsIcon
           v-if="message.type === MessageType.FriendAccept"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <GroupIcon
           v-if="message.type === MessageType.GroupCreate"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <UserAddIcon
           v-if="message.type === MessageType.GroupAdd"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <UserRemoveIcon
           v-if="message.type === MessageType.GroupRemove"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <LogoutIcon
           v-if="message.type === MessageType.GroupLeave"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <PencilIcon
           v-if="message.type === MessageType.GroupName"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <PhotographIcon
           v-if="message.type === MessageType.GroupAvatar"
-          class="w-5 h-5 text-gray-400"
+          class="h-5 w-5 text-gray-400"
         />
         <p>{{ message.dataString }}</p>
       </div>
-      <p class="text-gray-400 opacity-0 group-hover:opacity-100 transition">
+      <p class="text-gray-400 opacity-0 transition group-hover:opacity-100">
         {{ time }}
       </p>
     </div>
     <div
       v-if="!isEvent(message)"
-      class="group text-white flex items-end space-x-2"
+      class="group flex items-end space-x-2 text-white"
       :class="{
         'mx-2': !embedded,
       }"
@@ -65,29 +65,29 @@
       <UserAvatar
         v-if="lastInChunk || embedded"
         :id="user.avatarId"
-        class="w-8 h-8 rounded-full flex-shrink-0"
+        class="h-8 w-8 flex-shrink-0 rounded-full"
       />
       <div v-else class="p-4"></div>
-      <div class="flex-1 space-y-1 flex flex-col items-start max-w-full">
+      <div class="flex max-w-full flex-1 flex-col items-start space-y-1">
         <p
           v-if="firstInChunk && channel.type === ChannelType.Group && !embedded"
-          class="text-xs text-gray-400 mt-1"
+          class="mt-1 text-xs text-gray-400"
         >
           {{ user.name }}
         </p>
-        <div class="flex items-center space-x-3 flex-1 max-w-full">
+        <div class="flex max-w-full flex-1 items-center space-x-3">
           <div
-            class="flex-1 rounded-md text-sm flex flex-col break-words overflow-hidden"
+            class="flex flex-1 flex-col overflow-hidden break-words rounded-md text-sm"
             :class="{
-              'bg-gradient-to-br from-primary-500 to-primary-600 border border-primary-600':
+              'from-primary-500 to-primary-600 border-primary-600 border bg-gradient-to-br':
                 sentByMe && !previewUrl,
-              'bg-gray-700 border border-gray-600': !sentByMe && !previewUrl,
+              'border border-gray-600 bg-gray-700': !sentByMe && !previewUrl,
             }"
           >
             <!-- eslint-disable vue/no-v-html -->
             <div
               v-if="message.type === MessageType.Text"
-              class="p-2 whitespace-pre-wrap"
+              class="whitespace-pre-wrap p-2"
               v-html="message.dataFormatted"
             />
             <!-- eslint-enable -->
@@ -95,7 +95,7 @@
               <div v-if="!previewUrl" class="flex items-center space-x-2 p-2">
                 <div
                   v-if="!embedded"
-                  class="rounded-full bg-primary-400 w-8 h-8 p-2"
+                  class="bg-primary-400 h-8 w-8 rounded-full p-2"
                   :class="{
                     'cursor-pointer': !fileDownloadActive,
                   }"
@@ -121,7 +121,7 @@
                 <img
                   v-if="file.type.split('/')[0] === 'image'"
                   :src="previewUrl"
-                  class="max-h-96 rounded-md border border-gray-600 cursor-pointer"
+                  class="max-h-96 cursor-pointer rounded-md border border-gray-600"
                   @error="delPreview"
                   @click="imageView = true"
                 />
@@ -142,30 +142,30 @@
             </div>
           </div>
           <div
-            class="flex-shrink-0 flex items-center text-gray-400 transition space-x-2"
+            class="flex flex-shrink-0 items-center space-x-2 text-gray-400 transition"
             :class="{
-              'opacity-0 group-hover:opacity-100 pr-12': !embedded,
+              'pr-12 opacity-0 group-hover:opacity-100': !embedded,
               'pr-2': embedded,
             }"
           >
             <template v-if="!embedded">
               <div
                 v-if="sentByMe"
-                class="w-4 h-4 hover:text-gray-200 cursor-pointer"
+                class="h-4 w-4 cursor-pointer hover:text-gray-200"
                 @click="del"
               >
                 <TrashIcon />
               </div>
               <div
                 v-if="sentByMe && message.type === MessageType.Text"
-                class="w-4 h-4 hover:text-gray-200 cursor-pointer"
+                class="h-4 w-4 cursor-pointer hover:text-gray-200"
                 @click="editModal = true"
               >
                 <PencilIcon />
               </div>
               <a
                 v-if="previewUrl"
-                class="w-4 h-4 hover:text-gray-200 cursor-pointer"
+                class="h-4 w-4 cursor-pointer hover:text-gray-200"
                 :href="previewUrl"
                 :download="file?.name"
               >

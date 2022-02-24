@@ -11,16 +11,16 @@
     </template>
     <template #main>
       <ModalError :error="error" />
-      <div class="space-y-2 w-full">
+      <div class="w-full space-y-2">
         <p class="text-sm text-gray-300">User</p>
         <div
           v-if="user"
-          class="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md flex items-center space-x-4"
+          class="flex w-full items-center space-x-4 rounded-md border border-gray-600 bg-gray-800 px-4 py-2"
         >
-          <UserAvatar :id="user.avatarId" class="w-8 h-8 rounded-full" />
+          <UserAvatar :id="user.avatarId" class="h-8 w-8 rounded-full" />
           <div>
-            <p class="text-white font-bold text-sm">{{ user.name }}</p>
-            <p class="text-gray-300 text-sm">@{{ user.username }}</p>
+            <p class="text-sm font-bold text-white">{{ user.name }}</p>
+            <p class="text-sm text-gray-300">@{{ user.username }}</p>
           </div>
         </div>
       </div>

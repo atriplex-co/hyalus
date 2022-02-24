@@ -1,20 +1,20 @@
 <template>
   <div
-    class="fixed left-0 px-4 z-40 w-full"
+    class="fixed left-0 z-40 w-full px-4"
     :class="{
       'top-0': !isDesktop,
       'top-8': isDesktop,
     }"
   >
     <div
-      class="flex items-center justify-between h-10 px-2 text-sm text-white bg-primary-500 my-2 rounded-sm shadow-md"
+      class="bg-primary-500 my-2 flex h-10 items-center justify-between rounded-sm px-2 text-sm text-white shadow-md"
     >
       <div class="flex items-center space-x-2 px-1">
-        <WarningIcon class="w-4 h-4" />
+        <WarningIcon class="h-4 w-4" />
         <p>Hyalus is currently in beta, please report bugs &amp; issues.</p>
       </div>
       <div
-        class="text-white w-6 h-6 p-1 cursor-pointer hover:bg-opacity-25 hover:text-white transition rounded-full bg-black bg-opacity-10"
+        class="h-6 w-6 cursor-pointer rounded-full bg-black bg-opacity-10 p-1 text-white transition hover:bg-opacity-25 hover:text-white"
         @click="hide"
       >
         <CloseIcon />

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative h-3 w-96 bg-gray-900 border border-gray-700 py-px rounded-md"
+    class="relative h-3 w-96 rounded-md border border-gray-700 bg-gray-900 py-px"
   >
     <input
       ref="input"
@@ -8,12 +8,12 @@
       :min="min"
       :max="max"
       :style="style"
-      class="appearance-none h-3 w-96 absolute bg-transparent -top-px"
+      class="absolute -top-px h-3 w-96 appearance-none bg-transparent"
       @input="$emit('update:modelValue', +($event?.target as HTMLInputElement).value)"
     />
     <div
       id="bar"
-      class="absolute h-3 bg-primary-500 rounded-l-md -top-px"
+      class="bg-primary-500 absolute -top-px h-3 rounded-l-md"
       :style="style"
     />
   </div>
@@ -80,7 +80,7 @@ watch(() => props.modelValue, update);
 input::-webkit-slider-thumb {
   appearance: none;
   left: var(--width);
-  @apply w-5 h-5 rounded-full bg-white z-10 absolute -top-1 cursor-[ew-resize];
+  @apply absolute -top-1 z-10 h-5 w-5 cursor-[ew-resize] rounded-full bg-white;
 }
 
 #bar {

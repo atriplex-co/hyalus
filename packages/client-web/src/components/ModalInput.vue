@@ -1,9 +1,9 @@
 <template>
-  <div class="space-y-2 w-full">
+  <div class="w-full space-y-2">
     <p>{{ label }}</p>
     <input
       ref="input"
-      class="w-full px-4 py-2 text-gray-300 transition bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:border-gray-500"
+      class="w-full rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-gray-300 transition focus:border-gray-500 focus:outline-none"
       :type="type"
       :value="modelValue"
       :autocomplete="autocomplete"

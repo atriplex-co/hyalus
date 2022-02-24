@@ -1,22 +1,22 @@
 <template>
   <div
-    class="max-w-xs w-full h-full bg-gray-700 py-4 px-2 overflow-auto text-sm border-l border-gray-600 space-y-4 z-20"
+    class="z-20 h-full w-full max-w-xs space-y-4 overflow-auto border-l border-gray-600 bg-gray-700 py-4 px-2 text-sm"
   >
     <div
-      class="flex items-center space-x-2 text-gray-300 transition cursor-pointer hover:text-white"
+      class="flex cursor-pointer items-center space-x-2 text-gray-300 transition hover:text-white"
       @click="inviteModal = true"
     >
-      <UserAddIcon class="w-8 h-8 p-2 transition bg-gray-600 rounded-full" />
+      <UserAddIcon class="h-8 w-8 rounded-full bg-gray-600 p-2 transition" />
       <p v-if="channel.type === ChannelType.Private">Create group</p>
       <p v-if="channel.type === ChannelType.Group">Invite friends</p>
     </div>
     <div
       v-if="channel.type === ChannelType.Group"
-      class="flex items-center space-x-2 text-gray-400 transition cursor-pointer hover:text-gray-200"
+      class="flex cursor-pointer items-center space-x-2 text-gray-400 transition hover:text-gray-200"
       @click="leave"
     >
       <TrashIcon
-        class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer"
+        class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition"
       />
       <p class="text-gray-200">Leave group</p>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-full flex items-center justify-center bg-primary-500 text-white font-bold"
+    class="bg-primary-500 flex items-center justify-center rounded-full font-bold text-white"
   >
     <p>{{ name.slice(0, 1) }}</p>
   </div>

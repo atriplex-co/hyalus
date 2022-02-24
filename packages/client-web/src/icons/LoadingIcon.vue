@@ -1,5 +1,5 @@
 <template>
-  <svg class="text-white animate-spin" fill="none" viewBox="0 0 24 24">
+  <svg class="animate-spin text-white" fill="none" viewBox="0 0 24 24">
     <circle
       class="opacity-25"
       cx="12"

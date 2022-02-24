@@ -1,11 +1,11 @@
 <template>
-  <div class="py-4 px-6 flex items-center justify-between">
+  <div class="flex items-center justify-between py-4 px-6">
     <div class="flex items-center space-x-6">
       <div
-        class="w-10 h-10 rounded-full p-2 flex-shrink-0"
+        class="h-10 w-10 flex-shrink-0 rounded-full p-2"
         :class="{
           'bg-primary-600 text-white': session.self,
-          'bg-gray-700 text-gray-300 border border-gray-600': !session.self,
+          'border border-gray-600 bg-gray-700 text-gray-300': !session.self,
         }"
       >
         <GlobeIcon v-if="agentType === 'web'" />
@@ -15,15 +15,15 @@
       <div class="space-y-2">
         <p class="font-bold">{{ agentFormatted }}</p>
         <div class="space-y-1">
-          <div class="text-sm flex items-center space-x-2">
+          <div class="flex items-center space-x-2 text-sm">
             <p>IP address:</p>
             <p class="text-gray-400">{{ ip }}</p>
           </div>
-          <div class="text-sm flex items-center space-x-2">
+          <div class="flex items-center space-x-2 text-sm">
             <p>Signed in:</p>
             <p class="text-gray-400">{{ created }}</p>
           </div>
-          <div v-if="!session.self" class="text-sm flex items-center space-x-2">
+          <div v-if="!session.self" class="flex items-center space-x-2 text-sm">
             <p>Active:</p>
             <p class="text-gray-400">{{ lastStart }}</p>
           </div>
@@ -32,7 +32,7 @@
     </div>
     <div v-if="!session.self" @click="del">
       <TrashIcon
-        class="w-8 h-8 p-2 text-gray-400 bg-gray-700 rounded-full cursor-pointer hover:bg-gray-600 hover:text-white transition"
+        class="h-8 w-8 cursor-pointer rounded-full bg-gray-700 p-2 text-gray-400 transition hover:bg-gray-600 hover:text-white"
       />
     </div>
   </div>

@@ -1,14 +1,14 @@
 <template>
   <div
-    class="flex items-center rounded-full shadow-sm transition border h-4 w-10 cursor-pointer"
+    class="flex h-4 w-10 cursor-pointer items-center rounded-full border shadow-sm transition"
     :class="{
       'bg-primary-500 border-transparent': modelValue,
-      'bg-gray-900 border-gray-600': !modelValue,
+      'border-gray-600 bg-gray-900': !modelValue,
     }"
     @click="$emit('update:modelValue', !modelValue)"
   >
     <div
-      class="w-5 h-5 bg-white rounded-full transform transition"
+      class="h-5 w-5 transform rounded-full bg-white transition"
       :class="{
         'translate-x-5': modelValue,
       }"

@@ -1,14 +1,14 @@
 <template>
-  <div class="w-full bg-gray-700 flex flex-col h-full">
+  <div class="flex h-full w-full flex-col bg-gray-700">
     <div
-      class="h-16 flex items-center px-4 text-gray-200 text-2xl font-bold justify-between"
+      class="flex h-16 items-center justify-between px-4 text-2xl font-bold text-gray-200"
     >
       <p v-if="type === ChannelType.Private">Direct Messages</p>
       <template v-if="type === ChannelType.Group">
         <p>Groups</p>
         <div @click="groupCreateModal = true">
           <PlusIcon
-            class="w-8 h-8 p-2 text-white rounded-full bg-primary-500 cursor-pointer hover:bg-primary-600 transition"
+            class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
           />
         </div>
       </template>

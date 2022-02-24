@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-between px-2 py-1 transition border bg-gray-900 rounded-md hover:border-gray-600 w-96 cursor-pointer"
+    class="flex w-96 cursor-pointer items-center justify-between rounded-md border bg-gray-900 px-2 py-1 transition hover:border-gray-600"
     :class="{
       'border-gray-700': !record,
       'border-gray-600': record,
@@ -8,7 +8,7 @@
     @click="toggleRecord"
   >
     <p>{{ formatted }}</p>
-    <StopIcon v-if="record" class="w-4 h-4 text-gray-400" />
+    <StopIcon v-if="record" class="h-4 w-4 text-gray-400" />
   </div>
 </template>
 

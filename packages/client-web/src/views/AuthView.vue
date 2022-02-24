@@ -1,13 +1,13 @@
 <template>
   <BetaBanner v-if="store.state.value.config.betaBanner" />
-  <div class="flex-1 h-full flex items-center justify-center bg-gray-900">
+  <div class="flex h-full flex-1 items-center justify-center bg-gray-900">
     <div
-      class="flex flex-col w-full max-w-sm border rounded-md bg-gray-800 border-gray-700 shadow-2xl"
+      class="flex w-full max-w-sm flex-col rounded-md border border-gray-700 bg-gray-800 shadow-2xl"
     >
       <div
-        class="py-6 border-b border-gray-700 space-y-4 flex flex-col items-center"
+        class="flex flex-col items-center space-y-4 border-b border-gray-700 py-6"
       >
-        <AppIcon class="w-16 h-16" />
+        <AppIcon class="h-16 w-16" />
         <p v-if="stage === 'login'" class="text-3xl font-bold">
           Sign in to Hyalus
         </p>
@@ -20,9 +20,9 @@
       </div>
       <div
         v-if="error"
-        class="flex items-center p-4 space-x-4 text-gray-300 border-b rounded-md bg-gray-800 border-gray-700"
+        class="flex items-center space-x-4 rounded-md border-b border-gray-700 bg-gray-800 p-4 text-gray-300"
       >
-        <ErrorIcon class="w-8 h-8" />
+        <ErrorIcon class="h-8 w-8" />
         <p class="flex-1">{{ error }}</p>
       </div>
       <div class="flex flex-col items-center p-8">
@@ -35,7 +35,7 @@
               <p>Username</p>
               <input
                 v-model="username"
-                class="w-full px-4 py-2 text-gray-400 bg-gray-900 border rounded-sm border-gray-700 focus:outline-none focus:border-gray-600"
+                class="w-full rounded-sm border border-gray-700 bg-gray-900 px-4 py-2 text-gray-400 focus:border-gray-600 focus:outline-none"
                 type="text"
                 autocomplete="username"
               />
@@ -47,7 +47,7 @@
               <p>Password</p>
               <input
                 v-model="password"
-                class="w-full px-4 py-2 text-gray-400 bg-gray-900 border rounded-sm border-gray-700 focus:outline-none focus:border-gray-600"
+                class="w-full rounded-sm border border-gray-700 bg-gray-900 px-4 py-2 text-gray-400 focus:border-gray-600 focus:outline-none"
                 type="password"
                 autocomplete="current-password"
               />
@@ -56,7 +56,7 @@
               <p>Confirm password</p>
               <input
                 v-model="passwordConfirm"
-                class="w-full px-4 py-2 text-gray-400 bg-gray-900 border rounded-sm border-gray-700 focus:outline-none focus:border-gray-600"
+                class="w-full rounded-sm border border-gray-700 bg-gray-900 px-4 py-2 text-gray-400 focus:border-gray-600 focus:outline-none"
                 type="password"
                 autocomplete="current-password"
               />
@@ -65,7 +65,7 @@
               <p>Code</p>
               <input
                 v-model="totpCode"
-                class="w-full px-4 py-2 text-gray-400 bg-gray-900 border rounded-sm border-gray-700 focus:outline-none focus:border-gray-600"
+                class="w-full rounded-sm border border-gray-700 bg-gray-900 px-4 py-2 text-gray-400 focus:border-gray-600 focus:outline-none"
                 type="totpCode"
                 autocomplete="current-password"
                 autofocus
@@ -73,7 +73,7 @@
             </div>
           </div>
           <button
-            class="w-full p-2 mt-8 text-white transition rounded-md bg-primary-500 hover:bg-primary-600 focus:outline-none"
+            class="bg-primary-500 hover:bg-primary-600 mt-8 w-full rounded-md p-2 text-white transition focus:outline-none"
           >
             <p v-if="stage === 'login'">Sign in</p>
             <p v-if="stage === 'loginTotp'">Verify</p>
@@ -82,7 +82,7 @@
         </form>
         <p
           v-if="stage === 'login'"
-          class="mt-4 transition text-primary-500 hover:text-primary-600 cursor-pointer"
+          class="text-primary-500 hover:text-primary-600 mt-4 cursor-pointer transition"
           @click="
             error = '';
             stage = 'register';
@@ -92,7 +92,7 @@
         </p>
         <p
           v-if="stage === 'register'"
-          class="mt-4 transition text-primary-500 hover:text-primary-600 cursor-pointer"
+          class="text-primary-500 hover:text-primary-600 mt-4 cursor-pointer transition"
           @click="
             error = '';
             stage = 'login';
@@ -102,7 +102,7 @@
         </p>
         <p
           v-if="stage === 'loginTotp'"
-          class="mt-4 transition text-primary-500 hover:text-primary-600 cursor-pointer"
+          class="text-primary-500 hover:text-primary-600 mt-4 cursor-pointer transition"
           @click="
             error = '';
             stage = 'login';

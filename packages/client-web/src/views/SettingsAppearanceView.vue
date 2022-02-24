@@ -1,21 +1,21 @@
 <template>
   <div class="flex-1 overflow-auto">
-    <div class="h-16 flex items-center px-4 text-gray-200 text-2xl font-bold">
+    <div class="flex h-16 items-center px-4 text-2xl font-bold text-gray-200">
       <router-link
         v-if="isMobile"
-        class="ml-2 w-8 h-8 bg-gray-600 p-1.5 mr-4 rounded-full text-gray-300 hover:bg-gray-500 transition"
+        class="ml-2 mr-4 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"
         to="/settings"
       >
         <ArrowLeftIcon />
       </router-link>
       <p>Appearance</p>
     </div>
-    <div class="border-t border-b border-gray-700 divide-y divide-gray-700">
-      <div class="flex items-center justify-between h-16 px-6">
+    <div class="divide-y divide-gray-700 border-t border-b border-gray-700">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Color Theme</p>
         <InputList>
           <template #selected>
-            <div class="w-3 h-3 rounded-full bg-primary-500" />
+            <div class="bg-primary-500 h-3 w-3 rounded-full" />
             <p>
               {{ formatColorTheme(colorTheme) }}
             </p>
@@ -27,7 +27,7 @@
               @click="colorTheme = usableColorTheme"
             >
               <div
-                class="w-3 h-3 rounded-full"
+                class="h-3 w-3 rounded-full"
                 :class="{
                   'bg-red-500': usableColorTheme === ColorTheme.Red,
                   'bg-orange-500': usableColorTheme === ColorTheme.Orange,
@@ -55,7 +55,7 @@
           </template>
         </InputList>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Font Scale</p>
         <InputList>
           <template #selected>
@@ -72,11 +72,11 @@
           </template>
         </InputList>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Adaptive Layout</p>
         <InputBoolean v-model="adaptiveLayout" />
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Grayscale</p>
         <InputBoolean v-model="grayscale" />
       </div>

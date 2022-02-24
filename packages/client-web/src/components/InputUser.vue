@@ -1,22 +1,22 @@
 <template>
-  <div class="space-y-2 w-full">
+  <div class="w-full space-y-2">
     <p class="text-sm text-gray-300">Friends</p>
-    <div class="bg-gray-800 border rounded-md border-gray-600">
+    <div class="rounded-md border border-gray-600 bg-gray-800">
       <input
         v-model="search"
-        class="w-full px-4 py-2 text-gray-300 border rounded-sm border-gray-600 focus:outline-none focus:border-gray-500 transition bg-transparent -mt-px"
+        class="-mt-px w-full rounded-sm border border-gray-600 bg-transparent px-4 py-2 text-gray-300 transition focus:border-gray-500 focus:outline-none"
         type="text"
         placeholder="Search for friends"
       />
       <div class="h-48 overflow-auto">
-        <div v-if="users.length" class="p-3 space-y-3">
+        <div v-if="users.length" class="space-y-3 p-3">
           <div
             v-for="user in shownUsers"
             :key="user.id"
             class="flex items-center justify-between"
           >
             <div class="flex items-center space-x-4">
-              <UserAvatar :id="user.avatarId" class="w-8 h-8 rounded-full" />
+              <UserAvatar :id="user.avatarId" class="h-8 w-8 rounded-full" />
               <div>
                 <p class="font-bold">{{ user.name }}</p>
                 <p class="text-xs text-gray-400">@{{ user.username }}</p>
@@ -27,9 +27,9 @@
         </div>
         <div
           v-else
-          class="flex flex-col items-center justify-center w-full h-full space-y-4 text-gray-500"
+          class="flex h-full w-full flex-col items-center justify-center space-y-4 text-gray-500"
         >
-          <GroupIcon class="w-8 h-8" />
+          <GroupIcon class="h-8 w-8" />
           <p>No more friends to add</p>
         </div>
       </div>

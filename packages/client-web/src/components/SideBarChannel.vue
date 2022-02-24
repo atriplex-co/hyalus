@@ -1,6 +1,6 @@
 <template>
   <router-link
-    class="flex items-center w-full p-2 space-x-3 cursor-pointer hover:bg-gray-900 transition"
+    class="flex w-full cursor-pointer items-center space-x-3 p-2 transition hover:bg-gray-900"
     :class="{
       'bg-gray-800': selected,
     }"
@@ -10,15 +10,15 @@
       v-if="avatarId || channel.type === ChannelType.Private"
       :id="avatarId"
       :status="status"
-      class="w-8 h-8 rounded-full"
+      class="h-8 w-8 rounded-full"
     />
-    <EmptyAvatar v-else :name="name" class="w-8 h-8" />
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center justify-between w-full">
-        <p class="font-bold text-sm truncate">{{ name }}</p>
+    <EmptyAvatar v-else :name="name" class="h-8 w-8" />
+    <div class="min-w-0 flex-1">
+      <div class="flex w-full items-center justify-between">
+        <p class="truncate text-sm font-bold">{{ name }}</p>
         <p class="text-xs text-gray-400">{{ lastMessageTime }}</p>
       </div>
-      <p class="text-gray-300 text-sm truncate pr-2">{{ lastMessage }}</p>
+      <p class="truncate pr-2 text-sm text-gray-300">{{ lastMessage }}</p>
     </div>
   </router-link>
 </template>

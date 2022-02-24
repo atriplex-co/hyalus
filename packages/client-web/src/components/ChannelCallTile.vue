@@ -3,14 +3,14 @@
     ref="main"
     :class="{
       'cursor-none': !controls,
-      'border border-gray-600 shadow-lg rounded-md overflow-hidden':
+      'overflow-hidden rounded-md border border-gray-600 shadow-lg':
         !isFullscreen,
     }"
     @mousemove="resetControlsTimeout"
     @fullscreenchange="updateIsFullscreen"
   >
     <div
-      class="w-full h-full overflow-hidden rounded-md border border-gray-600"
+      class="h-full w-full overflow-hidden rounded-md border border-gray-600"
       :class="{
         'bg-gray-600': srcObject,
         'bg-primary-500': !srcObject && !tile.user.avatarId,
@@ -23,7 +23,7 @@
       />
     </div>
     <div
-      class="flex items-center justify-center group overflow-hidden w-full h-full absolute top-0 left-0 bg-black bg-opacity-25"
+      class="group absolute top-0 left-0 flex h-full w-full items-center justify-center overflow-hidden bg-black bg-opacity-25"
       :class="{
         'bg-gray-800': srcObject,
         'backdrop-blur-3xl': isFullscreen,
@@ -32,7 +32,7 @@
     >
       <video
         v-if="srcObject"
-        class="w-full h-full"
+        class="h-full w-full"
         :class="{
           'object-cover':
             !isFullscreen && tile.stream?.type !== CallStreamType.DisplayVideo,
@@ -45,30 +45,30 @@
       <UserAvatar
         v-else
         :id="tile.user.avatarId"
-        class="w-[25%] aspect-square rounded-full shadow-2xl"
+        class="aspect-square w-[25%] rounded-full shadow-2xl"
       />
       <div
         v-if="controls"
-        class="absolute -bottom-px -mx-px flex items-end justify-between w-full h-9"
+        class="absolute -bottom-px -mx-px flex h-9 w-full items-end justify-between"
       >
         <div
-          class="flex items-center rounded-tr-md overflow-hidden bg-gray-800 border border-gray-600 space-x-3 px-3 h-full"
+          class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-3"
         >
           <div class="flex items-center space-x-2">
-            <UserAvatar :id="tile.user.avatarId" class="w-5 h-5 rounded-full" />
-            <p class="font-bold text-sm">{{ tile.user.name }}</p>
+            <UserAvatar :id="tile.user.avatarId" class="h-5 w-5 rounded-full" />
+            <p class="text-sm font-bold">{{ tile.user.name }}</p>
           </div>
-          <MicOffIcon v-if="muted" class="w-4 h-4 text-gray-300" />
+          <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
           <DisplayIcon
             v-if="tile.stream?.type === CallStreamType.DisplayVideo"
-            class="w-4 h-4 text-gray-300"
+            class="h-4 w-4 text-gray-300"
           />
         </div>
         <div
-          class="flex items-center rounded-tl-md shadow-md opacity-0 group-hover:opacity-100 transition bg-gray-800 border border-gray-600 text-gray-300 hover:text-white cursor-pointer px-3 h-full"
+          class="flex h-full cursor-pointer items-center rounded-tl-md border border-gray-600 bg-gray-800 px-3 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
           @click="expand"
         >
-          <FullscreenIcon class="w-4 h-4" />
+          <FullscreenIcon class="h-4 w-4" />
         </div>
       </div>
     </div>

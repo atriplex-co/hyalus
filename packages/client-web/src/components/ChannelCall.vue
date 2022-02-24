@@ -1,10 +1,10 @@
 <template>
   <div
     v-if="store.state.value.call"
-    class="flex flex-col p-2 bg-gray-900 relative"
+    class="relative flex flex-col bg-gray-900 p-2"
     :style="`height: ${resizeHeight}px;`"
   >
-    <div ref="tileContainer" class="flex-1 relative">
+    <div ref="tileContainer" class="relative flex-1">
       <ChannelCallTile
         v-for="tile in tiles"
         :key="getTileId(tile)"
@@ -15,11 +15,11 @@
     <div class="flex items-center justify-center space-x-4 p-2">
       <div @click="toggleStream(CallStreamType.Audio)($event)">
         <div
-          class="w-12 h-12 p-3 rounded-full cursor-pointer transition border-2"
+          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
           :class="{
-            'text-white bg-gray-600 hover:bg-gray-600 border-transparent':
+            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
               audioStream,
-            'text-gray-400 border-gray-600 hover:text-gray-300': !audioStream,
+            'border-gray-600 text-gray-400 hover:text-gray-300': !audioStream,
           }"
         >
           <MicIcon v-if="audioStream" />
@@ -28,11 +28,11 @@
       </div>
       <div @click="toggleStream(CallStreamType.Video)($event)">
         <div
-          class="w-12 h-12 p-3 rounded-full cursor-pointer transition border-2"
+          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
           :class="{
-            'text-white bg-gray-600 hover:bg-gray-600 border-transparent':
+            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
               videoStream,
-            'text-gray-400 border-gray-600 hover:text-gray-300': !videoStream,
+            'border-gray-600 text-gray-400 hover:text-gray-300': !videoStream,
           }"
         >
           <VideoIcon v-if="videoStream" />
@@ -41,27 +41,27 @@
       </div>
       <div @click="stop">
         <CallEndIcon
-          class="w-12 h-12 p-3 text-white bg-primary-500 hover:bg-primary-600 rounded-full cursor-pointer transition"
+          class="bg-primary-500 hover:bg-primary-600 h-12 w-12 cursor-pointer rounded-full p-3 text-white transition"
         />
       </div>
       <div @click="toggleStream(CallStreamType.DisplayVideo)($event)">
         <DisplayIcon
-          class="w-12 h-12 p-3 rounded-full cursor-pointer transition border-2"
+          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
           :class="{
-            'text-white bg-gray-600 hover:bg-gray-600 border-transparent':
+            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
               displayVideoStream,
-            'text-gray-400 border-gray-600 hover:text-gray-300':
+            'border-gray-600 text-gray-400 hover:text-gray-300':
               !displayVideoStream,
           }"
         />
       </div>
       <div @click="toggleDeaf">
         <div
-          class="w-12 h-12 p-3 rounded-full cursor-pointer transition border-2"
+          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
           :class="{
-            'text-white bg-gray-600 hover:bg-gray-600 border-transparent':
+            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
               store.state.value.call.deaf,
-            'text-gray-400 border-gray-600 hover:text-gray-300':
+            'border-gray-600 text-gray-400 hover:text-gray-300':
               !store.state.value.call.deaf,
           }"
         >
@@ -76,7 +76,7 @@
       @close="desktopCaptureModal = false"
     />
     <div
-      class="absolute left-0 bottom-0 w-full h-px cursor-ns-resize"
+      class="absolute left-0 bottom-0 h-px w-full cursor-ns-resize"
       @mousedown="resizeMouseDown"
     ></div>
   </div>

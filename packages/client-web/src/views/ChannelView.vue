@@ -1,25 +1,25 @@
 <template>
   <div
     v-if="channel"
-    class="flex-1 flex flex-col w-full h-full overflow-auto"
+    class="flex h-full w-full flex-1 flex-col overflow-auto"
     @paste="processFiles($event.clipboardData)"
     @drop.prevent="processFiles($event.dataTransfer)"
     @dragover.prevent
     @dragstart.prevent
     @dragsend.prevent
   >
-    <div class="shadow-xl z-10 border-b border-gray-700">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center min-w-0">
+    <div class="z-10 border-b border-gray-700 shadow-xl">
+      <div class="flex h-16 justify-between">
+        <div class="flex min-w-0 items-center">
           <router-link
             v-if="isMobile"
-            class="ml-2 w-8 h-8 bg-gray-600 p-1.5 rounded-full text-gray-300 hover:bg-gray-500 transition"
+            class="ml-2 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"
             to="/app"
           >
             <ArrowLeftIcon />
           </router-link>
           <div
-            class="w-16 h-16 flex items-center justify-center"
+            class="flex h-16 w-16 items-center justify-center"
             :class="{ 'cursor-pointer': channel.owner }"
             @click="setAvatar"
           >
@@ -31,44 +31,44 @@
                   ? channel.users[0].status
                   : undefined
               "
-              class="w-10 h-10 rounded-full"
+              class="h-10 w-10 rounded-full"
             />
-            <EmptyAvatar v-else :name="name" class="w-10 h-10" />
+            <EmptyAvatar v-else :name="name" class="h-10 w-10" />
           </div>
-          <div class="flex-1 min-w-0">
+          <div class="min-w-0 flex-1">
             <p
-              class="font-bold text-lg truncate"
+              class="truncate text-lg font-bold"
               :class="{ 'cursor-pointer': channel.owner }"
               @click="setName"
             >
               {{ name }}
             </p>
-            <p class="text-gray-400 text-sm -mt-1">{{ description }}</p>
+            <p class="-mt-1 text-sm text-gray-400">{{ description }}</p>
           </div>
         </div>
-        <div class="flex items-center space-x-2 text-gray-300 px-2">
-          <div v-if="voiceUsers.length" class="flex mr-2 -space-x-2">
+        <div class="flex items-center space-x-2 px-2 text-gray-300">
+          <div v-if="voiceUsers.length" class="mr-2 flex -space-x-2">
             <UserAvatar
               v-for="user in voiceUsersShown"
               :id="user.avatarId"
               :key="user.id"
-              class="border border-gray-900 rounded-full w-7 h-7"
+              class="h-7 w-7 rounded-full border border-gray-900"
             />
             <div
               v-if="voiceUsers.length !== voiceUsersShown.length"
-              class="flex items-center justify-center text-xs font-bold text-white border border-gray-900 rounded-full bg-primary-500 w-7 h-7"
+              class="bg-primary-500 flex h-7 w-7 items-center justify-center rounded-full border border-gray-900 text-xs font-bold text-white"
             >
               <p>+{{ voiceUsers.length - voiceUsersShown.length }}</p>
             </div>
           </div>
           <div
-            class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer hover:bg-gray-500"
+            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
             @click="callStart"
           >
             <PhoneIcon />
           </div>
           <div
-            class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer hover:bg-gray-500"
+            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
             @click="showInfo = !showInfo"
           >
             <DotsIcon />
@@ -87,22 +87,22 @@
       </transition>
       <p
         v-if="!writable"
-        class="px-4 py-2 text-sm bg-gray-900 border-b border-gray-700"
+        class="border-b border-gray-700 bg-gray-900 px-4 py-2 text-sm"
       >
         You can't send messages in this channel.
       </p>
     </div>
-    <div class="flex flex-1 w-full min-h-0 relative">
-      <div v-if="typingStatus" class="absolute p-2 z-10 w-full">
+    <div class="relative flex min-h-0 w-full flex-1">
+      <div v-if="typingStatus" class="absolute z-10 w-full p-2">
         <div
           :class="{
             'pr-80': showInfo,
           }"
         >
           <div
-            class="px-4 py-2 text-sm bg-gray-700 rounded-md border border-gray-600 flex items-center space-x-4 shadow-lg w-full"
+            class="flex w-full items-center space-x-4 rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-sm shadow-lg"
           >
-            <PencilIcon class="w-4 h-4 text-gray-400" />
+            <PencilIcon class="h-4 w-4 text-gray-400" />
             <p>{{ typingStatus }}</p>
           </div>
         </div>
@@ -110,9 +110,9 @@
       <div
         id="messageList"
         ref="messageList"
-        class="flex flex-col flex-1 space-y-1 overflow-auto overflow-x-hidden"
+        class="flex flex-1 flex-col space-y-1 overflow-auto overflow-x-hidden"
       >
-        <div ref="messageListBefore" class="pt-2 flex-1"></div>
+        <div ref="messageListBefore" class="flex-1 pt-2"></div>
         <MessageItem
           v-for="message in channel.messages"
           :key="message.id"
@@ -130,26 +130,26 @@
     </div>
     <div
       v-if="writable"
-      class="flex items-center px-4 py-3 space-x-4 border-t border-gray-700"
+      class="flex items-center space-x-4 border-t border-gray-700 px-4 py-3"
     >
       <textarea
         ref="messageBox"
         v-model="messageBoxText"
         rows="1"
         placeholder="Send a message"
-        class="flex-1 bg-transparent border-transparent outline-none resize-none max-h-32 focus:border-transparent"
+        class="max-h-32 flex-1 resize-none border-transparent bg-transparent outline-none focus:border-transparent"
         @input="messageBoxInput"
         @keydown="messageBoxKeydown"
       />
       <div class="flex space-x-2 text-gray-300">
         <div @click="attachFile">
           <PaperclipIcon
-            class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer hover:bg-gray-500"
+            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
           />
         </div>
         <div @click="messageBoxSubmit">
           <AirplaneIcon
-            class="w-8 h-8 p-2 transition bg-gray-600 rounded-full cursor-pointer hover:bg-gray-500"
+            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
           />
         </div>
       </div>

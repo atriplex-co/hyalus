@@ -11,11 +11,11 @@
     </template>
     <template #main>
       <ModalError v-if="error" :error="error" />
-      <div class="space-y-4 w-full">
+      <div class="w-full space-y-4">
         <p>Are you sure you want to delete this message?</p>
         <div
           ref="container"
-          class="max-h-48 overflow-auto overflow-x-hidden bg-gray-800 border border-gray-600 rounded-md p-2 w-full"
+          class="max-h-48 w-full overflow-auto overflow-x-hidden rounded-md border border-gray-600 bg-gray-800 p-2"
         >
           <slot />
         </div>

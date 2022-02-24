@@ -1,72 +1,72 @@
 <template>
   <div v-if="store.state.value.user" class="flex-1 overflow-auto">
-    <div class="h-16 flex items-center px-4 text-gray-200 text-2xl font-bold">
+    <div class="flex h-16 items-center px-4 text-2xl font-bold text-gray-200">
       <router-link
         v-if="isMobile"
-        class="ml-2 w-8 h-8 bg-gray-600 p-1.5 mr-4 rounded-full text-gray-300 hover:bg-gray-500 transition"
+        class="ml-2 mr-4 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"
         to="/settings"
       >
         <ArrowLeftIcon />
       </router-link>
       <p>Account</p>
     </div>
-    <div class="border-t border-b border-gray-700 divide-y divide-gray-700">
-      <div class="flex items-center justify-between h-16 px-6">
+    <div class="divide-y divide-gray-700 border-t border-b border-gray-700">
+      <div class="flex h-16 items-center justify-between px-6">
         <div class="flex items-center">
           <p class="w-48 font-bold">Avatar</p>
           <UserAvatar
             :id="store.state.value.user.avatarId"
-            class="w-8 h-8 rounded-full"
+            class="h-8 w-8 rounded-full"
           />
         </div>
         <div
-          class="w-8 h-8 p-2 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition cursor-pointer"
+          class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
           @click="setAvatar"
         >
           <PencilIcon />
         </div>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <div class="flex">
           <p class="w-48 font-bold">Name</p>
           <p class="text-gray-400">{{ store.state.value.user.name }}</p>
         </div>
         <div
-          class="w-8 h-8 p-2 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition cursor-pointer"
+          class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
           @click="setNameModal = true"
         >
           <PencilIcon />
         </div>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <div class="flex">
           <p class="w-48 font-bold">Username</p>
           <p class="text-gray-400">@{{ store.state.value.user.username }}</p>
         </div>
         <div
-          class="w-8 h-8 p-2 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition cursor-pointer"
+          class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
           @click="setUsernameModal = true"
         >
           <PencilIcon />
         </div>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <div class="flex">
           <p class="w-48 font-bold">Password</p>
           <p class="text-gray-400">{{ authKeyUpdated }}</p>
         </div>
         <div
-          class="w-8 h-8 p-2 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition cursor-pointer"
+          class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
           @click="setPasswordModal = true"
         >
           <PencilIcon />
         </div>
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">2FA</p>
         <InputBoolean v-model="totpEnabled" />
       </div>
-      <div class="flex items-center justify-between h-16 px-6">
+      <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Typing Indicators</p>
         <InputBoolean v-model="typingEvents" />
       </div>

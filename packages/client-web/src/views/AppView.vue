@@ -1,7 +1,7 @@
 <template>
-  <div class="flex-1 flex">
-    <div class="flex-1 flex flex-col items-center justify-center space-y-6">
-      <AppIcon class="w-24 h-24 filter grayscale opacity-10" />
+  <div class="flex flex-1">
+    <div class="flex flex-1 flex-col items-center justify-center space-y-6">
+      <AppIcon class="h-24 w-24 opacity-10 grayscale filter" />
     </div>
   </div>
 </template>

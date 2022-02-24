@@ -1,11 +1,11 @@
 <template>
-  <div class="w-full bg-gray-700 flex flex-col">
-    <div class="h-16 flex items-center px-4 text-gray-200 text-2xl font-bold">
+  <div class="flex w-full flex-col bg-gray-700">
+    <div class="flex h-16 items-center px-4 text-2xl font-bold text-gray-200">
       <p>Settings</p>
     </div>
-    <div class="border-t border-b border-gray-600 divide-y divide-gray-600">
+    <div class="divide-y divide-gray-600 border-t border-b border-gray-600">
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition"
+        class="flex items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'account',
           'text-gray-300': active !== 'account',
@@ -13,11 +13,11 @@
         to="/settings/account"
         @click="active = 'account'"
       >
-        <UserIcon class="w-5 h-5" />
+        <UserIcon class="h-5 w-5" />
         <p>Account</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition"
+        class="flex items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'sessions',
           'text-gray-300': active !== 'sessions',
@@ -25,11 +25,11 @@
         to="/settings/sessions"
         @click="active = 'sessions'"
       >
-        <DesktopIcon class="w-5 h-5" />
+        <DesktopIcon class="h-5 w-5" />
         <p>Sessions</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition"
+        class="flex items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'appearance',
           'text-gray-300': active !== 'appearance',
@@ -37,11 +37,11 @@
         to="/settings/appearance"
         @click="active = 'appearance'"
       >
-        <EyeIcon class="w-5 h-5" />
+        <EyeIcon class="h-5 w-5" />
         <p>Appearance</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'notifications',
           'text-gray-300': active !== 'notifications',
@@ -49,11 +49,11 @@
         to="/settings/notifications"
         @click="active = 'notifications'"
       >
-        <BellIcon class="w-5 h-5" />
+        <BellIcon class="h-5 w-5" />
         <p>Notifications</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'media',
           'text-gray-300': active !== 'media',
@@ -61,11 +61,11 @@
         to="/settings/media"
         @click="active = 'media'"
       >
-        <VideoIcon class="w-5 h-5" />
+        <VideoIcon class="h-5 w-5" />
         <p>Audio &amp; Video</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'keyboard',
           'text-gray-300': active !== 'keyboard',
@@ -73,11 +73,11 @@
         to="/settings/keyboard"
         @click="active = 'keyboard'"
       >
-        <KeyboardIcon class="w-5 h-5" />
+        <KeyboardIcon class="h-5 w-5" />
         <p>Keyboard Shortcuts</p>
       </router-link>
       <router-link
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'update',
           'text-gray-300': active !== 'update',
@@ -85,12 +85,12 @@
         to="/settings/update"
         @click="active = 'update'"
       >
-        <RefreshIcon class="w-5 h-5" />
+        <RefreshIcon class="h-5 w-5" />
         <p>Updates &amp; Changelog</p>
       </router-link>
       <router-link
         v-if="isDesktop"
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 transition hover:bg-gray-900 hover:text-white"
         :class="{
           'bg-gray-800 text-white': active === 'desktop',
           'text-gray-300': active !== 'desktop',
@@ -98,14 +98,14 @@
         to="/settings/desktop"
         @click="active = 'desktop'"
       >
-        <ChipIcon class="w-5 h-5" />
+        <ChipIcon class="h-5 w-5" />
         <p>Desktop Integration</p>
       </router-link>
       <div
-        class="px-4 py-2 flex items-center space-x-4 hover:bg-gray-900 hover:text-white transition cursor-pointer text-gray-300"
+        class="flex cursor-pointer items-center space-x-4 px-4 py-2 text-gray-300 transition hover:bg-gray-900 hover:text-white"
         @click="logoutModal = true"
       >
-        <LogoutIcon class="w-5 h-5" />
+        <LogoutIcon class="h-5 w-5" />
         <p>Log Out</p>
       </div>
     </div>

@@ -10,27 +10,27 @@
       <DisplayIcon />
     </template>
     <template #main>
-      <div class="space-y-2 w-full">
+      <div class="w-full space-y-2">
         <p class="text-sm text-gray-300">Source</p>
         <div
-          class="w-full bg-gray-800 border border-gray-600 rounded-md h-48 overflow-auto"
+          class="h-48 w-full overflow-auto rounded-md border border-gray-600 bg-gray-800"
         >
           <div
             v-for="source in sources"
             :key="source.id"
-            class="flex items-center justify-between px-3 py-2 space-x-3 cursor-pointer text-gray-300"
+            class="flex cursor-pointer items-center justify-between space-x-3 px-3 py-2 text-gray-300"
             :class="{
               'hover:bg-gray-900': selectedSourceId !== source.id,
               'bg-gray-900': selectedSourceId === source.id,
             }"
             @click="selectedSourceId = source.id"
           >
-            <div class="flex items-center w-full min-w-0 space-x-3">
+            <div class="flex w-full min-w-0 items-center space-x-3">
               <img
-                class="w-12 rounded-sm shadow-sm border border-gray-700"
+                class="w-12 rounded-sm border border-gray-700 shadow-sm"
                 :src="source.thumbnail"
               />
-              <p class="text-xs font-bold truncate">{{ source.name }}</p>
+              <p class="truncate text-xs font-bold">{{ source.name }}</p>
             </div>
           </div>
         </div>

@@ -10,41 +10,41 @@
       <LockIcon />
     </template>
     <template #main>
-      <div class="rounded-md border border-gray-600 overflow-hidden">
+      <div class="overflow-hidden rounded-md border border-gray-600">
         <img
-          class="w-full h-full filter invert contrast-[80%]"
+          class="h-full w-full contrast-[80%] invert filter"
           :src="qrcodeUrl"
         />
       </div>
       <div class="space-y-2 text-sm">
         <a
-          class="flex items-center space-x-3 text-gray-300 hover:text-white group transition"
+          class="group flex items-center space-x-3 text-gray-300 transition hover:text-white"
           href="https://apps.apple.com/us/app/google-authenticator/id388497605"
           target="_blank"
           rel="noreferrer noopener"
         >
-          <AppleIcon class="w-6 h-6 text-gray-400 group-hover:text-gray-200" />
+          <AppleIcon class="h-6 w-6 text-gray-400 group-hover:text-gray-200" />
           <p>Authenticator for iOS</p>
         </a>
         <a
-          class="flex items-center space-x-3 text-gray-300 hover:text-white group transition"
+          class="group flex items-center space-x-3 text-gray-300 transition hover:text-white"
           href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
           target="_blank"
           rel="noreferrer noopener"
         >
           <GooglePlayIcon
-            class="w-6 h-6 text-gray-400 group-hover:text-gray-200"
+            class="h-6 w-6 text-gray-400 group-hover:text-gray-200"
           />
           <p>Authenticator for Android</p>
         </a>
         <div
-          class="flex items-center space-x-3 text-gray-300 hover:text-white group transition"
+          class="group flex items-center space-x-3 text-gray-300 transition hover:text-white"
           :class="{
             'cursor-pointer': !showTotpSecretB32,
           }"
           @click="showTotpSecretB32 = true"
         >
-          <LockIcon class="w-6 h-6 text-gray-400 group-hover:text-gray-200" />
+          <LockIcon class="h-6 w-6 text-gray-400 group-hover:text-gray-200" />
           <p v-if="showTotpSecretB32">{{ totpSecretB32 }}</p>
           <p v-else>Show TOTP secret</p>
         </div>

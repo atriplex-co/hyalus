@@ -6,10 +6,10 @@
   >
     <div class="h-full">
       <div
-        class="flex flex-col items-center justify-center h-full space-y-8 text-sm text-gray-400"
+        class="flex h-full flex-col items-center justify-center space-y-8 text-sm text-gray-400"
       >
-        <AppIcon class="w-20 h-20" />
-        <LoadingIcon class="w-6 h-6" />
+        <AppIcon class="h-20 w-20" />
+        <LoadingIcon class="h-6 w-6" />
       </div>
     </div>
   </transition>

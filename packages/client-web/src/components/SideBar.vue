@@ -7,15 +7,15 @@
       'max-w-[26.25rem]': !isMobile,
     }"
   >
-    <div class="flex flex-col justify-between w-16 bg-gray-900">
+    <div class="flex w-16 flex-col justify-between bg-gray-900">
       <div>
         <div
-          class="h-16 flex items-center justify-center border-b border-gray-700 mt-px"
+          class="mt-px flex h-16 items-center justify-center border-b border-gray-700"
         >
           <div class="relative">
             <UserAvatar
               :id="store.state.value.user.avatarId"
-              class="w-10 h-10 rounded-full cursor-pointer"
+              class="h-10 w-10 cursor-pointer rounded-full"
               :status="store.state.value.user.wantStatus"
               @click="menu !== 'status' ? (menu = 'status') : (menu = '')"
             />
@@ -23,7 +23,7 @@
           </div>
         </div>
         <div
-          class="h-16 flex items-center justify-center text-gray-400 hover:bg-gray-800 cursor-pointer transition hover:text-primary-400"
+          class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
             'text-primary-400':
               store.state.value.sideBarContent ===
@@ -33,10 +33,10 @@
             store.state.value.sideBarContent = SideBarContent.CHANNELS_PRIVATE
           "
         >
-          <ChatIcon class="w-6 h-6" />
+          <ChatIcon class="h-6 w-6" />
         </div>
         <div
-          class="h-16 flex items-center justify-center text-gray-400 hover:bg-gray-800 cursor-pointer transition hover:text-primary-400"
+          class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
             'text-primary-400':
               store.state.value.sideBarContent ===
@@ -46,45 +46,45 @@
             store.state.value.sideBarContent = SideBarContent.CHANNELS_GROUP
           "
         >
-          <GroupIcon class="w-6 h-6" />
+          <GroupIcon class="h-6 w-6" />
         </div>
         <div
-          class="h-16 flex items-center justify-center text-gray-400 hover:bg-gray-800 cursor-pointer transition hover:text-primary-400 relative"
+          class="hover:text-primary-400 relative flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
             'text-primary-400':
               store.state.value.sideBarContent === SideBarContent.FRIENDS,
           }"
           @click="store.state.value.sideBarContent = SideBarContent.FRIENDS"
         >
-          <FriendsIcon class="w-6 h-6" />
+          <FriendsIcon class="h-6 w-6" />
           <div
             v-if="acceptableFriends"
-            class="absolute bottom-4 right-4 text-xs bg-primary-500 text-white rounded-full h-4 w-4 flex items-center justify-center"
+            class="bg-primary-500 absolute bottom-4 right-4 flex h-4 w-4 items-center justify-center rounded-full text-xs text-white"
           >
             {{ acceptableFriends }}
           </div>
         </div>
         <div
           v-if="store.state.value.updateAvailable"
-          class="h-16 flex items-center justify-center text-gray-400 hover:bg-gray-800 cursor-pointer transition hover:text-primary-400"
+          class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           @click="updateReloadModal = true"
         >
-          <RefreshIcon class="w-6 h-6" />
+          <RefreshIcon class="h-6 w-6" />
         </div>
       </div>
       <div
-        class="h-16 flex items-center justify-center text-gray-400 hover:bg-gray-800 cursor-pointer transition hover:text-primary-400"
+        class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
         :class="{
           'text-primary-400':
             store.state.value.sideBarContent === SideBarContent.SETTINGS,
         }"
         @click="store.state.value.sideBarContent = SideBarContent.SETTINGS"
       >
-        <SettingsIcon class="w-6 h-6" />
+        <SettingsIcon class="h-6 w-6" />
       </div>
     </div>
     <div
-      class="flex-1 bg-gray-700 min-w-0"
+      class="min-w-0 flex-1 bg-gray-700"
       :class="{
         hidden: store.state.value.sideBarContent === SideBarContent.NONE,
       }"

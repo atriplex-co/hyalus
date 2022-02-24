@@ -8,11 +8,11 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="show" class="fixed inset-0 bg-black bg-opacity-75 z-40" />
+      <div v-if="show" class="fixed inset-0 z-40 bg-black bg-opacity-75" />
     </transition>
     <div
       v-if="show"
-      class="fixed inset-0 flex items-center justify-center z-50"
+      class="fixed inset-0 z-50 flex items-center justify-center"
       @mousedown="$emit('close')"
     >
       <transition
@@ -25,15 +25,15 @@
       >
         <div
           v-if="show2"
-          class="bg-gray-700 rounded-md overflow-hidden shadow-2xl"
+          class="overflow-hidden rounded-md bg-gray-700 shadow-2xl"
           @mousedown.stop
         >
           <slot v-if="empty" />
-          <div v-else class="overflow-hidden opacity-100 w-96">
-            <div class="p-4 space-y-4">
+          <div v-else class="w-96 overflow-hidden opacity-100">
+            <div class="space-y-4 p-4">
               <div class="flex items-center space-x-2">
                 <div
-                  class="w-8 h-8 p-2 text-gray-200 rounded-full bg-gray-600 border border-gray-500"
+                  class="h-8 w-8 rounded-full border border-gray-500 bg-gray-600 p-2 text-gray-200"
                 >
                   <slot name="icon" />
                 </div>
@@ -42,23 +42,23 @@
                 </p>
               </div>
               <form
-                class="space-y-4 flex flex-col items-start text-sm text-gray-300 pb-2"
+                class="flex flex-col items-start space-y-4 pb-2 text-sm text-gray-300"
                 @submit.prevent="$emit('submit')"
               >
                 <slot name="main" />
               </form>
             </div>
             <div
-              class="flex items-center justify-end p-4 space-x-2 text-sm bg-gray-800"
+              class="flex items-center justify-end space-x-2 bg-gray-800 p-4 text-sm"
             >
               <p
-                class="px-4 py-2 text-gray-400 cursor-pointer"
+                class="cursor-pointer px-4 py-2 text-gray-400"
                 @click="$emit('close')"
               >
                 Cancel
               </p>
               <p
-                class="px-4 py-2 text-white rounded-md shadow-sm cursor-pointer bg-primary-500"
+                class="bg-primary-500 cursor-pointer rounded-md px-4 py-2 text-white shadow-sm"
                 @click="$emit('submit')"
               >
                 {{ submitText }}
