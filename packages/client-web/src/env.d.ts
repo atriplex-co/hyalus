@@ -94,7 +94,7 @@ declare interface MediaEncoderConfig {
   width?: number;
   height?: number;
   latencyMode?: string;
-  hardwareAcceleration: string;
+  hardwareAcceleration?: string;
 }
 
 declare interface MediaDecoderConfig {
@@ -102,7 +102,7 @@ declare interface MediaDecoderConfig {
   sampleRate?: number;
   numberOfChannels?: number;
   description?: Uint8Array;
-  hardwareAcceleration: string;
+  hardwareAcceleration?: string;
 }
 
 declare interface MediaEncoderOutputInfo {
