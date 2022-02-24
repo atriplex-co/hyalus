@@ -1387,7 +1387,7 @@ export class Socket {
               if (decoder.state !== "configured" || msg.decoderConfigUpdate) {
                 decoder.configure({
                   ...CallStreamDecoderConfig.decode(msg.decoderConfig),
-                  optimizeForLatency: true,
+                  hardwareAcceleration: "prefer-software", // prevent lag (should be fixed later).
                 });
               }
 
