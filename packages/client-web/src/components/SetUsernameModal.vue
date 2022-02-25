@@ -11,7 +11,7 @@
     </template>
     <template #main>
       <ModalError :error="error" />
-      <ModalInput v-model="username" type="text" label="Username" />
+      <ModalInput v-model="username" type="text" label="Username" autofocus />
     </template>
   </ModalBase>
 </template>
