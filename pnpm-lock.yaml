@@ -29,14 +29,14 @@ importers:
   packages/client-desktop:
     specifiers:
       '@hyalusapp/win32-audio': hyalusapp/win32-audio#9b5285a05e27548b53ebfa175ef5c93ef3bafa1f
-      electron: 16.0.7
+      electron: 17.1.0
       electron-builder: ^22.14.5
       electron-updater: ^4.6.1
     dependencies:
       '@hyalusapp/win32-audio': github.com/hyalusapp/win32-audio/9b5285a05e27548b53ebfa175ef5c93ef3bafa1f
       electron-updater: 4.6.5
     devDependencies:
-      electron: 16.0.7
+      electron: 17.1.0
       electron-builder: 22.14.13
 
   packages/client-web:
@@ -3348,8 +3348,8 @@ packages:
       - supports-color
     dev: false
 
-  /electron/16.0.7:
-    resolution: {integrity: sha512-/IMwpBf2svhA1X/7Q58RV+Nn0fvUJsHniG4TizaO7q4iKFYSQ6hBvsLz+cylcZ8hRMKmVy5G1XaMNJID2ah23w==}
+  /electron/17.1.0:
+    resolution: {integrity: sha512-X/qdldmQ8lA15NmeraubWCTtMeTO8K9Ser0wtSCgOXVh53Sr1Ea0VQQ7Q9LuGgWRVz4qtr40cntuEdM8icdmTw==}
     engines: {node: '>= 8.6'}
     hasBin: true
     requiresBuild: true
