@@ -123,5 +123,10 @@ export const router = createRouter({
         next("/app");
       },
     },
+    {
+      name: "not-found",
+      path: "/:pathMatch(.*)*",
+      component: () => import("../views/NotFoundView.vue"),
+    },
   ],
 });
