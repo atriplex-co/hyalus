@@ -426,10 +426,9 @@ export const store = {
           frameRate: +frameRate,
         },
         audio: {
-          noiseSuppression: false,
           autoGainControl: false,
-          echoCancellation: true,
-          echoCancellationType: "software",
+          echoCancellation: false,
+          noiseSuppression: false,
         } as unknown as MediaTrackConstraints, // TS is stupid here and complains.
       });
 
@@ -620,7 +619,7 @@ export const store = {
           break;
         }
 
-        if (!encoder.encodeQueueSize) {
+        if (encoder.encodeQueueSize < 10) {
           encoder.encode(
             value,
             stream.config.requestKeyFrame
