@@ -22,7 +22,6 @@ COPY packages/client-web ./packages/client-web
 RUN pnpm build:client-web
 
 FROM base
-RUN --mount=type=cache,target=/root/.pnpm-store pnpm i --prod
 COPY --from=pkg-server /app/packages/server/dist ./packages/server/dist
 COPY --from=pkg-client-web /app/packages/client-web/dist ./packages/client-web/dist
 ENV NODE_ENV=production
