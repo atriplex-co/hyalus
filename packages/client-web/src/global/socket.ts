@@ -32,9 +32,12 @@ import {
   isMobile,
   notifyGetAvatarUrl,
   notifySend,
+  playSound,
   processMessage,
 } from "./helpers";
 import { CallStreamData, CallStreamDecoderConfig } from "./messages";
+import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
+import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
 
 let updateCheck: string;
 let awayController: AbortController;
@@ -836,6 +839,8 @@ export class Socket {
                 await store.callSendLocalStream(stream, data.id);
               }
             }
+
+            playSound(data.inCall ? SoundStateUp : SoundStateDown);
           }
         }
       }

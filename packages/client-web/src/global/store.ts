@@ -26,7 +26,7 @@ import {
   IState,
   SideBarContent,
 } from "./types";
-import { axios, callUpdatePersist, getWorkerUrl } from "./helpers";
+import { axios, callUpdatePersist, getWorkerUrl, playSound } from "./helpers";
 import { Socket } from "./socket";
 import { CallStreamData, CallStreamDecoderConfig } from "./messages";
 
@@ -462,14 +462,7 @@ export const store = {
     }
 
     if (!opts.silent) {
-      try {
-        const el = document.createElement("audio");
-        el.src = SoundNavigateForward;
-        el.volume = 0.2;
-        el.play();
-      } catch {
-        // prevents sound from playing twice.
-      }
+      playSound(SoundNavigateForward);
     }
 
     await callUpdatePersist();
@@ -680,14 +673,7 @@ export const store = {
     }
 
     if (!opts.silent) {
-      try {
-        const el = document.createElement("audio");
-        el.src = SoundNavigateBackward;
-        el.volume = 0.2;
-        el.play();
-      } catch {
-        //
-      }
+      playSound(SoundNavigateBackward);
     }
 
     await callUpdatePersist();
@@ -719,14 +705,7 @@ export const store = {
       },
     });
 
-    try {
-      const el = document.createElement("audio");
-      el.src = SoundStateUp;
-      el.volume = 0.2;
-      el.play();
-    } catch {
-      //
-    }
+    playSound(SoundStateUp);
 
     await callUpdatePersist();
   },
@@ -749,14 +728,7 @@ export const store = {
 
     delete store.state.value.call;
 
-    try {
-      const el = document.createElement("audio");
-      el.src = SoundStateDown;
-      el.volume = 0.2;
-      el.play();
-    } catch {
-      //
-    }
+    playSound(SoundStateDown);
 
     await callUpdatePersist();
   },
@@ -773,13 +745,6 @@ export const store = {
 
     store.state.value.call.deaf = val;
 
-    try {
-      const el = document.createElement("audio");
-      el.src = val ? SoundNavigateBackwardMin : SoundNavigateForwardMin;
-      el.volume = 0.2;
-      el.play();
-    } catch {
-      //
-    }
+    playSound(val ? SoundNavigateBackwardMin : SoundNavigateForwardMin);
   },
 };

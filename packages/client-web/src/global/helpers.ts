@@ -6,7 +6,14 @@ import sodium from "libsodium-wrappers";
 import { AvatarType, MessageType, Status } from "common";
 import SoundNotification from "../assets/sounds/notification_simple-01.ogg";
 import ImageIcon from "../assets/images/icon-background.png";
-import { ICallPersist, IChannel, IChannelUser, IMessage, IUser } from "./types";
+import {
+  ICallPersist,
+  IChannel,
+  IChannelUser,
+  IHTMLAudioElement,
+  IMessage,
+  IUser,
+} from "./types";
 import { messageFormatter } from "./config";
 
 export const axios = Axios.create();
@@ -178,14 +185,7 @@ export const notifySend = (opts: {
   }
 
   if (store.state.value.config.notifySound) {
-    try {
-      const el = document.createElement("audio");
-      el.src = SoundNotification;
-      el.volume = 0.2;
-      el.play();
-    } catch {
-      //
-    }
+    playSound(SoundNotification);
   }
 
   if (store.state.value.config.notifySystem) {
@@ -228,3 +228,15 @@ export const callUpdatePersist = async () => {
 
 export const isDesktop = !!window.HyalusDesktop;
 export const isMobile = navigator.userAgent.includes("Mobile");
+
+export const playSound = (url: string) => {
+  try {
+    const el = document.createElement("audio") as IHTMLAudioElement;
+    el.src = url;
+    el.volume = 0.5;
+    el.setSinkId(store.state.value.config.audioOutput);
+    el.play();
+  } catch {
+    //
+  }
+};
