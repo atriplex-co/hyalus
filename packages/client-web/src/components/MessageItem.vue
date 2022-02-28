@@ -379,7 +379,7 @@ const fileDownload = async (save: boolean) => {
       const tag = to_base64(randombytes_buf(16));
       let publicKey: Uint8Array | undefined;
 
-      const sendPayload = (val: unknown) => {
+      const send = (val: unknown) => {
         if (!publicKey) {
           return;
         }
@@ -418,7 +418,7 @@ const fileDownload = async (save: boolean) => {
             return;
           }
 
-          sendPayload({
+          send({
             t: FileChunkRTCType.ICECandidate,
             d: JSON.stringify(candidate),
           });
@@ -533,7 +533,7 @@ const fileDownload = async (save: boolean) => {
               );
               await pc.setLocalDescription(await pc.createAnswer());
 
-              sendPayload({
+              send({
                 t: FileChunkRTCType.SDP,
                 d: pc.localDescription?.sdp,
               });

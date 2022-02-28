@@ -290,7 +290,6 @@ export class Socket {
 
         const initPermissions = async () => {
           removeEventListener("mousedown", initPermissions);
-          removeEventListener("keydown", initPermissions);
 
           try {
             if (!isDesktop) {
@@ -353,11 +352,15 @@ export class Socket {
           }
 
           try {
-            if (!isDesktop) {
-              await IdleDetector.requestPermission();
+            if (!window.IdleDetector) {
+              return;
             }
 
-            const awayDetector = new IdleDetector();
+            if (!isDesktop) {
+              await window.IdleDetector.requestPermission();
+            }
+
+            const awayDetector = new window.IdleDetector();
             awayController = new AbortController();
 
             awayDetector.addEventListener("change", () => {
@@ -393,7 +396,6 @@ export class Socket {
 
         if (!isDesktop) {
           addEventListener("mousedown", initPermissions);
-          addEventListener("keydown", initPermissions);
         } else {
           await initPermissions();
         }
@@ -1114,7 +1116,7 @@ export class Socket {
         const pc = new RTCPeerConnection({ iceServers });
         const dc = pc.createDataChannel("");
 
-        const sendPayload = (val: unknown) => {
+        const send = (val: unknown) => {
           const json = JSON.stringify(val);
           console.debug("f_rtc/tx: %o", JSON.parse(json)); // yes, there's a reason for this.
           const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
@@ -1189,7 +1191,7 @@ export class Socket {
             return;
           }
 
-          sendPayload({
+          send({
             t: FileChunkRTCType.ICECandidate,
             d: JSON.stringify(candidate),
           });
@@ -1220,7 +1222,7 @@ export class Socket {
 
         await pc.setLocalDescription(await pc.createOffer());
 
-        sendPayload({
+        send({
           t: FileChunkRTCType.SDP,
           d: pc.localDescription?.sdp,
         });
@@ -1266,6 +1268,7 @@ export class Socket {
           ...dataDecrypted,
           mt: CallRTCDataType[dataDecrypted.mt],
           st: CallStreamType[dataDecrypted.st],
+          userId: user.id,
         });
 
         if (dataDecrypted.mt === CallRTCDataType.RemoteTrackOffer) {
@@ -1280,13 +1283,14 @@ export class Socket {
             ctx = new AudioContext();
           }
 
-          const sendPayload = (val: unknown) => {
+          const send = (val: unknown) => {
             const jsonRaw = JSON.stringify(val);
             const json = JSON.parse(jsonRaw);
             console.debug("c_rtc/tx: %o", {
               ...json,
               mt: CallRTCDataType[json.mt],
               st: CallStreamType[json.st],
+              userId: user.id,
             }); // yes, there's a reason for this.
             const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
 
@@ -1345,7 +1349,7 @@ export class Socket {
               return;
             }
 
-            sendPayload({
+            send({
               mt: CallRTCDataType.LocalTrackICECandidate,
               st: dataDecrypted.st,
               d: JSON.stringify(candidate),
@@ -1381,6 +1385,11 @@ export class Socket {
               try {
                 msg = CallStreamData.decode(combined);
               } catch {
+                return;
+              }
+
+              if (decoder.state === "closed") {
+                pc.close();
                 return;
               }
 
@@ -1431,12 +1440,12 @@ export class Socket {
                 ctx.close();
               }
 
+              stream.decoder.close();
+              stream.writer.close();
+
               if (!store.state.value.call) {
                 return;
               }
-
-              stream.decoder.close();
-              stream.writer.close();
 
               store.state.value.call.remoteStreams =
                 store.state.value.call.remoteStreams.filter(
@@ -1501,7 +1510,7 @@ export class Socket {
           );
           await pc.setLocalDescription(await pc.createAnswer());
 
-          sendPayload({
+          send({
             mt: CallRTCDataType.LocalTrackAnswer,
             st: dataDecrypted.st,
             d: pc.localDescription?.sdp,
@@ -1607,11 +1616,12 @@ export class Socket {
   }
 
   send(msg: ISocketMessage): void {
-    this.ws.send(JSON.stringify(msg));
     console.debug("tx: %o", {
       t: SocketMessageType[msg.t],
       d: msg.d,
     });
+
+    this.ws.send(JSON.stringify(msg));
   }
 
   close(): void {

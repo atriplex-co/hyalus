@@ -499,6 +499,12 @@ export class Socket {
             return;
           }
 
+          if (+this.init > +new Date() - 1000) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1000);
+            });
+          }
+
           const channel = await ChannelModel.findOne({
             _id: Buffer.from(sodium.from_base64(data.channelId)),
             users: {
@@ -532,14 +538,6 @@ export class Socket {
             });
           }
 
-          this.callChannelId = Buffer.from(sodium.from_base64(data.channelId));
-
-          if (+this.init > +new Date() - 1000 * 1) {
-            await new Promise((resolve) => {
-              setTimeout(resolve, 1000);
-            });
-          }
-
           for (const user of channel.users.filter(
             (user) =>
               !user.hidden && user.id.compare((this.session as ISession).userId)
@@ -556,6 +554,8 @@ export class Socket {
               },
             });
           }
+
+          this.callChannelId = Buffer.from(sodium.from_base64(data.channelId));
         }
 
         if (msg.t === SocketMessageType.CCallStop) {
@@ -577,6 +577,12 @@ export class Socket {
             return;
           }
 
+          if (+this.init > +new Date() - 2000) {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 2000);
+            });
+          }
+
           if (!this.callChannelId) {
             return;
           }
@@ -589,7 +595,7 @@ export class Socket {
                 Buffer.from(sodium.from_base64(data.userId))
               ) &&
               socket.callChannelId &&
-              !socket.callChannelId.compare(this.callChannelId as Uint8Array)
+              !socket.callChannelId.compare(this.callChannelId as Buffer)
           );
 
           if (!socket) {

@@ -26,12 +26,7 @@ import {
   IState,
   SideBarContent,
 } from "./types";
-import {
-  axios,
-  callCheckStreams,
-  callUpdatePersist,
-  getWorkerUrl,
-} from "./helpers";
+import { axios, callUpdatePersist, getWorkerUrl } from "./helpers";
 import { Socket } from "./socket";
 import { CallStreamData, CallStreamDecoderConfig } from "./messages";
 
@@ -212,13 +207,14 @@ export const store = {
       return;
     }
 
-    const sendPayload = (val: unknown) => {
+    const send = (val: unknown) => {
       const jsonRaw = JSON.stringify(val);
       const json = JSON.parse(jsonRaw) as ICallRTCData;
       console.debug("c_rtc/tx: %o", {
         ...json,
         mt: CallRTCDataType[json.mt],
         st: CallStreamType[json.st],
+        userId,
       }); // yes, there's a reason for this.
       const nonce = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
 
@@ -241,6 +237,20 @@ export const store = {
       });
     };
 
+    const reset = async () => {
+      if (
+        store.state.value.ready &&
+        store.state.value.call &&
+        stream.track.readyState === "live" &&
+        store.state.value.channels
+          .find((channel) => channel.id === store.state.value.call?.channelId)
+          ?.users.find((user) => user.id === userId)?.inCall &&
+        !stream.peers.find((peer2) => peer2.userId === peer.userId)
+      ) {
+        await this.callSendLocalStream(stream, userId);
+      }
+    };
+
     const pc = new RTCPeerConnection({ iceServers });
     const dc = pc.createDataChannel("", {
       // maxRetransmits: 0,
@@ -259,15 +269,19 @@ export const store = {
         return;
       }
 
-      sendPayload({
+      send({
         mt: CallRTCDataType.RemoteTrackICECandidate,
         st: stream.type,
         d: JSON.stringify(candidate),
       });
     });
 
-    pc.addEventListener("connectionstatechange", () => {
+    pc.addEventListener("connectionstatechange", async () => {
       console.debug(`c_rtc/peer: ${pc.connectionState}`);
+
+      if (pc.connectionState === "failed") {
+        await reset();
+      }
     });
 
     dc.addEventListener("open", () => {
@@ -284,22 +298,12 @@ export const store = {
         setTimeout(resolve, 1000); //idk why but this works.
       });
 
-      if (
-        store.state.value.ready &&
-        store.state.value.call &&
-        stream.track.readyState === "live" &&
-        store.state.value.channels
-          .find((channel) => channel.id === store.state.value.call?.channelId)
-          ?.users.find((user) => user.id === userId)?.inCall &&
-        !stream.peers.find((peer2) => peer2.userId === peer.userId)
-      ) {
-        await this.callSendLocalStream(stream, userId);
-      }
+      await reset();
     });
 
     await pc.setLocalDescription(await pc.createOffer());
 
-    sendPayload({
+    send({
       mt: CallRTCDataType.RemoteTrackOffer,
       st: stream.type,
       d: pc.localDescription?.sdp,
@@ -449,12 +453,6 @@ export const store = {
       return;
     }
 
-    opts.track.addEventListener("ended", async () => {
-      await this.callRemoveLocalStream({
-        type: stream.type,
-      });
-    });
-
     const channel = store.state.value.channels.find(
       (channel) => channel.id === store.state.value.call?.channelId
     );
@@ -516,11 +514,15 @@ export const store = {
             continue;
           }
 
-          for (let i = 0; i < msg.length; i += RTCMaxMessageSize) {
-            peer.dc.send(msg.slice(i).slice(0, RTCMaxMessageSize));
-          }
+          try {
+            for (let i = 0; i < msg.length; i += RTCMaxMessageSize) {
+              peer.dc.send(msg.slice(i).slice(0, RTCMaxMessageSize));
+            }
 
-          peer.dc.send(""); // EOF
+            peer.dc.send(""); // EOF
+          } catch {
+            //
+          }
         }
       },
       error() {
@@ -529,6 +531,7 @@ export const store = {
     };
 
     let encoder!: MediaEncoder;
+    let updateEncoderConfigInterval = 0;
 
     if (track.kind === "audio") {
       encoder = new AudioEncoder(encoderInit);
@@ -559,8 +562,6 @@ export const store = {
       };
 
       let lastSettings = "";
-
-      let updateEncoderConfigInterval = 0;
 
       const updateEncoderConfig = () => {
         {
@@ -609,6 +610,16 @@ export const store = {
     const reader = new MediaStreamTrackProcessor({
       track,
     }).readable.getReader();
+
+    opts.track.addEventListener("ended", async () => {
+      await this.callRemoveLocalStream({
+        type: stream.type,
+      });
+
+      if (updateEncoderConfigInterval) {
+        clearInterval(updateEncoderConfigInterval);
+      }
+    });
 
     // allows the callStartLocalStream func to return.
     (async () => {
@@ -699,8 +710,6 @@ export const store = {
       remoteStreams: [],
       start: new Date(),
       deaf: false,
-      updatePersistInterval: +setInterval(callUpdatePersist, 1000 * 30),
-      checkStreamsInterval: +setInterval(callCheckStreams, 1000 * 1),
     };
 
     store.state.value.socket?.send({
@@ -729,17 +738,14 @@ export const store = {
     for (const stream of store.state.value.call.localStreams) {
       stream.track.stop();
 
-      for (const { pc: peer } of stream.peers) {
-        peer.close();
+      for (const peer of stream.peers) {
+        peer.pc.close();
       }
     }
 
     for (const stream of store.state.value.call.remoteStreams) {
       stream.pc.close();
     }
-
-    clearInterval(store.state.value.call.updatePersistInterval);
-    clearInterval(store.state.value.call.checkStreamsInterval);
 
     delete store.state.value.call;
 

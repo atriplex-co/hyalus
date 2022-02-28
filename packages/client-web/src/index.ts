@@ -36,6 +36,17 @@ console.debug = (...args) => {
     return;
   }
 
+  if (
+    [
+      "CCallRTC",
+      "SCallRTC",
+      "RemoteTrackICECandidate",
+      "LocalTrackICECandidate",
+    ].find((k) => JSON.stringify(args).includes(k))
+  ) {
+    return;
+  }
+
   _debug(...args);
 };
 

@@ -226,31 +226,5 @@ export const callUpdatePersist = async () => {
   );
 };
 
-export const callCheckStreams = async () => {
-  const channel = store.state.value.channels.find(
-    (channel) => channel.id === store.state.value.call?.channelId
-  );
-
-  if (!store.state.value.call || !channel) {
-    return;
-  }
-
-  for (const stream of store.state.value.call.localStreams) {
-    for (const user of channel.users.filter((user) => user.inCall)) {
-      const peer = stream.peers.find((peer) => peer.userId === user.id);
-
-      if (peer) {
-        if (peer.pc.connectionState === "failed") {
-          stream.peers = stream.peers.filter((peer2) => peer2 !== peer);
-        } else {
-          continue;
-        }
-      }
-
-      await store.callSendLocalStream(stream, user.id);
-    }
-  }
-};
-
 export const isDesktop = !!window.HyalusDesktop;
 export const isMobile = navigator.userAgent.includes("Mobile");

@@ -53,6 +53,7 @@ declare interface HyalusDesktop {
 declare interface Window {
   dev: HyalusDev;
   HyalusDesktop?: HyalusDesktop;
+  IdleDetector?: typeof IdleDetector;
 }
 
 // IdleDetector support
