@@ -1,11 +1,12 @@
 import express from "express";
 import {
-  authRequest,
-  validateRequest,
+  authMiddleware,
+  validateMiddleware,
   usernameValidator,
   idValidator,
   getStatus,
   dispatchSocket,
+  rateLimitMiddleware,
 } from "../util";
 import sodium from "libsodium-wrappers";
 import Joi from "joi";
@@ -18,15 +19,24 @@ import { MessageModel } from "../models/message";
 const app = express.Router();
 
 app.post("/", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       body: {
         username: usernameValidator.required(),
       },
-    })
+    }) ||
+    !(await rateLimitMiddleware(req, res, {
+      scope: {
+        tag: "friend-create",
+        user: true,
+      },
+      time: 1000 * 60 * 60,
+      tokens: 50,
+      session,
+    }))
   ) {
     return;
   }
@@ -112,11 +122,11 @@ app.post("/", async (req: express.Request, res: express.Response) => {
 });
 
 app.post("/:id", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       params: {
         id: idValidator.required(),
       },

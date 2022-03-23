@@ -23,8 +23,9 @@ import { AvatarModel, IAvatarVersion } from "../models/avatar";
 import { FriendModel } from "../models/friend";
 import { IUser, UserModel } from "../models/user";
 import { ChannelModel } from "../models/channel";
+import { RateLimitModel } from "../models/ratelimit";
 
-export interface IValidateOpts {
+export interface IValidateMiddlewareOpts {
   body?: Record<string, Joi.Schema>;
   params?: Record<string, Joi.Schema>;
 }
@@ -37,10 +38,10 @@ export const generateToken = (): Buffer => {
   return Buffer.from(sodium.randombytes_buf(32));
 };
 
-export const validateRequest = (
+export const validateMiddleware = (
   req: express.Request,
   res: express.Response,
-  opts: IValidateOpts
+  opts: IValidateMiddlewareOpts
 ): boolean => {
   let error: Joi.ValidationError | undefined;
 
@@ -61,7 +62,7 @@ export const validateRequest = (
   return !error;
 };
 
-export const authRequest = async (
+export const authMiddleware = async (
   req: express.Request,
   res: express.Response
 ): Promise<ISession | undefined> => {
@@ -88,6 +89,77 @@ export const authRequest = async (
   }
 
   return session;
+};
+
+export interface IRateLimitMiddlewareOpts {
+  scope: {
+    tag?: string;
+    ip?: boolean;
+    user?: boolean;
+    session?: boolean;
+  };
+  time: number;
+  tokens: number;
+  session?: ISession;
+}
+
+// we implement the "token bucket" approach here.
+// for reference: https://blog.logrocket.com/rate-limiting-node-js/
+export const rateLimitMiddleware = async (
+  req: express.Request,
+  res: express.Response,
+  opts: IRateLimitMiddlewareOpts
+): Promise<boolean> => {
+  const scope = JSON.stringify({
+    time: opts.time,
+    tokens: opts.tokens, // allows us to have multiple tiers of ratelimits.
+    tag: opts.scope.tag,
+    ip: opts.scope.ip && req.ip,
+    userId:
+      opts.scope.user && opts.session && sodium.to_base64(opts.session.userId),
+    sessionId:
+      opts.scope.session && opts.session && sodium.to_base64(opts.session._id),
+  });
+
+  let rateLimit = await RateLimitModel.findOne({
+    scope,
+  });
+
+  if (rateLimit && rateLimit.tokens === 0) {
+    if (+new Date() - +rateLimit.created > opts.time) {
+      rateLimit.delete();
+      rateLimit = null;
+    } else {
+      res.status(429);
+      res.header(
+        "retry-after",
+        String(
+          Math.ceil((opts.time - (+new Date() - +rateLimit.created)) / 1000)
+        )
+      );
+      res.end();
+
+      return false;
+    }
+  }
+
+  if (!rateLimit) {
+    rateLimit = new RateLimitModel({
+      scope,
+      tokens: opts.tokens,
+      created: new Date(),
+      expires: new Date(+new Date() + opts.time),
+    });
+  }
+
+  res.on("finish", async () => {
+    if (rateLimit && res.statusCode < 400) {
+      --rateLimit.tokens;
+      await rateLimit.save();
+    }
+  });
+
+  return true;
 };
 
 export const binarySchema = (check: (l: number) => boolean): Joi.Schema => {

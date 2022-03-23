@@ -1,5 +1,5 @@
 import express from "express";
-import { avatarIdValidator, validateRequest } from "../util";
+import { avatarIdValidator, validateMiddleware } from "../util";
 import sodium from "libsodium-wrappers";
 import Joi from "joi";
 import { AvatarType } from "common/src";
@@ -11,7 +11,7 @@ app.get(
   "/:avatarId/:type?",
   async (req: express.Request, res: express.Response): Promise<void> => {
     if (
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           avatarId: avatarIdValidator.required(),
           type: Joi.number().valid(AvatarType.WEBP, AvatarType.MP4),

@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  authRequest,
+  authMiddleware,
   channelNameValidator,
   cleanObject,
   dispatchSocket,
@@ -10,7 +10,8 @@ import {
   messageKeysValidator,
   messageTypeValidator,
   processAvatar,
-  validateRequest,
+  rateLimitMiddleware,
+  validateMiddleware,
 } from "../util";
 import sodium from "libsodium-wrappers";
 import { ChannelType, MessageType, SocketMessageType } from "common";
@@ -26,11 +27,11 @@ const app = express.Router();
 app.get(
   "/:id/messages",
   async (req: express.Request, res: express.Response) => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           id: idValidator.required(),
         },
@@ -96,11 +97,11 @@ app.get(
 app.post(
   "/:id/messages",
   async (req: express.Request, res: express.Response) => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           id: idValidator.required(),
         },
@@ -109,7 +110,16 @@ app.post(
           data: messageDataValidator.required(),
           keys: messageKeysValidator.required(),
         },
-      })
+      }) ||
+      !(await rateLimitMiddleware(req, res, {
+        scope: {
+          tag: "message-create",
+          user: true,
+        },
+        session,
+        time: 1000 * 5,
+        tokens: 5,
+      }))
     ) {
       return;
     }
@@ -200,16 +210,25 @@ app.post(
 app.delete(
   "/:channelId/messages/:messageId",
   async (req: express.Request, res: express.Response) => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           channelId: idValidator.required(),
           messageId: idValidator.required(),
         },
-      })
+      }) ||
+      !(await rateLimitMiddleware(req, res, {
+        scope: {
+          tag: "message-delete",
+          user: true,
+        },
+        time: 1000 * 5,
+        tokens: 50,
+        session,
+      }))
     ) {
       return;
     }
@@ -287,16 +306,25 @@ app.delete(
 );
 
 app.post("/", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       body: {
         name: channelNameValidator.required(),
         userIds: Joi.array().items(idValidator).max(50).required(),
       },
-    })
+    }) ||
+    !(await rateLimitMiddleware(req, res, {
+      scope: {
+        tag: "channel-create",
+        user: true,
+      },
+      time: 1000 * 60 * 60 * 24,
+      tokens: 20,
+      session,
+    }))
   ) {
     return;
   }
@@ -426,18 +454,27 @@ app.post("/", async (req: express.Request, res: express.Response) => {
 });
 
 app.post("/:id", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       params: {
         id: idValidator.required(),
       },
       body: {
         name: channelNameValidator,
       },
-    })
+    }) ||
+    !(await rateLimitMiddleware(req, res, {
+      scope: {
+        tag: "message-update",
+        user: true,
+      },
+      time: 1000 * 5,
+      tokens: 5,
+      session,
+    }))
   ) {
     return;
   }
@@ -514,15 +551,24 @@ app.post("/:id", async (req: express.Request, res: express.Response) => {
 });
 
 app.post("/:id/avatar", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       params: {
         id: idValidator.required(),
       },
-    })
+    }) ||
+    !(await rateLimitMiddleware(req, res, {
+      scope: {
+        tag: "channel-set-avatar",
+        user: true,
+      },
+      time: 1000 * 60 * 60,
+      tokens: 30,
+      session,
+    }))
   ) {
     return;
   }
@@ -590,11 +636,11 @@ app.post("/:id/avatar", async (req: express.Request, res: express.Response) => {
 });
 
 app.post("/:id/users", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       params: {
         id: idValidator.required(),
       },
@@ -798,11 +844,11 @@ app.post("/:id/users", async (req: express.Request, res: express.Response) => {
 app.delete(
   "/:channelId/users/:userId",
   async (req: express.Request, res: express.Response) => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           channelId: idValidator.required(),
           userId: idValidator.required(),
@@ -914,11 +960,11 @@ app.delete(
 );
 
 app.delete("/:id", async (req: express.Request, res: express.Response) => {
-  const session = await authRequest(req, res);
+  const session = await authMiddleware(req, res);
 
   if (
     !session ||
-    !validateRequest(req, res, {
+    !validateMiddleware(req, res, {
       params: {
         id: idValidator.required(),
       },
@@ -1044,11 +1090,11 @@ app.delete("/:id", async (req: express.Request, res: express.Response) => {
 app.post(
   "/:channelId/messages/:messageId/data",
   async (req: express.Request, res: express.Response) => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         params: {
           channelId: idValidator.required(),
           messageId: idValidator.required(),
@@ -1057,7 +1103,16 @@ app.post(
           data: messageDataValidator.required(),
           keys: messageKeysValidator.required(),
         },
-      })
+      }) ||
+      !(await rateLimitMiddleware(req, res, {
+        scope: {
+          tag: "message-edit",
+          user: true,
+        },
+        session,
+        time: 1000 * 5,
+        tokens: 5,
+      }))
     ) {
       return;
     }

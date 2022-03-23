@@ -17,6 +17,7 @@ import { UserSchema } from "./models/user";
 import { SessionSchema } from "./models/session";
 import { FriendSchema } from "./models/friend";
 import { MessageSchema } from "./models/message";
+import { RateLimitSchema } from "./models/ratelimit";
 
 (async () => {
   const log = winston.createLogger({
@@ -69,6 +70,9 @@ import { MessageSchema } from "./models/message";
   MessageSchema.index({
     channelId: 1,
     created: 1,
+  });
+  RateLimitSchema.index({
+    scope: 1,
   });
 
   await mongoose.connect(process.env.DB);

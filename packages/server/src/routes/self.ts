@@ -2,7 +2,7 @@ import express from "express";
 import Joi from "joi";
 import {
   authKeyValidator,
-  authRequest,
+  authMiddleware,
   checkTotpCode,
   colorThemeValidator,
   encryptedPrivateKeyValidator,
@@ -14,7 +14,7 @@ import {
   totpSecretValidator,
   typingEventsValidator,
   usernameValidator,
-  validateRequest,
+  validateMiddleware,
   dispatchSocket,
   cleanObject,
   propagateStatusUpdate,
@@ -29,11 +29,11 @@ const app = express.Router();
 app.post(
   "/",
   async (req: express.Request, res: express.Response): Promise<void> => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (
       !session ||
-      !validateRequest(req, res, {
+      !validateMiddleware(req, res, {
         body: {
           username: usernameValidator,
           name: nameValidator,
@@ -218,7 +218,7 @@ app.post(
 app.post(
   "/avatar",
   async (req: express.Request, res: express.Response): Promise<void> => {
-    const session = await authRequest(req, res);
+    const session = await authMiddleware(req, res);
 
     if (!session) {
       return;
