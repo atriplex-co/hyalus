@@ -110,16 +110,25 @@ export const rateLimitMiddleware = async (
   res: express.Response,
   opts: IRateLimitMiddlewareOpts
 ): Promise<boolean> => {
-  const scope = JSON.stringify({
-    time: opts.time,
-    tokens: opts.tokens, // allows us to have multiple tiers of ratelimits.
-    tag: opts.scope.tag,
-    ip: opts.scope.ip && req.ip,
-    userId:
-      opts.scope.user && opts.session && sodium.to_base64(opts.session.userId),
-    sessionId:
-      opts.scope.session && opts.session && sodium.to_base64(opts.session._id),
-  });
+  const scope = Buffer.from(
+    sodium.crypto_generichash(
+      sodium.crypto_generichash_BYTES,
+      JSON.stringify({
+        time: opts.time,
+        tokens: opts.tokens, // allows us to have multiple tiers of ratelimits.
+        tag: opts.scope.tag,
+        ip: opts.scope.ip && req.ip,
+        userId:
+          opts.scope.user &&
+          opts.session &&
+          sodium.to_base64(opts.session.userId),
+        sessionId:
+          opts.scope.session &&
+          opts.session &&
+          sodium.to_base64(opts.session._id),
+      })
+    )
+  );
 
   let rateLimit = await RateLimitModel.findOne({
     scope,

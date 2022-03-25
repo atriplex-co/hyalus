@@ -3,7 +3,7 @@ import { generateId } from "../util";
 
 export interface IRateLimit {
   _id: Buffer;
-  scope: string;
+  scope: Buffer;
   created: Date;
   expires: Date;
   tokens: number;
@@ -17,7 +17,7 @@ export const RateLimitSchema = new mongoose.Schema<IRateLimit>({
     },
   },
   scope: {
-    type: String,
+    type: Buffer.alloc(0),
     required: true,
   },
   created: {
