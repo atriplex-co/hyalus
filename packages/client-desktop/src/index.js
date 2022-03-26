@@ -162,7 +162,7 @@ app.on("ready", () => {
 
   setInterval(() => {
     autoUpdater.checkForUpdates();
-  }, 1000 * 60 * 10);
+  }, 1000 * 60 * 60);
 });
 
 app.on("second-instance", () => {
