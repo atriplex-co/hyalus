@@ -139,14 +139,16 @@ export const rateLimitMiddleware = async (
       rateLimit.delete();
       rateLimit = null;
     } else {
-      res.status(429);
-      res.header(
-        "retry-after",
-        String(
-          Math.ceil((opts.time - (+new Date() - +rateLimit.created)) / 1000)
-        )
+      const retryAfter = Math.ceil(
+        (opts.time - (+new Date() - +rateLimit.created)) / 1000
       );
-      res.end();
+
+      res.status(429);
+      res.header("retry-after", String(retryAfter));
+      res.json({
+        error: "Rate limit exceeded",
+        retryAfter,
+      });
 
       return false;
     }
