@@ -28,10 +28,10 @@ const idbGetStore = async () => {
   return idbDb.transaction("default", "readwrite").objectStore("default");
 };
 
-export const idbGet = async <T>(k: string): Promise<T | null> => {
+export const idbGet = async <T>(k: string): Promise<T | undefined> => {
   const store = await idbGetStore();
 
-  return (await idbPromisify(store.get(k))) as T | null;
+  return (await idbPromisify(store.get(k))) as T | undefined;
 };
 
 export const idbSet = async <T>(k: string, v: T): Promise<T> => {
