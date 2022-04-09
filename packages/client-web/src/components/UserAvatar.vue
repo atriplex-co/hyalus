@@ -20,6 +20,7 @@
       />
       <video
         v-if="type === 'video'"
+        ref="video"
         :src="url"
         class="h-full w-full object-cover"
         :class="{
@@ -47,6 +48,8 @@
 import UserIcon from "../icons/UserIcon.vue";
 import { watch, ref, onUnmounted, PropType } from "vue";
 import { Status } from "common";
+
+const video = ref<HTMLVideoElement | null>(null);
 
 const props = defineProps({
   id: {
@@ -82,18 +85,18 @@ const update = async () => {
   }
 };
 
-const animate =
-  (val: boolean) =>
-  ({ target }: { target: EventTarget | null }) => {
-    const el = target as HTMLVideoElement;
+const animate = (val: boolean) => {
+  if (!video.value) {
+    return;
+  }
 
-    if (val) {
-      el.play();
-    } else {
-      el.pause();
-      el.currentTime = 0;
-    }
-  };
+  if (val) {
+    video.value.play();
+  } else {
+    video.value.pause();
+    video.value.currentTime = 0;
+  }
+};
 
 update();
 watch(() => props.id, update);
