@@ -11,14 +11,11 @@ COPY packages/client-web/package.json ./packages/client-web/package.json
 FROM base as deps
 RUN --mount=type=cache,target=/root/.pnpm-store pnpm i
 
-FROM deps as pkg-server
+FROM deps as build
 COPY packages/common ./packages/common
 COPY packages/server ./packages/server
-RUN pnpm build:server
-
-FROM deps as pkg-client-web
-COPY packages/common ./packages/common
 COPY packages/client-web ./packages/client-web
+RUN pnpm build:server
 RUN pnpm build:client-web
 
 FROM base
