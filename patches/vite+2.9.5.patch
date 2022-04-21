@@ -1,13 +1,14 @@
 diff --git a/node_modules/vite/dist/client/client.mjs b/node_modules/vite/dist/client/client.mjs
-index 7dd58e2..b6ac436 100644
+index 75479bd..3ff549c 100644
 --- a/node_modules/vite/dist/client/client.mjs
 +++ b/node_modules/vite/dist/client/client.mjs
-@@ -185,7 +185,7 @@ console.log('[vite] connecting...');
+@@ -185,7 +185,8 @@ console.log('[vite] connecting...');
  // use server configuration, then fallback to inference
  const socketProtocol = __HMR_PROTOCOL__ || (location.protocol === 'https:' ? 'wss' : 'ws');
  const socketHost = `${__HMR_HOSTNAME__ || location.hostname}:${__HMR_PORT__}`;
 -const socket = new WebSocket(`${socketProtocol}://${socketHost}`, 'vite-hmr');
++//const socket = new WebSocket(`${socketProtocol}://${socketHost}`, 'vite-hmr');
 +const socket = new WebSocket(location.origin.replace("http", "ws"), 'vite-hmr');
  const base = __BASE__ || '/';
+ const messageBuffer = [];
  function warnFailedFetch(err, path) {
-     if (!err.message.match('fetch')) {

@@ -1,5 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+if [[ -d /mnt/wsl ]]; then
+	rm -rf ~/.docker
+fi
+
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
-rm -rf ~/.docker
 docker-compose up -d --build
