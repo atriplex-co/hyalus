@@ -110,6 +110,10 @@ export const rateLimitMiddleware = async (
   res: express.Response,
   opts: IRateLimitMiddlewareOpts
 ): Promise<boolean> => {
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+
   const scope = Buffer.from(
     sodium.crypto_generichash(
       sodium.crypto_generichash_BYTES,
@@ -746,9 +750,11 @@ export const dispatchSocket = async (opts: {
 };
 
 export const cleanObject = <T>(val: T): T => {
-  for (const [k, v] of Object.entries(val)) {
+  const _val = val as Record<string, unknown>;
+
+  for (const [k, v] of Object.entries(_val)) {
     if (v === undefined) {
-      delete (val as Record<string, unknown>)[k];
+      delete _val[k];
     }
   }
 

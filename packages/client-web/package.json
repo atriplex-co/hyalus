@@ -25,7 +25,7 @@
     "highlight.js": "^11.5.1",
     "libsodium-wrappers": "^0.7.10",
     "markdown-it": "^12.3.2",
-    "markdown-it-emoji": "^2.0.0",
+    "markdown-it-emoji": "^2.0.2",
     "markdown-it-link-attributes": "^4.0.0",
     "moment": "^2.29.3",
     "postcss": "^8.4.12",
@@ -38,7 +38,7 @@
     "vite": "^2.9.5",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14",
-    "vue-tsc": "^0.34.8",
+    "vue-tsc": "^0.34.9",
     "workbox-build": "^6.5.3",
     "workbox-precaching": "^6.5.3"
   }
