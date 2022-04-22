@@ -52,16 +52,12 @@ export const ChannelSchema = new mongoose.Schema<IChannel>({
       owner: {
         type: Boolean,
         required: true,
-        default() {
-          return false;
-        },
+        default: false,
       },
       hidden: {
         type: Boolean,
         required: true,
-        default() {
-          return false;
-        },
+        default: false,
       },
       added: {
         type: Date,

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { generateId, generateToken } from "../util";
+import { generateToken } from "../util";
 
 export interface ISession {
   _id: Buffer;
@@ -20,13 +20,7 @@ export interface ISessionPushSubscription {
 }
 
 export const SessionSchema = new mongoose.Schema<ISession>({
-  _id: {
-    type: Buffer.alloc(0),
-    required: true,
-    default() {
-      return generateId();
-    },
-  },
+  _id: Buffer,
   token: {
     type: Buffer.alloc(0),
     required: true,

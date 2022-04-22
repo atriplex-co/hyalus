@@ -29,9 +29,7 @@ export const FriendSchema = new mongoose.Schema<IFriend>({
   accepted: {
     type: Boolean,
     required: true,
-    default() {
-      return false;
-    },
+    default: false,
   },
 });
 

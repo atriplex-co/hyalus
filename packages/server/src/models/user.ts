@@ -74,23 +74,17 @@ export const UserSchema = new mongoose.Schema<IUser>({
   typingEvents: {
     type: Boolean,
     required: true,
-    default() {
-      return true;
-    },
+    default: true,
   },
   colorTheme: {
     type: Number,
     required: true,
-    default() {
-      return ColorTheme.Green;
-    },
+    default: ColorTheme.Green,
   },
   wantStatus: {
     type: Number,
     required: true,
-    default() {
-      return Status.Online;
-    },
+    default: Status.Online,
   },
   totpSecret: {
     type: Buffer.alloc(0),
