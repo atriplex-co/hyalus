@@ -14,7 +14,7 @@ export interface IAvatarVersion {
 
 export const AvatarSchema = new mongoose.Schema<IAvatar>({
   _id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     default() {
       return generateId();

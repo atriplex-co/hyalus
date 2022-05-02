@@ -11,13 +11,13 @@ export interface IRateLimit {
 
 export const RateLimitSchema = new mongoose.Schema<IRateLimit>({
   _id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     default() {
       return generateId();
     },
   },
   scope: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   created: {

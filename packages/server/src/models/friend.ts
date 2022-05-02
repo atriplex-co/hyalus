@@ -10,19 +10,19 @@ export interface IFriend {
 
 export const FriendSchema = new mongoose.Schema<IFriend>({
   _id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     default() {
       return generateId();
     },
   },
   user1Id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     ref: "User",
   },
   user2Id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     ref: "User",
   },

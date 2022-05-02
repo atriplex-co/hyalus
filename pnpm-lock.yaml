@@ -31,14 +31,14 @@ importers:
   packages/client-desktop:
     specifiers:
       '@hyalusapp/win32-audio': github:hyalusapp/win32-audio#9b5285a05e27548b53ebfa175ef5c93ef3bafa1f
-      electron: 18.1.0
+      electron: 18.2.0
       electron-builder: ^23.0.3
       electron-updater: ^5.0.1
     dependencies:
       '@hyalusapp/win32-audio': github.com/hyalusapp/win32-audio/9b5285a05e27548b53ebfa175ef5c93ef3bafa1f
       electron-updater: 5.0.1
     devDependencies:
-      electron: 18.1.0
+      electron: 18.2.0
       electron-builder: 23.0.3
 
   packages/client-web:
@@ -53,7 +53,7 @@ importers:
       '@types/ua-parser-js': ^0.7.36
       '@vitejs/plugin-vue': ^2.3.1
       autoprefixer: ^10.4.6
-      axios: ^0.26.1
+      axios: ^0.27.2
       base32-encode: ^2.0.0
       bson: ^4.6.3
       common: workspace:0.0.1
@@ -67,7 +67,7 @@ importers:
       protobufjs: ^6.11.2
       qrcode: ^1.5.0
       tailwindcss: ^3.0.24
-      tailwindcss-theme-swapper: ^0.5.1
+      tailwindcss-theme-swapper: ^0.6.2
       typescript: ^4.6.4
       ua-parser-js: ^1.0.2
       vite: ^2.9.6
@@ -87,7 +87,7 @@ importers:
       '@types/ua-parser-js': 0.7.36
       '@vitejs/plugin-vue': 2.3.1_vite@2.9.6+vue@3.2.33
       autoprefixer: 10.4.6_postcss@8.4.13
-      axios: 0.26.1
+      axios: 0.27.2
       base32-encode: 2.0.0
       bson: 4.6.3
       common: link:../common
@@ -101,7 +101,7 @@ importers:
       protobufjs: 6.11.2
       qrcode: 1.5.0
       tailwindcss: 3.0.24
-      tailwindcss-theme-swapper: 0.5.1
+      tailwindcss-theme-swapper: 0.6.2
       typescript: 4.6.4
       ua-parser-js: 1.0.2
       vite: 2.9.6
@@ -2318,10 +2318,11 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /axios/0.26.1:
-    resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
+  /axios/0.27.2:
+    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
       follow-redirects: 1.14.9
+      form-data: 4.0.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -2740,11 +2741,26 @@ packages:
       simple-swizzle: 0.2.2
     dev: true
 
+  /color-string/1.9.1:
+    resolution: {integrity: sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==}
+    dependencies:
+      color-name: 1.1.4
+      simple-swizzle: 0.2.2
+    dev: true
+
   /color/3.2.1:
     resolution: {integrity: sha512-aBl7dZI9ENN6fUGC7mWpMTPNHmWUSNan9tuWN6ahh5ZLNk9baLJOnSMlrQkHcrfFgz2/RigjUVAjdx36VcemKA==}
     dependencies:
       color-convert: 1.9.3
       color-string: 1.9.0
+    dev: true
+
+  /color/4.2.3:
+    resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
+    engines: {node: '>=12.5.0'}
+    dependencies:
+      color-convert: 2.0.1
+      color-string: 1.9.1
     dev: true
 
   /colors/1.0.3:
@@ -3216,8 +3232,8 @@ packages:
       - supports-color
     dev: false
 
-  /electron/18.1.0:
-    resolution: {integrity: sha512-P55wdHNTRMo7a/agC84ZEZDYEK/pTBcQdlp8lFbHcx3mO4Kr+Im/J5p2uQgiuXtown31HqNh2paL3V0p+E6rpQ==}
+  /electron/18.2.0:
+    resolution: {integrity: sha512-AN+CKalzA57beuvuI90PVgW/yj6zjw7rpb1h8FvIwBJ3toDC3x0Plfzbzh4Ondecbjci7pSg/NA5ngOk804WIQ==}
     engines: {node: '>= 8.6'}
     hasBin: true
     requiresBuild: true
@@ -6131,9 +6147,10 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /tailwindcss-theme-swapper/0.5.1:
-    resolution: {integrity: sha512-r/1A0DXtocf6ZlKSfNK3E9l8M+qwEkDYZ/cUlvtbvuKTF8Xi7cG9Bwy4TzR3XVk4thszzmcHpTh7/Hp2UXaE+w==}
+  /tailwindcss-theme-swapper/0.6.2:
+    resolution: {integrity: sha512-l+DQJJH9g9/YXKnNApw0W/2gffSkbfBkhVJp8KBolK4E3SR6GbOUpJyuQRfnYbL8KR/BOjDuQntnZM3FZQqEnw==}
     dependencies:
+      color: 4.2.3
       postcss: 8.4.13
       tailwindcss: 3.0.24
     transitivePeerDependencies:

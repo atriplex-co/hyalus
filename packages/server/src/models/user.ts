@@ -21,7 +21,7 @@ export interface IUser {
 
 export const UserSchema = new mongoose.Schema<IUser>({
   _id: {
-    type: Buffer.alloc(0), //idk why tf we have to do this.
+    type: Buffer,
     required: true,
     default() {
       return generateId();
@@ -46,11 +46,11 @@ export const UserSchema = new mongoose.Schema<IUser>({
     },
   },
   salt: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   authKey: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   authKeyUpdated: {
@@ -61,15 +61,15 @@ export const UserSchema = new mongoose.Schema<IUser>({
     },
   },
   publicKey: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   encryptedPrivateKey: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   avatarId: {
-    type: Buffer.alloc(0),
+    type: Buffer,
   },
   typingEvents: {
     type: Boolean,
@@ -87,7 +87,7 @@ export const UserSchema = new mongoose.Schema<IUser>({
     default: Status.Online,
   },
   totpSecret: {
-    type: Buffer.alloc(0),
+    type: Buffer,
   },
 });
 

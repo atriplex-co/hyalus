@@ -20,7 +20,7 @@ export interface IChannelUser {
 
 export const ChannelSchema = new mongoose.Schema<IChannel>({
   _id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     default() {
       return generateId();
@@ -41,12 +41,12 @@ export const ChannelSchema = new mongoose.Schema<IChannel>({
     type: String,
   },
   avatarId: {
-    type: Buffer.alloc(0),
+    type: Buffer,
   },
   users: [
     new mongoose.Schema<IChannelUser>({
       id: {
-        type: Buffer.alloc(0),
+        type: Buffer,
         required: true,
       },
       owner: {

@@ -20,18 +20,18 @@ export interface IMessageKey {
 
 export const MessageSchema = new mongoose.Schema<IMessage>({
   _id: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
     default() {
       return generateId();
     },
   },
   channelId: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   userId: {
-    type: Buffer.alloc(0),
+    type: Buffer,
     required: true,
   },
   type: {
@@ -48,17 +48,17 @@ export const MessageSchema = new mongoose.Schema<IMessage>({
     type: Date,
   },
   data: {
-    type: Buffer.alloc(0),
+    type: Buffer,
   },
   keys: {
     type: [
       new mongoose.Schema<IMessageKey>({
         userId: {
-          type: Buffer.alloc(0),
+          type: Buffer,
           required: true,
         },
         data: {
-          type: Buffer.alloc(0),
+          type: Buffer,
           required: true,
         },
       }),
