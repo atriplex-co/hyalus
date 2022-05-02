@@ -337,7 +337,7 @@ const getMessages = async (method: "before" | "after") => {
   }
 
   channelObj.messages.sort((a, b) => (a.created > b.created ? 1 : -1));
-  // channelObj.messages = channelObj.messages.slice(-100);
+  channelObj.messages = channelObj.messages.slice(-100);
   // TODO: message history
 
   store.state.value.channels.sort((a, b) =>
