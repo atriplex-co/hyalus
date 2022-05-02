@@ -50,7 +50,8 @@ import InputBoolean from "./InputBoolean.vue";
 import { ref, Ref, watch, computed } from "vue";
 import { store } from "../global/store";
 import { CallStreamType } from "common";
-import EchoWorker from "../shared/echoWorker?url";
+import EchoWorker from "../shared/echoWorker?worker";
+import { getWorkerUrl } from "../global/helpers";
 
 interface ISource {
   id: string;
@@ -147,7 +148,7 @@ const submit = async () => {
     selectedSourceId.value.startsWith("window:")
   ) {
     const context = new AudioContext();
-    await context.audioWorklet.addModule(EchoWorker);
+    await context.audioWorklet.addModule(getWorkerUrl(EchoWorker));
     const worklet = new AudioWorkletNode(context, "echo-processor", {
       outputChannelCount: [2],
     });
