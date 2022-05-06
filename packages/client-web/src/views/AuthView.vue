@@ -216,8 +216,8 @@ const submit = async () => {
       const encryptedPrivateKey = from_base64(data.encryptedPrivateKey);
 
       const privateKey = crypto_secretbox_open_easy(
-        encryptedPrivateKey.slice(24),
-        encryptedPrivateKey.slice(0, 24),
+        new Uint8Array(encryptedPrivateKey.buffer, 24),
+        new Uint8Array(encryptedPrivateKey.buffer, 0, 24),
         symKey
       );
 

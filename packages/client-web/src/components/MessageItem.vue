@@ -514,8 +514,8 @@ const fileDownload = async (save: boolean) => {
             } = JSON.parse(
               to_string(
                 crypto_box_open_easy(
-                  dataBytes.slice(crypto_box_NONCEBYTES),
-                  dataBytes.slice(0, crypto_box_NONCEBYTES),
+                  new Uint8Array(dataBytes.buffer, crypto_box_NONCEBYTES),
+                  new Uint8Array(dataBytes.buffer, 0, crypto_box_NONCEBYTES),
                   publicKey,
                   store.state.value.config.privateKey as unknown as Uint8Array
                 )

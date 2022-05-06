@@ -72,15 +72,23 @@ self.addEventListener("push", (e: PushEvent) => {
       const messageKey = sodium.from_base64(data.key);
 
       const messageKeyDecrypted = sodium.crypto_box_open_easy(
-        messageKey.slice(sodium.crypto_box_NONCEBYTES),
-        messageKey.slice(0, sodium.crypto_box_NONCEBYTES),
+        new Uint8Array(messageKey.buffer, sodium.crypto_secretbox_NONCEBYTES),
+        new Uint8Array(
+          messageKey.buffer,
+          0,
+          sodium.crypto_secretbox_NONCEBYTES
+        ),
         sodium.from_base64(extra.user.publicKey),
         config.privateKey
       );
 
       const messageDataDecrypted = sodium.crypto_secretbox_open_easy(
-        messageData.slice(sodium.crypto_secretbox_NONCEBYTES),
-        messageData.slice(0, sodium.crypto_secretbox_NONCEBYTES),
+        new Uint8Array(messageData.buffer, sodium.crypto_secretbox_NONCEBYTES),
+        new Uint8Array(
+          messageData.buffer,
+          0,
+          sodium.crypto_secretbox_NONCEBYTES
+        ),
         messageKeyDecrypted,
         "text"
       );

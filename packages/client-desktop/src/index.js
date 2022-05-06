@@ -13,10 +13,13 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 const { version } = require("../package.json");
 const fs = require("fs");
-const { fork } = require("child_process");
 
-app.commandLine.appendSwitch("disable-renderer-backgrounding");
-app.commandLine.appendSwitch("force_high_performance_gpu");
+let tray;
+let mainWindow;
+let quitting;
+let running;
+
+app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer"); // DO NOT FUCKING TOUCH THIS!
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -24,18 +27,12 @@ if (!app.requestSingleInstanceLock()) {
 
 nativeTheme.themeSource = "dark";
 
-let tray;
-let mainWindow;
-let quitting;
-let started;
-let win32AudioProc;
-
 const start = () => {
-  if (started) {
+  if (running) {
     return;
   }
 
-  started = true;
+  running = true;
 
   app.setAppUserModelId("app.hyalus");
 
@@ -69,6 +66,7 @@ const start = () => {
         }),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      backgroundThrottling: false,
     },
   });
 
@@ -117,14 +115,6 @@ const restart = () => {
   app.releaseSingleInstanceLock();
   app.relaunch();
   app.quit();
-};
-
-const stopWin32AudioCapture = async () => {
-  if (!win32AudioProc) {
-    return;
-  }
-
-  win32AudioProc.kill();
 };
 
 app.on("ready", () => {
@@ -178,7 +168,7 @@ app.on("web-contents-created", (e, webContents) => {
 });
 
 autoUpdater.on("update-downloaded", () => {
-  if (!started) {
+  if (!running) {
     autoUpdater.quitAndInstall(true, true);
   } else {
     //TODO: notify renderer process via IPC of update.
@@ -186,7 +176,6 @@ autoUpdater.on("update-downloaded", () => {
 });
 
 autoUpdater.on("update-not-available", start);
-
 autoUpdater.on("error", start);
 
 ipcMain.handle("close", () => {
@@ -224,25 +213,6 @@ ipcMain.handle("getSources", async () => {
     name: s.name,
     thumbnail: s.thumbnail.toDataURL(),
   }));
-});
-
-ipcMain.on("startWin32AudioCapture", async (e, handle) => {
-  await stopWin32AudioCapture();
-
-  win32AudioProc = fork(path.join(__dirname, "win32-audio.js"), {
-    env: {
-      HANDLE: handle,
-    },
-    serialization: "advanced",
-  });
-
-  win32AudioProc.on("message", (val) => {
-    e.reply("win32AudioCaptureData", val);
-  });
-});
-
-ipcMain.on("stopWin32AudioCapture", async () => {
-  await stopWin32AudioCapture();
 });
 
 ipcMain.handle("getOpenAtLogin", () => {

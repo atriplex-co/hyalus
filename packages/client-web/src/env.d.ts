@@ -40,11 +40,11 @@ declare interface HyalusDesktop {
   >;
   osPlatform: string;
   osRelease: string;
-  startWin32AudioCapture(
-    handle: number,
-    cb: (data: Float32Array) => void
+  startWin32Capture(
+    opts: HyalusWin32CaptureOpts,
+    cb: (data?: HyalusWin32CaptureData) => void
   ): void;
-  stopWin32AudioCapture(): void;
+  stopWin32Capture(): void;
   getOpenAtLogin(): Promise<boolean>;
   setOpenAtLogin(val: boolean): Promise<void>;
   getWasOpenedAtLogin(): Promise<boolean>;
@@ -96,22 +96,68 @@ declare interface MediaEncoderConfig {
   height?: number;
   latencyMode?: string;
   hardwareAcceleration?: string;
+  framerate?: number;
 }
 
 declare interface MediaDecoderConfig {
   codec?: string;
   sampleRate?: number;
   numberOfChannels?: number;
-  description?: Uint8Array;
+  description?: ArrayBuffer;
   hardwareAcceleration?: string;
+  optimizeForLatency: boolean;
 }
 
 declare interface MediaEncoderOutputInfo {
   decoderConfig?: MediaDecoderConfig;
 }
 
-declare interface MediaData {
+declare class MediaData {
   close(): void;
+}
+
+declare class MediaEncoder {
+  constructor(init: MediaEncoderInit);
+  configure(config: MediaEncoderConfig): void;
+  encode(frame: MediaData, opts?: MediaEncoderEncodeOpts): void;
+  close(): void;
+  state: string;
+  encodeQueueSize: number;
+}
+
+declare class MediaDecoder {
+  constructor(init: MediaDecoderInit);
+  configure(config: MediaDecoderConfig): void;
+  decode(chunk: EncodedMediaChunk): void;
+  close(): void;
+  state: string;
+  decodeQueueSize: number;
+}
+
+declare class VideoFrame extends MediaData {
+  constructor(data: Uint8Array, init: VideoFrameInit);
+  codedWidth: number;
+  codedHeight: number;
+}
+
+declare class VideoFrameInit {
+  format: string;
+  codedWidth: number;
+  codedHeight: number;
+  timestamp: number;
+}
+
+declare class AudioData extends MediaData {
+  constructor(init: AudioDataInit);
+}
+
+declare interface AudioDataInit {
+  format: string;
+  sampleRate: number;
+  numberOfFrames: number;
+  numberOfChannels: number;
+  timestamp: number;
+  data: Uint8Array;
 }
 
 declare interface MediaEncoderEncodeOpts {
@@ -135,23 +181,10 @@ declare class MediaStreamTrackGenerator extends MediaStreamTrack {
   writable: WritableStream<MediaData>;
 }
 
-declare class MediaEncoder {
-  constructor(init: MediaEncoderInit);
-  configure(config: MediaEncoderConfig): void;
-  encode(frame: MediaData, opts?: MediaEncoderEncodeOpts): void;
-  close(): void;
-  state: string;
-  encodeQueueSize: number;
-}
-
-declare class MediaDecoder {
-  constructor(init: MediaDecoderInit);
-  configure(config: MediaDecoderConfig): void;
-  decode(chunk: EncodedMediaChunk): void;
-  close(): void;
-  state: string;
-  decodeQueueSize: number;
-}
+declare class VideoEncoder extends MediaEncoder {}
+declare class AudioEncoder extends MediaEncoder {}
+declare class VideoDecoder extends MediaDecoder {}
+declare class AudioDecoder extends MediaDecoder {}
 
 declare class EncodedMediaChunk {
   constructor(init: EncodedMediaChunkInit);
@@ -161,11 +194,6 @@ declare class EncodedMediaChunk {
   byteLength: number;
   copyTo(buf: Uint8Array): void;
 }
-
-declare class VideoEncoder extends MediaEncoder {}
-declare class AudioEncoder extends MediaEncoder {}
-declare class VideoDecoder extends MediaDecoder {}
-declare class AudioDecoder extends MediaDecoder {}
 
 declare class EncodedAudioChunk extends EncodedMediaChunk {}
 declare class EncodedVideoChunk extends EncodedMediaChunk {}
@@ -187,3 +215,23 @@ declare class AudioWorkletProcessor {
 }
 
 declare function registerProcessor(name: string, proc: unknown): void;
+
+declare interface HyalusWin32CaptureOpts {
+  id: string;
+  fps: number;
+  audio: boolean;
+  video: boolean;
+}
+
+declare interface HyalusWin32CaptureData {
+  t: string;
+  d: {
+    width: number;
+    height: number;
+    channels: number;
+    sampleSize: number;
+    sampleRate: number;
+    frames: number;
+    offset: number;
+  };
+}

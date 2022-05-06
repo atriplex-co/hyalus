@@ -28,7 +28,6 @@ import {
 } from "./types";
 import { axios, callUpdatePersist, getWorkerUrl, playSound } from "./helpers";
 import { Socket } from "./socket";
-import { CallStreamData, CallStreamDecoderConfig } from "./messages";
 
 export const store = {
   state: ref<IState>({
@@ -314,7 +313,8 @@ export const store = {
     track?: MediaStreamTrack;
     silent?: boolean;
     config?: ICallLocalStreamConfig;
-  }): Promise<void> {
+    procOverride?: boolean;
+  }): Promise<ICallLocalStream | undefined> {
     if (!store.state.value.call) {
       console.warn("callAddLocalStream missing call");
       return;
@@ -468,39 +468,22 @@ export const store = {
     await callUpdatePersist();
 
     const track = opts.track as MediaStreamTrack;
-    const settings = track.getSettings() as {
-      width: number;
-      height: number;
-      sampleRate: number;
-      channelCount: number;
-    };
 
-    let lastDecoderConfig: Uint8Array;
+    const txBuffer = new Uint8Array(2 * 1024 * 1024);
+    let decoderConfig = "";
 
     const encoderInit = {
       output(chunk: EncodedMediaChunk, info: MediaEncoderOutputInfo) {
         if (info.decoderConfig) {
-          lastDecoderConfig = CallStreamDecoderConfig.encode({
-            codec: info.decoderConfig.codec,
+          decoderConfig = JSON.stringify({
+            ...info.decoderConfig,
             description:
               info.decoderConfig.description &&
-              new Uint8Array(info.decoderConfig.description),
-            sampleRate: info.decoderConfig.sampleRate,
-            numberOfChannels: info.decoderConfig.numberOfChannels,
-          }).finish();
+              sodium.to_base64(new Uint8Array(info.decoderConfig.description)),
+          });
         }
 
-        const data = new Uint8Array(chunk.byteLength);
-        chunk.copyTo(data);
-
-        const msg = CallStreamData.encode({
-          data,
-          type: chunk.type,
-          timestamp: chunk.timestamp,
-          duration: chunk.duration,
-          decoderConfig: lastDecoderConfig,
-          decoderConfigUpdate: !!info.decoderConfig,
-        }).finish();
+        chunk.copyTo(txBuffer);
 
         for (const peer of stream.peers) {
           if (peer.dc.readyState !== "open") {
@@ -508,12 +491,26 @@ export const store = {
           }
 
           try {
-            for (let i = 0; i < msg.length; i += RTCMaxMessageSize) {
-              peer.dc.send(msg.slice(i).slice(0, RTCMaxMessageSize));
+            for (let i = 0; i < chunk.byteLength; i += RTCMaxMessageSize) {
+              peer.dc.send(
+                new Uint8Array(
+                  txBuffer.buffer,
+                  i,
+                  Math.min(RTCMaxMessageSize, chunk.byteLength - i)
+                )
+              );
             }
 
-            peer.dc.send(""); // EOF
+            peer.dc.send(
+              JSON.stringify({
+                type: chunk.type,
+                timestamp: chunk.timestamp,
+                duration: chunk.duration,
+                decoderConfig,
+              })
+            );
           } catch {
+            console.log("fuck 2");
             //
           }
         }
@@ -524,67 +521,111 @@ export const store = {
     };
 
     let encoder!: MediaEncoder;
-    let updateEncoderConfigInterval = 0;
 
     if (track.kind === "audio") {
       encoder = new AudioEncoder(encoderInit);
-      encoder.configure({
-        codec: "opus",
-        bitrate: 256e3,
-        sampleRate: settings.sampleRate,
-        numberOfChannels: settings.channelCount,
-      });
     }
 
     if (track.kind === "video") {
       encoder = new VideoEncoder(encoderInit);
-
-      const encoderConfig = {
-        codec: "avc1.42e01f",
-        // codec: "vp8",
-        // codec: "vp09.00.10.08",
-        latencyMode: "realtime",
-        bitrate: {
-          ["480p30"]: 1500e3,
-          ["480p60"]: 1500e3,
-          ["720p30"]: 3000e3,
-          ["720p60"]: 4000e3,
-          ["1080p30"]: 4000e3,
-          ["1080p60"]: 5000e3,
-        }[this.state.value.config.videoMode],
-      };
-
-      let lastSettings = "";
-
-      const updateEncoderConfig = () => {
-        {
-          if (encoder.state === "closed") {
-            clearInterval(updateEncoderConfigInterval);
-            return;
-          }
-
-          const settings = opts.track?.getSettings() as {
-            width: number;
-            height: number;
-          };
-
-          if (lastSettings === JSON.stringify(settings)) {
-            return;
-          }
-
-          encoder.configure({
-            ...encoderConfig,
-            width: Math.ceil(settings.width / 2) * 2,
-            height: Math.ceil(settings.height / 2) * 2,
-          });
-
-          lastSettings = JSON.stringify(settings);
-        }
-      };
-
-      updateEncoderConfigInterval = +setInterval(updateEncoderConfig, 1000);
-      updateEncoderConfig();
     }
+
+    let lastWidth = 0;
+    let lastHeight = 0;
+
+    const proc = async (
+      data: MediaData,
+      writer?: WritableStreamDefaultWriter<MediaData>
+    ) => {
+      if (encoder.encodeQueueSize > 2) {
+        data.close();
+        return;
+      }
+
+      if (data instanceof AudioData && encoder.state === "unconfigured") {
+        encoder.configure({
+          codec: "opus",
+          bitrate: 256e3,
+          sampleRate: 48000,
+          numberOfChannels: 2,
+        });
+      }
+
+      if (
+        data instanceof VideoFrame &&
+        (encoder.state === "unconfigured" ||
+          lastWidth !== data.codedWidth ||
+          lastHeight !== data.codedHeight)
+      ) {
+        const maxScaledHeight =
+          +store.state.value.config.videoMode.split("p")[0];
+        const maxScaledWidth =
+          {
+            360: 640,
+            480: 854,
+            720: 1280,
+            1080: 1920,
+          }[maxScaledHeight] || maxScaledHeight;
+        const maxFps = +store.state.value.config.videoMode.split("p")[1];
+
+        let scaledWidth = data.codedWidth;
+        let scaledHeight = data.codedHeight;
+
+        if (scaledWidth > maxScaledWidth) {
+          scaledHeight = Math.floor(
+            scaledHeight * (maxScaledWidth / scaledWidth)
+          );
+          scaledWidth = maxScaledWidth;
+        }
+
+        if (scaledHeight > maxScaledHeight) {
+          scaledWidth = Math.floor(
+            scaledWidth * (maxScaledHeight / scaledHeight)
+          );
+          scaledHeight = maxScaledHeight;
+        }
+
+        encoder.configure({
+          codec: "avc1.42e01f",
+          width: Math.floor(scaledWidth / 2) * 2,
+          height: Math.floor(scaledHeight / 2) * 2,
+          framerate: 1,
+          latencyMode: "realtime",
+          hardwareAcceleration: "prefer-hardware",
+          bitrate:
+            ({
+              ["480p30"]: 1500e3,
+              ["480p60"]: 1500e3,
+              ["720p30"]: 3000e3,
+              ["720p60"]: 4000e3,
+              ["1080p30"]: 4000e3,
+              ["1080p60"]: 5000e3,
+            }[this.state.value.config.videoMode] || 5000e3) / maxFps,
+        });
+
+        lastWidth = data.codedWidth;
+        lastHeight = data.codedHeight;
+      }
+
+      encoder.encode(
+        data,
+        stream.config.requestKeyFrame
+          ? {
+              keyFrame: true,
+            }
+          : {} // lets the encoder decide whether to insert an I-frame.
+      );
+
+      if (writer) {
+        await writer.write(data);
+      }
+
+      data.close();
+
+      if (stream.config.requestKeyFrame) {
+        stream.config.requestKeyFrame = false;
+      }
+    };
 
     const stream: ICallLocalStream = {
       type: opts.type,
@@ -592,6 +633,7 @@ export const store = {
       peers: [],
       config: opts.config,
       encoder,
+      proc,
     };
 
     store.state.value.call.localStreams.push(stream);
@@ -600,47 +642,32 @@ export const store = {
       await this.callSendLocalStream(stream, user.id);
     }
 
-    const reader = new MediaStreamTrackProcessor({
-      track,
-    }).readable.getReader();
-
     opts.track.addEventListener("ended", async () => {
       await this.callRemoveLocalStream({
         type: stream.type,
       });
-
-      if (updateEncoderConfigInterval) {
-        clearInterval(updateEncoderConfigInterval);
-      }
     });
 
-    // allows the callStartLocalStream func to return.
-    (async () => {
-      for (;;) {
-        const { value } = await reader.read();
+    if (!opts.procOverride) {
+      // allows us to return and throw this somewhere else on the event loop.
+      (async () => {
+        const reader = new MediaStreamTrackProcessor({
+          track,
+        }).readable.getReader();
 
-        if (!value) {
-          break;
+        for (;;) {
+          const { value } = await reader.read();
+
+          if (!value) {
+            break;
+          }
+
+          await proc(value);
         }
+      })();
+    }
 
-        if (encoder.encodeQueueSize < 10) {
-          encoder.encode(
-            value,
-            stream.config.requestKeyFrame
-              ? {
-                  keyFrame: true,
-                }
-              : {} // lets the encoder decide whether to insert an I-frame.
-          );
-        }
-
-        value.close();
-
-        if (stream.config.requestKeyFrame) {
-          stream.config.requestKeyFrame = false;
-        }
-      }
-    })();
+    return stream;
   },
   async callRemoveLocalStream(opts: {
     type: CallStreamType;

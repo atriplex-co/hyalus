@@ -35,7 +35,6 @@ import {
   playSound,
   processMessage,
 } from "./helpers";
-import { CallStreamData, CallStreamDecoderConfig } from "./messages";
 import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
 import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
 
@@ -1164,8 +1163,15 @@ export class Socket {
             const dataDecrypted = JSON.parse(
               sodium.to_string(
                 sodium.crypto_box_open_easy(
-                  dataBytes.slice(sodium.crypto_box_NONCEBYTES),
-                  dataBytes.slice(0, sodium.crypto_box_NONCEBYTES),
+                  new Uint8Array(
+                    dataBytes.buffer,
+                    sodium.crypto_box_NONCEBYTES
+                  ),
+                  new Uint8Array(
+                    dataBytes.buffer,
+                    0,
+                    sodium.crypto_box_NONCEBYTES
+                  ),
                   publicKey as unknown as Uint8Array,
                   store.state.value.config.privateKey as unknown as Uint8Array
                 )
@@ -1210,7 +1216,13 @@ export class Socket {
           console.debug("f_rtc/dc: open");
 
           for (let i = 0; i < chunk.length; i += RTCMaxMessageSize) {
-            dc.send(chunk.slice(i).slice(0, RTCMaxMessageSize));
+            dc.send(
+              new Uint8Array(
+                chunk.buffer,
+                i,
+                Math.min(RTCMaxMessageSize, chunk.length - i)
+              )
+            );
           }
 
           dc.send(""); // EOF
@@ -1261,8 +1273,8 @@ export class Socket {
         const dataDecrypted: ICallRTCData = JSON.parse(
           sodium.to_string(
             sodium.crypto_box_open_easy(
-              dataBytes.slice(sodium.crypto_box_NONCEBYTES),
-              dataBytes.slice(0, sodium.crypto_box_NONCEBYTES),
+              new Uint8Array(dataBytes.buffer, sodium.crypto_box_NONCEBYTES),
+              new Uint8Array(dataBytes.buffer, 0, sodium.crypto_box_NONCEBYTES),
               user.publicKey,
               store.state.value.config.privateKey
             )
@@ -1362,79 +1374,69 @@ export class Socket {
           });
 
           pc.addEventListener("datachannel", ({ channel: dc }) => {
-            let packets: Uint8Array[] = [];
+            const rxBuffer = new Uint8Array(2 * 1024 * 1024);
+            let rxBufferPos = 0;
+            let decoderConfig = "";
 
             dc.addEventListener("message", async ({ data }) => {
-              if (data) {
-                packets.push(new Uint8Array(data));
+              if (typeof data === "string") {
+                const meta = JSON.parse(data);
+
+                if (decoder.state === "closed") {
+                  pc.close();
+                  return;
+                }
+
+                if (
+                  decoderConfig !== meta.decoderConfig ||
+                  decoder.state === "unconfigured"
+                ) {
+                  decoderConfig = meta.decoderConfig;
+                  const parsedDecoderConfig = JSON.parse(decoderConfig);
+
+                  decoder.configure({
+                    ...parsedDecoderConfig,
+                    description:
+                      parsedDecoderConfig.description &&
+                      sodium.from_base64(parsedDecoderConfig.description),
+                    hardwareAcceleration: "prefer-hardware",
+                  });
+                }
+
+                const chunkInit: EncodedMediaChunkInit = {
+                  data: new Uint8Array(rxBuffer.buffer, 0, rxBufferPos),
+                  type: meta.type,
+                  timestamp: meta.timestamp,
+                  duration: meta.duration,
+                };
+
+                let chunk!: EncodedMediaChunk;
+
+                if (track.kind === "audio") {
+                  chunk = new EncodedAudioChunk(chunkInit);
+                }
+
+                if (track.kind === "video") {
+                  chunk = new EncodedVideoChunk(chunkInit);
+                }
+
+                try {
+                  decoder.decode(chunk);
+                } catch {
+                  //
+                }
+
+                rxBufferPos = 0;
                 return;
               }
 
-              if (!packets.length) {
+              if (rxBufferPos + data.byteLength > rxBuffer.length) {
+                rxBufferPos = 0;
                 return;
               }
 
-              const combined = new Uint8Array(
-                packets.map((p) => p.length).reduce((a, b) => a + b)
-              );
-
-              for (let i = 0, j = 0; i < packets.length; ++i) {
-                combined.set(packets[i], j);
-                j += packets[i].length;
-              }
-
-              packets = [];
-
-              let msg!: CallStreamData;
-
-              try {
-                msg = CallStreamData.decode(combined);
-              } catch {
-                return;
-              }
-
-              if (decoder.state === "closed") {
-                pc.close();
-                return;
-              }
-
-              if (decoder.state !== "configured" || msg.decoderConfigUpdate) {
-                decoder.configure({
-                  ...CallStreamDecoderConfig.decode(msg.decoderConfig),
-                  hardwareAcceleration: "prefer-software", // prevent lag (should be fixed later).
-                });
-              }
-
-              if (decoder.state !== "configured") {
-                return;
-              }
-
-              const chunkInit: EncodedMediaChunkInit = {
-                data: msg.data,
-                type: msg.type,
-                timestamp: msg.timestamp,
-                duration: msg.duration,
-              };
-
-              let chunk!: EncodedMediaChunk;
-
-              if (track.kind === "audio") {
-                chunk = new EncodedAudioChunk(chunkInit);
-              }
-
-              if (track.kind === "video") {
-                chunk = new EncodedVideoChunk(chunkInit);
-              }
-
-              // if (decoder.decodeQueueSize && chunk.type !== "key") {
-              //   return;
-              // }
-
-              try {
-                decoder.decode(chunk);
-              } catch {
-                //
-              }
+              rxBuffer.set(new Uint8Array(data), rxBufferPos);
+              rxBufferPos += data.byteLength;
             });
 
             dc.addEventListener("close", () => {
@@ -1445,7 +1447,7 @@ export class Socket {
                 ctx.close();
               }
 
-              stream.decoder.close();
+              // stream.decoder.close();
               stream.writer.close();
 
               if (!store.state.value.call) {

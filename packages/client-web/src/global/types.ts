@@ -82,6 +82,10 @@ export interface ICallLocalStream {
   peers: ICallLocalStreamPeer[];
   config: ICallLocalStreamConfig;
   encoder: MediaEncoder;
+  proc(
+    data: MediaData,
+    writer?: WritableStreamDefaultWriter<MediaData>
+  ): Promise<void>;
 }
 
 export interface ICallLocalStreamPeer {

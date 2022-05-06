@@ -83,11 +83,11 @@ export const processMessage = (opts: {
       try {
         dataString = sodium.to_string(
           sodium.crypto_secretbox_open_easy(
-            data.slice(sodium.crypto_secretbox_NONCEBYTES),
-            data.slice(0, sodium.crypto_secretbox_NONCEBYTES),
+            new Uint8Array(data.buffer, sodium.crypto_secretbox_NONCEBYTES),
+            new Uint8Array(data.buffer, 0, sodium.crypto_secretbox_NONCEBYTES),
             sodium.crypto_box_open_easy(
-              key.slice(sodium.crypto_box_NONCEBYTES),
-              key.slice(0, sodium.crypto_box_NONCEBYTES),
+              new Uint8Array(key.buffer, sodium.crypto_box_NONCEBYTES),
+              new Uint8Array(key.buffer, 0, sodium.crypto_box_NONCEBYTES),
               publicKey,
               store.state.value.config.privateKey
             )

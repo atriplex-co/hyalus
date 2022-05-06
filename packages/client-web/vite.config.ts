@@ -11,6 +11,8 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
           res.setHeader("service-worker-allowed", "/");
+          // res.setHeader("cross-origin-opener-policy", "same-origin");
+          // res.setHeader("cross-origin-embedder-policy", "require-corp");
           next();
         });
       },

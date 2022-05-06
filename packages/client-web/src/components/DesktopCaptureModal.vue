@@ -35,23 +35,28 @@
           </div>
         </div>
       </div>
-      <div v-if="audioAvailable" class="flex items-center space-x-3 px-2">
+      <div class="flex items-center space-x-3 px-2">
         <InputBoolean v-model="selectedAudio" />
         <p>Share audio</p>
+      </div>
+      <div class="flex items-center space-x-3 px-2">
+        <InputBoolean v-model="win32CaptureAvailable" />
+        <p>Dark blockchain</p>
       </div>
     </template>
   </ModalBase>
 </template>
 
 <script lang="ts" setup>
+/* eslint-disable no-undef */
+
 import ModalBase from "./ModalBase.vue";
 import DisplayIcon from "../icons/DisplayIcon.vue";
 import InputBoolean from "./InputBoolean.vue";
-import { ref, Ref, watch, computed } from "vue";
+import { ref, Ref, watch } from "vue";
 import { store } from "../global/store";
 import { CallStreamType } from "common";
-import EchoWorker from "../shared/echoWorker?worker";
-import { getWorkerUrl } from "../global/helpers";
+import { ICallLocalStream } from "../global/types";
 
 interface ISource {
   id: string;
@@ -69,66 +74,154 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const sources: Ref<ISource[]> = ref([]);
-const selectedSourceId = ref("");
-const selectedAudio = ref(false);
+const selectedSourceId = ref("screen:0:0");
+const selectedAudio = ref(true);
 
-const audioAvailable = computed(() => {
-  if (window.HyalusDesktop?.osPlatform !== "win32") {
-    return false;
-  }
-
-  if (
-    selectedSourceId.value &&
-    selectedSourceId.value.startsWith("window:") &&
-    !(
-      (
-        +window.HyalusDesktop?.osRelease.split(".")[0] >= 10 &&
-        +window.HyalusDesktop?.osRelease.split(".")[2] >= 19041
-      ) // Win10 2004+/Win11 required.
-    )
-  ) {
-    return false;
-  }
-
-  return true;
-});
+const win32CaptureAvailable = ref(
+  window.HyalusDesktop?.osPlatform === "win32" &&
+    +window.HyalusDesktop?.osRelease.split(".")[0] >= 10 &&
+    +window.HyalusDesktop?.osRelease.split(".")[2] >= 19041
+);
 
 const submit = async () => {
   if (!selectedSourceId.value) {
     return;
   }
 
-  const [maxHeight, maxFrameRate] =
-    store.state.value.config.videoMode.split("p");
+  const height = +store.state.value.config.videoMode.split("p")[0];
+  const fps = +store.state.value.config.videoMode.split("p")[1];
+  const width = {
+    360: 640,
+    480: 854,
+    720: 1280,
+    1080: 1920,
+  }[height];
 
-  let stream: MediaStream;
+  let videoTrack: MediaStreamTrack | null = null;
+  let audioTrack: MediaStreamTrack | null = null;
 
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
+  if (win32CaptureAvailable.value) {
+    let videoWriter: WritableStreamDefaultWriter<VideoFrame>;
+    let audioWriter: WritableStreamDefaultWriter<AudioData>;
+    let videoStream: ICallLocalStream | undefined;
+    let audioStream: ICallLocalStream | undefined;
+    let videoTime = 0;
+    let audioTime = 0;
+
+    const videoGenerator = new MediaStreamTrackGenerator({
+      kind: "video",
+    });
+
+    videoTrack = videoGenerator;
+    videoWriter = videoGenerator.writable.getWriter();
+
+    videoStream = await store.callAddLocalStream({
+      type: CallStreamType.DisplayVideo,
+      track: videoTrack,
+      procOverride: true,
+    });
+
+    const videoTrackStop = videoTrack.stop.bind(videoTrack);
+    videoTrack.stop = () => {
+      videoTrackStop();
+      window.HyalusDesktop?.stopWin32Capture();
+    };
+
+    if (selectedAudio.value) {
+      const audioGenerator = new MediaStreamTrackGenerator({
+        kind: "audio",
+      });
+
+      audioTrack = audioGenerator;
+      audioWriter = audioGenerator.writable.getWriter();
+
+      audioStream = await store.callAddLocalStream({
+        type: CallStreamType.DisplayAudio,
+        track: audioTrack,
+        procOverride: true,
+        silent: true,
+      });
+    }
+
+    let buffer: SharedArrayBuffer | null = null;
+    const bufferMessageListener = (e: MessageEvent) => {
+      removeEventListener("message", bufferMessageListener);
+      buffer = e.data;
+    };
+    addEventListener("message", bufferMessageListener);
+
+    window.HyalusDesktop?.startWin32Capture(
+      {
+        id: selectedSourceId.value,
+        fps,
+        video: true,
+        audio: selectedAudio.value,
+      },
+      async (data) => {
+        if (!data) {
+          videoTrack?.stop();
+          return;
+        }
+
+        if (!buffer) {
+          return;
+        }
+
+        if (data.t === "video") {
+          const frame = new VideoFrame(new Uint8Array(buffer), {
+            format: "BGRA",
+            codedWidth: data.d.width,
+            codedHeight: data.d.height,
+            timestamp: videoTime,
+          });
+
+          videoTime += 1000000 / fps;
+
+          await videoStream?.proc(frame, videoWriter);
+        }
+
+        if (data.t === "audio") {
+          const frame = new AudioData({
+            format: "f32",
+            sampleRate: data.d.sampleRate,
+            numberOfFrames: data.d.frames,
+            numberOfChannels: data.d.channels,
+            timestamp: audioTime,
+            data: new Uint8Array(buffer, data.d.offset),
+          });
+
+          audioTime += (data.d.frames / data.d.sampleRate) * 1000000;
+
+          await audioStream?.proc(frame, audioWriter);
+        }
+      }
+    );
+
+    emit("close");
+    return;
+  }
+
+  let stream: MediaStream | null = null;
+
+  const getStream = async (audio: boolean): Promise<MediaStream> => {
+    return await navigator.mediaDevices.getUserMedia({
       video: {
         mandatory: {
           chromeMediaSource: "desktop",
           chromeMediaSourceId: selectedSourceId.value,
-          maxHeight,
-          maxFrameRate,
+          maxWidth: width,
+          maxHeight: height,
+          maxFrameRate: fps,
         },
       },
-      ...(audioAvailable.value &&
-      selectedAudio.value &&
-      selectedSourceId.value.startsWith("screen:")
-        ? {
-            audio: {
-              mandatory: {
-                chromeMediaSource: "desktop",
-              },
-            },
-          }
-        : {}),
-      // what a pile of shit...
-      // eslint-disable-next-line no-undef
+      audio,
     } as unknown as MediaStreamConstraints);
+  };
+
+  try {
+    stream = await getStream(selectedAudio.value);
   } catch {
-    return;
+    stream = await getStream(false);
   }
 
   for (const track of stream.getTracks()) {
@@ -142,45 +235,6 @@ const submit = async () => {
     });
   }
 
-  if (
-    audioAvailable.value &&
-    selectedAudio.value &&
-    selectedSourceId.value.startsWith("window:")
-  ) {
-    const context = new AudioContext();
-    await context.audioWorklet.addModule(getWorkerUrl(EchoWorker));
-    const worklet = new AudioWorkletNode(context, "echo-processor", {
-      outputChannelCount: [2],
-    });
-    const dest = context.createMediaStreamDestination();
-
-    worklet.connect(dest);
-
-    window.HyalusDesktop?.startWin32AudioCapture(
-      +selectedSourceId.value.split(":")[1],
-      (data) => {
-        worklet.port.postMessage(data);
-      }
-    );
-
-    const track = dest.stream.getTracks()[0];
-
-    const _stop = track.stop.bind(track);
-    track.stop = () => {
-      _stop();
-      context.close();
-      window.HyalusDesktop?.stopWin32AudioCapture();
-    };
-
-    await store.callAddLocalStream({
-      type: CallStreamType.DisplayAudio,
-      track,
-      silent: true,
-    });
-  }
-
-  selectedAudio.value = false;
-  selectedSourceId.value = "";
   emit("close");
 };
 
@@ -197,8 +251,8 @@ const updateSources = async () => {
 watch(
   () => props.show,
   async () => {
-    selectedSourceId.value = "";
-    selectedAudio.value = false;
+    selectedSourceId.value = "screen:0:0";
+    selectedAudio.value = true;
 
     if (props.show) {
       await updateSources();
