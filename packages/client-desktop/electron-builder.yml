@@ -4,20 +4,27 @@ productName: Hyalus
 extraMetadata:
   name: Hyalus
   description: Talk on an open platform
+  version: 0.0.61
 win:
-  target: nsis
+  target:
+    - target: nsis-web
+      arch: x64
   artifactName: HyalusDesktop-win32.exe
+linux:
+  target:
+    - target: AppImage
+      arch: x64
+  artifactName: HyalusDesktop-linux.AppImage
 mac:
-  target: zip
+  target:
+    - target: zip
+      arch: x64
   artifactName: HyalusDesktop-osx.zip
   category: public.app-category.social-networking
-linux:
-  target: AppImage
-  artifactName: HyalusDesktop-linux.AppImage
 publish:
   provider: github
-  repo: atriplex-co
-  owner: hyalus
+  repo: hyalus
+  owner: atriplex-co
   vPrefixedTagName: false
   releaseType: release
 files:

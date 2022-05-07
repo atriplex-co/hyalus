@@ -9,21 +9,21 @@
       class="mx-4 transition hover:text-white"
       target="_blank"
       rel="noreferrer noopener"
-      href="https://github.com/hyalusapp/hyalus/commits/master"
+      href="https://github.com/atriplex-co/hyalus/commits/master"
       >Changelog</a
     >
     <a
       class="mx-4 transition hover:text-white"
       target="_blank"
       rel="noreferrer noopener"
-      href="https://github.com/hyalusapp/hyalus/blob/master/SECURITY.md"
+      href="https://github.com/atriplex-co/hyalus/blob/master/SECURITY.md"
       >Security</a
     >
     <a
       class="mx-4 transition hover:text-white"
       target="_blank"
       rel="noreferrer noopener"
-      href="https://github.com/hyalusapp/hyalus"
+      href="https://github.com/atriplex-co/hyalus"
       >Code</a
     >
   </div>

@@ -4,7 +4,7 @@
       <p class="text-2xl font-bold">Download the app</p>
       <div class="mt-8 flex space-x-10 text-gray-300">
         <a
-          href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-win32.exe"
+          href="https://github.com/atriplex-co/hyalus/releases/latest/download/HyalusDesktop-win32.exe"
           target="_blank"
           rel="noreferrer noopener"
           class="h-20 w-20 transition hover:text-white"
@@ -12,7 +12,7 @@
           <WindowsIcon />
         </a>
         <a
-          href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-osx.zip"
+          href="https://github.com/atriplex-co/hyalus/releases/latest/download/HyalusDesktop-osx.zip"
           target="_blank"
           rel="noreferrer noopener"
           class="h-20 w-20 transition hover:text-white"
@@ -20,7 +20,7 @@
           <AppleIcon />
         </a>
         <a
-          href="https://github.com/hyalusapp/hyalus/releases/latest/download/HyalusDesktop-linux.AppImage"
+          href="https://github.com/atriplex-co/hyalus/releases/latest/download/HyalusDesktop-linux.AppImage"
           target="_blank"
           rel="noreferrer noopener"
           class="h-20 w-20 transition hover:text-white"

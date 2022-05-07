@@ -11,7 +11,6 @@ const {
 const path = require("path");
 const os = require("os");
 const { autoUpdater } = require("electron-updater");
-const { version } = require("../package.json");
 const fs = require("fs");
 const pkg = require("../package.json");
 
@@ -133,7 +132,7 @@ const restart = () => {
 app.on("ready", () => {
   tray = new Tray(path.join(__dirname, "../build/icon.png"));
 
-  tray.setToolTip(`Hyalus ${version}`);
+  tray.setToolTip(`${pkg.name} ${pkg.version}`);
 
   tray.setContextMenu(
     Menu.buildFromTemplate([

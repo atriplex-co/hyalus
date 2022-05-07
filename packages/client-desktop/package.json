@@ -1,12 +1,14 @@
 {
   "name": "client-desktop",
-  "version": "0.0.61",
+  "version": "0.0.0",
   "license": "AGPL-3.0-only",
   "main": "src/index.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder -wml",
-    "release": "electron-builder -wmlp always"
+    "build:dev": "electron-builder -wc electron-builder.dev.yml",
+    "release": "pnpm -- build -p always",
+    "release:dev": "pnpm -- build:dev -p always"
   },
   "dependencies": {
     "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#e4fc854bf4185cbcb3abad670b99a346599f5650",
