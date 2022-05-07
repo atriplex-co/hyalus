@@ -173,7 +173,15 @@ import MessageItem from "../components/MessageItem.vue";
 import GroupNameModal from "../components/GroupNameModal.vue";
 import PencilIcon from "../icons/PencilIcon.vue";
 import ChannelInfo from "../components/ChannelInfo.vue";
-import { ref, computed, onMounted, onUnmounted, Ref, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  Ref,
+  nextTick,
+  watch,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { axios, processMessage, isMobile } from "../global/helpers";
 import { store } from "../global/store";
@@ -337,8 +345,6 @@ const getMessages = async (method: "before" | "after") => {
   }
 
   channelObj.messages.sort((a, b) => (a.created > b.created ? 1 : -1));
-  channelObj.messages = channelObj.messages.slice(-100);
-  // TODO: message history
 
   store.state.value.channels.sort((a, b) =>
     (a.messages.at(-1)?.created || a.created) <
@@ -671,6 +677,17 @@ onMounted(async () => {
 onUnmounted(() => {
   clearInterval(updateInterval);
 });
+
+watch(
+  () => channel.value,
+  () => {
+    if (!channel.value) {
+      return;
+    }
+
+    channel.value.messages = channel.value.messages.slice(-100);
+  }
+);
 
 store.state.value.sideBarOpen = false;
 </script>
