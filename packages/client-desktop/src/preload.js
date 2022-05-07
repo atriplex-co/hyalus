@@ -6,7 +6,7 @@ let win32CaptureBuffer;
 
 const stopWin32Capture = () => {
   if (win32Capture) {
-    win32Capture.stop();
+    win32Capture.stopCapture();
   }
 };
 
@@ -14,12 +14,13 @@ const startWin32Capture = (opts, cb) => {
   stopWin32Capture();
 
   if (!win32Capture) {
-    win32Capture = require("@hyalusapp/win32-audio/build/Release/addon.node");
+    win32Capture = require("@atriplex-co/hyalus-win32-utils");
   }
 
   win32CaptureBuffer = new SharedArrayBuffer(32 * 1024 * 1024); // 32MB
+  postMessage(win32CaptureBuffer);
 
-  win32Capture.start(
+  win32Capture.startCapture(
     {
       ...opts,
       buffer: new Uint8Array(win32CaptureBuffer),
@@ -33,8 +34,6 @@ const startWin32Capture = (opts, cb) => {
       cb(data);
     }
   );
-
-  postMessage(buffer);
 };
 
 addEventListener("beforeunload", () => {

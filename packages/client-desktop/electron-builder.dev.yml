@@ -1,0 +1,25 @@
+---
+appId: app.hyalus.dev
+productName: HyalusDev
+extraMetadata:
+  name: HyalusDev
+  description: Talk on an open platform
+win:
+  target: nsis
+  artifactName: HyalusDesktopDev-win32.exe
+mac:
+  target: zip
+  artifactName: HyalusDesktopDev-osx.zip
+  category: public.app-category.social-networking
+linux:
+  target: AppImage
+  artifactName: HyalusDesktopDev-linux.AppImage
+publish:
+  provider: github
+  repo: atriplex-co
+  owner: hyalus2
+  vPrefixedTagName: false
+  releaseType: release
+files:
+  - src
+  - build

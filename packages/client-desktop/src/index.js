@@ -13,6 +13,7 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 const { version } = require("../package.json");
 const fs = require("fs");
+const pkg = require("../package.json");
 
 let tray;
 let mainWindow;
@@ -34,20 +35,26 @@ const start = () => {
 
   running = true;
 
-  app.setAppUserModelId("app.hyalus");
+  if (pkg.name === "Hyalus") {
+    app.setAppUserModelId("app.hyalus");
 
-  const initPath = path.join(app.getPath("userData"), "init");
-  if (!fs.existsSync(initPath)) {
-    fs.writeFileSync(initPath, ""); // so this only runs on the first start.
+    const initPath = path.join(app.getPath("userData"), "init");
+    if (!fs.existsSync(initPath)) {
+      fs.writeFileSync(initPath, ""); // so this only runs on the first start.
 
-    try {
-      app.setLoginItemSettings({
-        openAtLogin: true,
-        openAsHidden: true,
-      });
-    } catch {
-      //
+      try {
+        app.setLoginItemSettings({
+          openAtLogin: true,
+          openAsHidden: true,
+        });
+      } catch {
+        //
+      }
     }
+  }
+
+  if (pkg.name === "HyalusDev") {
+    app.setAppUserModelId("app.hyalus.dev");
   }
 
   mainWindow = new BrowserWindow({
@@ -70,7 +77,13 @@ const start = () => {
     },
   });
 
-  mainWindow.loadURL("https://hyalus.app/app");
+  if (pkg.name === "Hyalus") {
+    mainWindow.loadURL("https://hyalus.app/app");
+  }
+
+  if (pkg.name === "HyalusDev") {
+    mainWindow.loadURL("https://dev.hyalus.app/app");
+  }
 
   mainWindow.on("close", (e) => {
     if (!quitting) {

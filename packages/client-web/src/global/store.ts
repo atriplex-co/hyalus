@@ -8,7 +8,7 @@ import {
   ColorTheme,
   SocketMessageType,
 } from "common";
-import RnnoiseWasm from "@hyalusapp/rnnoise/rnnoise.wasm?url";
+import RnnoiseWasm from "@atriplex-co/hyalus-rnnoise/dist/rnnoise.wasm?url";
 import RnnoiseWorker from "../shared/rnnoiseWorker?worker";
 import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
 import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
@@ -600,6 +600,7 @@ export const store = {
               ["720p60"]: 4000e3,
               ["1080p30"]: 4000e3,
               ["1080p60"]: 5000e3,
+              ["1080p120"]: 10000e3,
             }[this.state.value.config.videoMode] || 5000e3) / maxFps,
         });
 

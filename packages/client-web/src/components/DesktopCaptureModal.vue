@@ -145,6 +145,7 @@ const submit = async () => {
 
     let buffer: SharedArrayBuffer | null = null;
     const bufferMessageListener = (e: MessageEvent) => {
+      console.log(e.data);
       removeEventListener("message", bufferMessageListener);
       buffer = e.data;
     };

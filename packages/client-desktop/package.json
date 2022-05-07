@@ -8,40 +8,8 @@
     "build": "electron-builder -wml",
     "release": "electron-builder -wmlp always"
   },
-  "build": {
-    "appId": "app.hyalus",
-    "productName": "Hyalus",
-    "extraMetadata": {
-      "name": "Hyalus",
-      "description": "Talk on an open platform"
-    },
-    "win": {
-      "target": "nsis",
-      "artifactName": "HyalusDesktop-win32.exe"
-    },
-    "mac": {
-      "target": "zip",
-      "artifactName": "HyalusDesktop-osx.zip",
-      "category": "public.app-category.social-networking"
-    },
-    "linux": {
-      "target": "AppImage",
-      "artifactName": "HyalusDesktop-linux.AppImage"
-    },
-    "publish": {
-      "provider": "github",
-      "repo": "hyalus",
-      "owner": "hyalusapp",
-      "vPrefixedTagName": false,
-      "releaseType": "release"
-    },
-    "files": [
-      "src",
-      "build"
-    ]
-  },
   "dependencies": {
-    "@hyalusapp/win32-audio": "github:hyalusapp/win32-audio#9b5285a05e27548b53ebfa175ef5c93ef3bafa1f",
+    "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#e4fc854bf4185cbcb3abad670b99a346599f5650",
     "electron-updater": "^5.0.1"
   },
   "devDependencies": {
