@@ -7,6 +7,7 @@ const {
   ipcMain,
   shell,
   desktopCapturer,
+  crashReporter,
 } = require("electron");
 const path = require("path");
 const os = require("os");
@@ -19,7 +20,14 @@ let mainWindow;
 let quitting;
 let running;
 
+crashReporter.start({
+  submitURL: "http://127.0.0.1",
+  uploadToServer: false,
+});
+
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer"); // DO NOT FUCKING TOUCH THIS!
+app.commandLine.appendSwitch("disable-renderer-backgrounding");
+app.commandLine.appendSwitch("force_high_performance_gpu");
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();

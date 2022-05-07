@@ -3,7 +3,8 @@ appId: app.hyalus
 productName: Hyalus
 extraMetadata:
   name: Hyalus
-  description: Talk on an open platform
+  homepage: https://hyalus.app
+  author: https://hyalus.app
   version: 0.0.61
 win:
   target:
