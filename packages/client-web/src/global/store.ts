@@ -287,6 +287,10 @@ export const store = {
       stream.config.requestKeyFrame = true;
     });
 
+    dc.addEventListener("message", () => {
+      stream.config.requestKeyFrame = true;
+    });
+
     dc.addEventListener("close", async () => {
       console.debug("c_rtc/dc: localStream close");
       pc.close();
@@ -594,14 +598,30 @@ export const store = {
           hardwareAcceleration: "prefer-hardware",
           bitrate:
             ({
-              ["480p30"]: 1500e3,
-              ["480p60"]: 1500e3,
-              ["720p30"]: 3000e3,
-              ["720p60"]: 4000e3,
-              ["1080p30"]: 4000e3,
-              ["1080p60"]: 5000e3,
-              ["1080p120"]: 10000e3,
-            }[this.state.value.config.videoMode] || 5000e3) / maxFps,
+              // Twitch:
+              // ["480p30"]: 3000000,
+              // ["480p60"]: 3000000,
+              // ["720p30"]: 3000000,
+              // ["720p60"]: 4500000,
+              // ["1080p30"]: 4500000,
+              // ["1080p60"]: 6000000,
+              // ["1080p120"]: 6000000,
+              // Google:
+              // ["480p30"]: 2500000,
+              // ["480p60"]: 4000000,
+              // ["720p30"]: 5000000,
+              // ["720p60"]: 7500000,
+              // ["1080p30"]: 8000000,
+              // ["1080p60"]: 12000000,
+              // ["1080p120"]: 12000000,
+              ["480p30"]: 2500000,
+              ["480p60"]: 4000000,
+              ["720p30"]: 5000000,
+              ["720p60"]: 7500000,
+              ["1080p30"]: 8000000,
+              ["1080p60"]: 12000000,
+              ["1080p120"]: 12000000,
+            }[this.state.value.config.videoMode] || 3000000) / maxFps,
         });
 
         lastWidth = data.codedWidth;

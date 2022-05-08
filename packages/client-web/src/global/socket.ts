@@ -1423,7 +1423,7 @@ export class Socket {
                 try {
                   decoder.decode(chunk);
                 } catch {
-                  //
+                  dc.send("");
                 }
 
                 rxBufferPos = 0;

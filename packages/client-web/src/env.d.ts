@@ -233,5 +233,6 @@ declare interface HyalusWin32CaptureData {
     sampleRate: number;
     frames: number;
     offset: number;
+    timestamp: number;
   };
 }

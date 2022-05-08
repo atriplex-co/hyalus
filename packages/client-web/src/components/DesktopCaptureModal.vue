@@ -105,8 +105,6 @@ const submit = async () => {
     let audioWriter: WritableStreamDefaultWriter<AudioData>;
     let videoStream: ICallLocalStream | undefined;
     let audioStream: ICallLocalStream | undefined;
-    let videoTime = 0;
-    let audioTime = 0;
 
     const videoGenerator = new MediaStreamTrackGenerator({
       kind: "video",
@@ -145,7 +143,6 @@ const submit = async () => {
 
     let buffer: SharedArrayBuffer | null = null;
     const bufferMessageListener = (e: MessageEvent) => {
-      console.log(e.data);
       removeEventListener("message", bufferMessageListener);
       buffer = e.data;
     };
@@ -173,10 +170,8 @@ const submit = async () => {
             format: "BGRA",
             codedWidth: data.d.width,
             codedHeight: data.d.height,
-            timestamp: videoTime,
+            timestamp: data.d.timestamp,
           });
-
-          videoTime += 1000000 / fps;
 
           await videoStream?.proc(frame, videoWriter);
         }
@@ -187,11 +182,9 @@ const submit = async () => {
             sampleRate: data.d.sampleRate,
             numberOfFrames: data.d.frames,
             numberOfChannels: data.d.channels,
-            timestamp: audioTime,
+            timestamp: data.d.timestamp,
             data: new Uint8Array(buffer, data.d.offset),
           });
-
-          audioTime += (data.d.frames / data.d.sampleRate) * 1000000;
 
           await audioStream?.proc(frame, audioWriter);
         }

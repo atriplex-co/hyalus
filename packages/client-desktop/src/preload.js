@@ -11,8 +11,6 @@ const stopWin32Capture = () => {
 };
 
 const startWin32Capture = (opts, cb) => {
-  stopWin32Capture();
-
   if (!win32Capture) {
     win32Capture = require("@atriplex-co/hyalus-win32-utils");
   }

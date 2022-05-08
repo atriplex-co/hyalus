@@ -11,7 +11,7 @@
     "release:dev": "pnpm -- build:dev -p always"
   },
   "dependencies": {
-    "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#e4fc854bf4185cbcb3abad670b99a346599f5650",
+    "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#HEAD",
     "electron-updater": "^5.0.1"
   },
   "devDependencies": {
