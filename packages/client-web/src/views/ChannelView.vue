@@ -67,11 +67,18 @@
           >
             <PhoneIcon />
           </div>
-          <div
-            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
-            @click="showInfo = !showInfo"
-          >
-            <DotsIcon />
+          <div class="relative">
+            <div
+              class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
+              @click="showInfo = !showInfo"
+            >
+              <DotsIcon />
+            </div>
+            <ChannelInfo
+              v-if="showInfo"
+              :channel="channel"
+              @close="showInfo = false"
+            />
           </div>
         </div>
       </div>
@@ -121,12 +128,6 @@
         />
         <div id="messageListAfter" ref="messageListAfter" class="pb-2"></div>
       </div>
-      <ChannelInfo
-        v-if="showInfo"
-        class="absolute top-0 right-0"
-        :channel="channel"
-        @close="showInfo = false"
-      />
     </div>
     <div
       v-if="writable"

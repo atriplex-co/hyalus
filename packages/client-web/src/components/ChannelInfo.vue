@@ -1,9 +1,9 @@
 <template>
   <div
-    class="z-20 h-full w-full max-w-xs space-y-4 overflow-auto border-l border-gray-600 bg-gray-700 py-4 px-2 text-sm"
+    class="absolute right-0 z-20 my-2 h-96 w-96 max-w-xs space-y-4 overflow-auto rounded-md border border-gray-600 bg-gray-700 py-4 px-3 text-sm shadow-md"
   >
     <div
-      class="flex cursor-pointer items-center space-x-2 text-gray-300 transition hover:text-white"
+      class="flex cursor-pointer items-center space-x-3 text-gray-300 transition hover:text-white"
       @click="inviteModal = true"
     >
       <UserAddIcon class="h-8 w-8 rounded-full bg-gray-600 p-2 transition" />
@@ -12,13 +12,13 @@
     </div>
     <div
       v-if="channel.type === ChannelType.Group"
-      class="flex cursor-pointer items-center space-x-2 text-gray-400 transition hover:text-gray-200"
+      class="flex cursor-pointer items-center space-x-3 text-gray-300 transition hover:text-white"
       @click="leave"
     >
       <TrashIcon
         class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition"
       />
-      <p class="text-gray-200">Leave group</p>
+      <p>Leave group</p>
     </div>
     <ChannelUserInfo
       v-for="user in users"

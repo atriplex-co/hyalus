@@ -734,6 +734,7 @@ export const store = {
     ) {
       await this.callRemoveLocalStream({
         type: CallStreamType.DisplayAudio,
+        silent: true,
       });
     }
   },
