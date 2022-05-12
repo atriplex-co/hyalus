@@ -68,6 +68,7 @@ export interface ICall {
   remoteStreams: ICallRemoteStream[];
   start: Date;
   deaf: boolean;
+  updatePersistInterval: number;
 }
 
 export interface ICallPersist {

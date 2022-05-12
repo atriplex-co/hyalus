@@ -252,7 +252,7 @@ export const store = {
 
     const pc = new RTCPeerConnection({ iceServers });
     const dc = pc.createDataChannel("", {
-      // maxRetransmits: 0,
+      // maxRetransmits: -1,
       // ordered: false,
     });
     const peer: ICallLocalStreamPeer = {
@@ -465,12 +465,6 @@ export const store = {
       return;
     }
 
-    if (!opts.silent) {
-      playSound(SoundNavigateForward);
-    }
-
-    await callUpdatePersist();
-
     const track = opts.track as MediaStreamTrack;
 
     const txBuffer = new Uint8Array(2 * 1024 * 1024);
@@ -549,7 +543,7 @@ export const store = {
       if (data instanceof AudioData && encoder.state === "unconfigured") {
         encoder.configure({
           codec: "opus",
-          bitrate: 256e3,
+          bitrate: 128e3,
           sampleRate: 48000,
           numberOfChannels: 2,
         });
@@ -590,7 +584,12 @@ export const store = {
         }
 
         encoder.configure({
-          codec: "avc1.42e01f",
+          // codec: "avc1.42e01f",
+          // codec: "avc1.42001f",
+          codec: "avc1.4d001f",
+          // codec: "avc1.64001f",
+          // codec: "vp8",
+          // codec: "vp09.00.41.08",
           width: Math.floor(scaledWidth / 2) * 2,
           height: Math.floor(scaledHeight / 2) * 2,
           framerate: 1,
@@ -598,44 +597,41 @@ export const store = {
           hardwareAcceleration: "prefer-hardware",
           bitrate:
             ({
-              // Twitch:
               // ["480p30"]: 3000000,
               // ["480p60"]: 3000000,
               // ["720p30"]: 3000000,
               // ["720p60"]: 4500000,
               // ["1080p30"]: 4500000,
               // ["1080p60"]: 6000000,
-              // ["1080p120"]: 6000000,
-              // Google:
               // ["480p30"]: 2500000,
               // ["480p60"]: 4000000,
               // ["720p30"]: 5000000,
               // ["720p60"]: 7500000,
               // ["1080p30"]: 8000000,
               // ["1080p60"]: 12000000,
-              // ["1080p120"]: 12000000,
-              ["480p30"]: 2500000,
-              ["480p60"]: 4000000,
-              ["720p30"]: 5000000,
-              ["720p60"]: 7500000,
-              ["1080p30"]: 8000000,
-              ["1080p60"]: 12000000,
-              ["1080p120"]: 12000000,
+              ["480p30"]: 3000000,
+              ["480p60"]: 3500000,
+              ["720p30"]: 4000000,
+              ["720p60"]: 6000000,
+              ["1080p30"]: 6000000,
+              ["1080p60"]: 8000000,
             }[this.state.value.config.videoMode] || 3000000) / maxFps,
+          avc: {
+            format: "annexb",
+          },
         });
 
         lastWidth = data.codedWidth;
         lastHeight = data.codedHeight;
       }
 
-      encoder.encode(
-        data,
-        stream.config.requestKeyFrame
-          ? {
-              keyFrame: true,
-            }
-          : {} // lets the encoder decide whether to insert an I-frame.
-      );
+      try {
+        encoder.encode(data, {
+          keyFrame: stream.config.requestKeyFrame,
+        });
+      } catch (e) {
+        console.log(e);
+      }
 
       if (writer) {
         await writer.write(data);
@@ -658,6 +654,12 @@ export const store = {
     };
 
     store.state.value.call.localStreams.push(stream);
+
+    if (!opts.silent) {
+      playSound(SoundNavigateForward);
+    }
+
+    await callUpdatePersist();
 
     for (const user of channel.users.filter((user) => user.inCall)) {
       await this.callSendLocalStream(stream, user.id);
@@ -720,12 +722,6 @@ export const store = {
       pc.close();
     }
 
-    if (!opts.silent) {
-      playSound(SoundNavigateBackward);
-    }
-
-    await callUpdatePersist();
-
     if (
       opts.type === CallStreamType.DisplayVideo &&
       this.state.value.call?.localStreams.find(
@@ -737,6 +733,12 @@ export const store = {
         silent: true,
       });
     }
+
+    if (!opts.silent) {
+      playSound(SoundNavigateBackward);
+    }
+
+    await callUpdatePersist();
   },
   async callStart(channelId: string): Promise<void> {
     store.state.value.call = {
@@ -745,6 +747,7 @@ export const store = {
       remoteStreams: [],
       start: new Date(),
       deaf: false,
+      updatePersistInterval: +setInterval(callUpdatePersist, 1000 * 30),
     };
 
     store.state.value.socket?.send({
@@ -774,6 +777,8 @@ export const store = {
     for (const stream of store.state.value.call.remoteStreams) {
       stream.pc.close();
     }
+
+    clearInterval(store.state.value.call.updatePersistInterval);
 
     delete store.state.value.call;
 

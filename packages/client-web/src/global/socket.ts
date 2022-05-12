@@ -402,7 +402,6 @@ export class Socket {
           await initPermissions();
         }
 
-        // TODO: implement on web.
         if (
           isDesktop &&
           store.state.value.config.callPersist &&
@@ -425,7 +424,7 @@ export class Socket {
 
           for (const stream of callPersist.localStreams) {
             if ([CallStreamType.Audio].indexOf(stream) === -1) {
-              return;
+              continue;
             }
 
             await store.callAddLocalStream({
@@ -1396,10 +1395,10 @@ export class Socket {
 
                   decoder.configure({
                     ...parsedDecoderConfig,
+                    hardwareAcceleration: "prefer-hardware",
                     description:
                       parsedDecoderConfig.description &&
                       sodium.from_base64(parsedDecoderConfig.description),
-                    hardwareAcceleration: "prefer-hardware",
                   });
                 }
 

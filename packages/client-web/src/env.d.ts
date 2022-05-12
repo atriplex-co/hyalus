@@ -97,6 +97,9 @@ declare interface MediaEncoderConfig {
   latencyMode?: string;
   hardwareAcceleration?: string;
   framerate?: number;
+  avc?: {
+    format?: string;
+  };
 }
 
 declare interface MediaDecoderConfig {
@@ -105,7 +108,10 @@ declare interface MediaDecoderConfig {
   numberOfChannels?: number;
   description?: ArrayBuffer;
   hardwareAcceleration?: string;
-  optimizeForLatency: boolean;
+  optimizeForLatency?: boolean;
+  avc?: {
+    format?: string;
+  };
 }
 
 declare interface MediaEncoderOutputInfo {

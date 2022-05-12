@@ -137,7 +137,6 @@ const usableVideoModes = [
   "720p60",
   "1080p30",
   "1080p60",
-  "1080p120",
 ];
 
 const usableAudioOutputs: Ref<MediaDeviceInfo[]> = ref([]);
