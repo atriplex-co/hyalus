@@ -14,26 +14,34 @@ const os = require("os");
 const { autoUpdater } = require("electron-updater");
 const fs = require("fs");
 const pkg = require("../package.json");
+const contextMenu = require("electron-context-menu");
 
 let tray;
 let mainWindow;
 let quitting;
 let running;
 
-crashReporter.start({
-  submitURL: "http://127.0.0.1",
-  uploadToServer: false,
-});
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+}
 
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer"); // DO NOT FUCKING TOUCH THIS!
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
 app.commandLine.appendSwitch("force_high_performance_gpu");
 
-if (!app.requestSingleInstanceLock()) {
-  app.quit();
-}
-
 nativeTheme.themeSource = "dark";
+
+crashReporter.start({
+  submitURL: "http://127.0.0.1",
+  uploadToServer: false,
+});
+
+contextMenu({
+  showSaveImage: true,
+  showSaveImageAs: true,
+  showCopyImageAddress: true,
+  showInspectElement: pkg.name === "HyalusDev",
+});
 
 const start = () => {
   if (running) {

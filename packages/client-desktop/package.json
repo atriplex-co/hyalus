@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#HEAD",
+    "electron-context-menu": "^3.1.2",
     "electron-updater": "^5.0.1"
   },
   "devDependencies": {
