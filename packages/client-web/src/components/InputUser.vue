@@ -22,7 +22,7 @@
                 <p class="text-xs text-gray-400">@{{ user.username }}</p>
               </div>
             </div>
-            <Checkbox v-model="user.selected" />
+            <CheckBox v-model="user.selected" />
           </div>
         </div>
         <div
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import Checkbox from "./Checkbox.vue";
+import CheckBox from "./CheckBox.vue";
 import GroupIcon from "../icons/GroupIcon.vue";
 import UserAvatar from "./UserAvatar.vue";
 import { ref, computed, PropType } from "vue";
