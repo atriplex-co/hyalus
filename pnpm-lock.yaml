@@ -31,16 +31,20 @@ importers:
   packages/client-desktop:
     specifiers:
       '@atriplex-co/hyalus-win32-utils': github:atriplex-co/hyalus-win32-utils#HEAD
+      '@types/winreg': ^1.2.31
       electron-builder: ^23.0.3
       electron-context-menu: ^3.1.2
       electron-nightly: ^20.0.0-nightly.20220511
       electron-updater: ^5.0.1
+      winreg: ^1.2.4
     dependencies:
       '@atriplex-co/hyalus-win32-utils': github.com/atriplex-co/hyalus-win32-utils/ccd05806350b49c87934b6cd97e82dfbb767a532
       electron-context-menu: 3.1.2
       electron-nightly: 20.0.0-nightly.20220511
       electron-updater: 5.0.1
+      winreg: 1.2.4
     devDependencies:
+      '@types/winreg': 1.2.31
       electron-builder: 23.0.3
 
   packages/client-web:
@@ -1761,6 +1765,10 @@ packages:
     dependencies:
       '@types/node': 17.0.31
       '@types/webidl-conversions': 6.1.1
+    dev: true
+
+  /@types/winreg/1.2.31:
+    resolution: {integrity: sha512-SDatEMEtQ1cJK3esIdH6colduWBP+42Xw9Guq1sf/N6rM3ZxgljBduvZOwBsxRps/k5+Wwf5HJun6pH8OnD2gg==}
     dev: true
 
   /@types/ws/8.5.3:
@@ -6601,6 +6609,10 @@ packages:
     dependencies:
       string-width: 4.2.3
     dev: true
+
+  /winreg/1.2.4:
+    resolution: {integrity: sha1-ugZWKbepJRMOFXeRCM9UCZDpjRs=}
+    dev: false
 
   /winston-transport/4.5.0:
     resolution: {integrity: sha512-YpZzcUzBedhlTAfJg6vJDlyEai/IFMIVcaEZZyl3UXIl4gmqRpU7AE89AHLkbzLUsv0NVmw7ts+iztqKxxPW1Q==}

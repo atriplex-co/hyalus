@@ -13,14 +13,11 @@
     <div class="divide-y divide-gray-700 border-t border-b border-gray-700">
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Open at Login</p>
-        <InputBoolean
-          :model-value="openAtLogin"
-          @update:model-value="setOpenAtLogin"
-        />
+        <InputBoolean v-model="startupEnabled" />
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Open Minimized</p>
-        <InputBoolean v-model="startMinimized" />
+        <InputBoolean v-model="startupMinimized" />
       </div>
     </div>
   </div>
@@ -28,25 +25,36 @@
 
 <script lang="ts" setup>
 import InputBoolean from "../components/InputBoolean.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
-import { configToComputed, isMobile } from "../global/helpers";
+import { isMobile } from "../global/helpers";
 import { store } from "../global/store";
 
-const openAtLogin = ref(false);
+const startupEnabled = ref(false);
+const startupMinimized = ref(false);
 
-const setOpenAtLogin = async (val: boolean) => {
-  window.HyalusDesktop?.setOpenAtLogin(val);
-  openAtLogin.value = val;
-};
-
-const startMinimized = configToComputed<boolean>("startMinimized");
-
-document.title = "Hyalus \u2022 Notifications";
+document.title = "Hyalus \u2022 Desktop Integration";
 
 onMounted(async () => {
-  openAtLogin.value = !!(await window.HyalusDesktop?.getOpenAtLogin());
+  if (!window.HyalusDesktop) {
+    return;
+  }
+
+  const startupSettings = await window.HyalusDesktop.getStartupSettings();
+
+  startupEnabled.value = startupSettings.enabled;
+  startupMinimized.value = startupSettings.minimized;
 });
 
 store.state.value.sideBarOpen = false;
+
+watch(
+  () => [startupEnabled.value, startupMinimized.value],
+  async () => {
+    await window.HyalusDesktop?.setStartupSettings({
+      enabled: startupEnabled.value,
+      minimized: startupMinimized.value,
+    });
+  }
+);
 </script>

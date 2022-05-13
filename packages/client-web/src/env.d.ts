@@ -12,7 +12,7 @@ declare module "*.vue" {
 
 // App stuff
 
-declare interface HyalusDev {
+declare interface IHyalusDev {
   store: unknown;
   enabled: boolean;
   stop(): void;
@@ -25,7 +25,12 @@ declare interface HyalusDev {
   };
 }
 
-declare interface HyalusDesktop {
+declare interface IHyalusDesktopStartupSettings {
+  enabled: boolean;
+  minimized: boolean;
+}
+
+declare interface IHyalusDesktop {
   close(): void;
   maximize(): void;
   minimize(): void;
@@ -45,14 +50,13 @@ declare interface HyalusDesktop {
     cb: (data?: HyalusWin32CaptureData) => void
   ): void;
   stopWin32Capture(): void;
-  getOpenAtLogin(): Promise<boolean>;
-  setOpenAtLogin(val: boolean): Promise<void>;
-  getWasOpenedAtLogin(): Promise<boolean>;
+  getStartupSettings(): Promise<IHyalusDesktopStartupSettings>;
+  setStartupSettings(val: IHyalusDesktopStartupSettings): Promise<void>;
 }
 
 declare interface Window {
-  dev: HyalusDev;
-  HyalusDesktop?: HyalusDesktop;
+  dev: IHyalusDev;
+  HyalusDesktop?: IHyalusDesktop;
   IdleDetector?: typeof IdleDetector;
 }
 

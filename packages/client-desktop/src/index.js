@@ -8,6 +8,7 @@ const {
   shell,
   desktopCapturer,
   crashReporter,
+  dialog,
 } = require("electron");
 const path = require("path");
 const os = require("os");
@@ -15,6 +16,7 @@ const { autoUpdater } = require("electron-updater");
 const fs = require("fs");
 const pkg = require("../package.json");
 const contextMenu = require("electron-context-menu");
+const Registry = require("winreg");
 
 let tray;
 let mainWindow;
@@ -43,7 +45,83 @@ contextMenu({
   showInspectElement: pkg.name === "HyalusDev",
 });
 
-const start = () => {
+const getStartupSettings = async () => {
+  const settings = app.getLoginItemSettings();
+
+  let enabled = settings.openAtLogin;
+  let minimized = settings.openAsHidden;
+
+  if (os.platform() === "win32") {
+    enabled = settings.launchItems[0]?.enabled;
+
+    const reg = new Registry({
+      hive: Registry.HKCU,
+      key: "\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    });
+
+    await new Promise((resolve) => {
+      reg.get(
+        {
+          Hyalus: "app.hyalus",
+          HyalusDev: "app.hyalus.dev",
+        }[pkg.name],
+        (err, v) => {
+          if (err) {
+            minimized = false;
+          } else {
+            minimized = v.value.includes("--minimized");
+          }
+
+          resolve();
+        }
+      );
+    });
+  }
+
+  return {
+    enabled,
+    minimized,
+  };
+};
+
+const setStartupSettings = async (opts) => {
+  app.setLoginItemSettings({
+    openAtLogin: os.platform() === "win32" ? true : opts.enabled,
+    openAsHidden: opts.minimized,
+    enabled: opts.enabled,
+    name: pkg.name,
+  });
+
+  if (os.platform() === "win32") {
+    const reg = new Registry({
+      hive: Registry.HKCU,
+      key: "\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    });
+
+    await new Promise((resolve) => {
+      reg.set(
+        {
+          Hyalus: "app.hyalus",
+          HyalusDev: "app.hyalus.dev",
+        }[pkg.name],
+        Registry.REG_SZ,
+        `"${process.execPath}"${opts.minimized ? " --minimized" : ""}`,
+        resolve
+      );
+    });
+  }
+};
+
+const restart = () => {
+  quitting = true;
+  app.releaseSingleInstanceLock();
+  app.relaunch({
+    args: [`--resume=${mainWindow.webContents.getURL()}`],
+  });
+  app.quit();
+};
+
+const start = async () => {
   if (running) {
     return;
   }
@@ -53,14 +131,14 @@ const start = () => {
   if (pkg.name === "Hyalus") {
     app.setAppUserModelId("app.hyalus");
 
-    const initPath = path.join(app.getPath("userData"), "init");
+    const initPath = path.join(app.getPath("userData"), "init2");
     if (!fs.existsSync(initPath)) {
       fs.writeFileSync(initPath, ""); // so this only runs on the first start.
 
       try {
-        app.setLoginItemSettings({
-          openAtLogin: true,
-          openAsHidden: true,
+        await setStartupSettings({
+          enabled: true,
+          minimized: true,
         });
       } catch {
         //
@@ -92,12 +170,18 @@ const start = () => {
     },
   });
 
-  if (pkg.name === "Hyalus") {
-    mainWindow.loadURL("https://hyalus.app/app");
-  }
+  const resumeArg = process.argv.find((arg) => arg.startsWith("--resume="));
 
-  if (pkg.name === "HyalusDev") {
-    mainWindow.loadURL("https://dev.hyalus.app/app");
+  if (resumeArg) {
+    mainWindow.loadURL(resumeArg.split("--resume=")[1]);
+  } else {
+    if (pkg.name === "Hyalus") {
+      mainWindow.loadURL("https://hyalus.app/app");
+    }
+
+    if (pkg.name === "HyalusDev") {
+      mainWindow.loadURL("https://dev.hyalus.app/app");
+    }
   }
 
   mainWindow.on("close", (e) => {
@@ -108,6 +192,13 @@ const start = () => {
   });
 
   mainWindow.on("ready-to-show", () => {
+    if (
+      app.getLoginItemSettings().wasOpenedAsHidden ||
+      process.argv.indexOf("--minimized") !== -1
+    ) {
+      return;
+    }
+
     mainWindow.show();
   });
 
@@ -125,9 +216,7 @@ const start = () => {
     }
 
     if (input.key === "F6") {
-      quitting = true;
-      app.relaunch();
-      app.quit();
+      restart();
     }
   });
 
@@ -136,13 +225,6 @@ const start = () => {
   });
 
   mainWindow.removeMenu();
-};
-
-const restart = () => {
-  quitting = true;
-  app.releaseSingleInstanceLock();
-  app.relaunch();
-  app.quit();
 };
 
 app.on("ready", () => {
@@ -243,16 +325,10 @@ ipcMain.handle("getSources", async () => {
   }));
 });
 
-ipcMain.handle("getOpenAtLogin", () => {
-  return app.getLoginItemSettings().openAtLogin;
+ipcMain.handle("getStartupSettings", async () => {
+  return await getStartupSettings();
 });
 
-ipcMain.handle("setOpenAtLogin", (e, val) => {
-  app.setLoginItemSettings({
-    openAtLogin: val,
-  });
-});
-
-ipcMain.handle("getWasOpenedAtLogin", () => {
-  return app.getLoginItemSettings().wasOpenedAtLogin;
+ipcMain.handle("setStartupSettings", async (e, val) => {
+  await setStartupSettings(val);
 });

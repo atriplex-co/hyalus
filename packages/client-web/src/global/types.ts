@@ -51,7 +51,6 @@ export interface IConfig {
   publicKey?: Uint8Array;
   privateKey?: Uint8Array;
   callPersist?: string;
-  startMinimized: boolean;
   searchKeys: string;
   openAppKeys: string;
   toggleMuteKeys: string;

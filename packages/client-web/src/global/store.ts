@@ -52,7 +52,6 @@ export const store = {
       notifySound: true,
       notifySystem: true,
       betaBanner: true,
-      startMinimized: true,
       searchKeys: "",
       openAppKeys: "",
       toggleMuteKeys: "",
@@ -77,15 +76,6 @@ export const store = {
     };
 
     await this.updateIcon();
-
-    if (
-      this.state.value.config.startMinimized &&
-      window.HyalusDesktop &&
-      window.HyalusDesktop.getWasOpenedAtLogin &&
-      (await window.HyalusDesktop.getWasOpenedAtLogin())
-    ) {
-      window.HyalusDesktop.minimize();
-    }
 
     if (!this.state.value.config.token) {
       return;
