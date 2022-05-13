@@ -13,10 +13,10 @@
   "dependencies": {
     "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#HEAD",
     "electron-context-menu": "^3.1.2",
+    "electron-nightly": "^20.0.0-nightly.20220511",
     "electron-updater": "^5.0.1"
   },
   "devDependencies": {
-    "electron": "18.2.0",
     "electron-builder": "^23.0.3"
   }
 }
