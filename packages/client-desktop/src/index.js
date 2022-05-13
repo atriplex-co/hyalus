@@ -167,6 +167,7 @@ const start = async () => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       backgroundThrottling: false,
+      experimentalFeatures: true,
     },
   });
 
@@ -271,9 +272,22 @@ app.on("second-instance", () => {
   }
 });
 
-app.on("web-contents-created", (e, webContents) => {
-  webContents.setWindowOpenHandler(({ url }) => {
+app.on("web-contents-created", (e, contents) => {
+  contents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
+  });
+
+  contents.on("will-navigate", (e, url) => {
+    const parsedURL = new URL(url);
+
+    if (
+      [
+        "https://hyalus.app",
+        "https://dev.hyalus.app", // dev server
+      ].indexOf(parsedURL.origin) === -1
+    ) {
+      e.preventDefault();
+    }
   });
 });
 
