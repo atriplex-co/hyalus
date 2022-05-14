@@ -1,3 +1,5 @@
+require("v8-compile-cache");
+
 const {
   app,
   BrowserWindow,
@@ -8,7 +10,7 @@ const {
   shell,
   desktopCapturer,
   crashReporter,
-  dialog,
+  contentTracing,
 } = require("electron");
 const path = require("path");
 const os = require("os");
@@ -130,24 +132,35 @@ const start = async () => {
 
   if (pkg.name === "Hyalus") {
     app.setAppUserModelId("app.hyalus");
-
-    const initPath = path.join(app.getPath("userData"), "init2");
-    if (!fs.existsSync(initPath)) {
-      fs.writeFileSync(initPath, ""); // so this only runs on the first start.
-
-      try {
-        await setStartupSettings({
-          enabled: true,
-          minimized: true,
-        });
-      } catch {
-        //
-      }
-    }
   }
 
   if (pkg.name === "HyalusDev") {
     app.setAppUserModelId("app.hyalus.dev");
+  }
+
+  if (process.argv.indexOf("--trace") !== -1) {
+    (async () => {
+      await contentTracing.startRecording({
+        included_categories: ["*"],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const path = await contentTracing.stopRecording();
+      console.log(path);
+    })();
+  }
+
+  const initPath = path.join(app.getPath("userData"), "init2");
+  if (!fs.existsSync(initPath)) {
+    fs.writeFileSync(initPath, ""); // so this only runs on the first start.
+
+    try {
+      await setStartupSettings({
+        enabled: true,
+        minimized: true,
+      });
+    } catch {
+      //
+    }
   }
 
   mainWindow = new BrowserWindow({

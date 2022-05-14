@@ -5,7 +5,6 @@ extraMetadata:
   name: Hyalus
   homepage: https://hyalus.app
   author: https://hyalus.app
-  version: 0.0.61
 win:
   target:
     - target: nsis-web

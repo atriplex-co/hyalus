@@ -1,6 +1,6 @@
 {
   "name": "client-desktop",
-  "version": "0.0.0",
+  "version": "0.0.62-alpha4",
   "license": "AGPL-3.0-only",
   "main": "src/index.js",
   "scripts": {
@@ -8,13 +8,16 @@
     "build": "electron-builder -wml",
     "build:dev": "electron-builder -wc electron-builder.dev.yml",
     "release": "yarn build -p always",
-    "release:dev": "yarn build:dev -p always"
+    "release:dev": "yarn build:dev -p always",
+    "deploy": "powershell.exe -command dist/nsis-web/HyalusDesktop-win32.exe",
+    "deploy:dev": "powershell.exe -command dist/nsis-web/HyalusDesktopDev-win32.exe"
   },
   "dependencies": {
     "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#ccd05806350b49c87934b6cd97e82dfbb767a532",
     "electron-context-menu": "^3.1.2",
     "electron-nightly": "^20.0.0-nightly.20220511",
     "electron-updater": "^5.0.1",
+    "v8-compile-cache": "^2.3.0",
     "winreg": "^1.2.4"
   },
   "devDependencies": {
