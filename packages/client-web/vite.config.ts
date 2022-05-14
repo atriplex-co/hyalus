@@ -55,12 +55,8 @@ export default defineConfig({
   build: {
     target: "esnext",
     minify: "esbuild",
-    brotliSize: false,
-    assetsInlineLimit: 0,
-  },
-  resolve: {
-    alias: {
-      protobufjs: "protobufjs/dist/light/protobuf.min.js", // https://github.com/protobufjs/protobuf.js/issues/1662
-    },
+    // assetsInlineLimit: 0,
+    polyfillModulePreload: false,
+    reportCompressedSize: false,
   },
 });

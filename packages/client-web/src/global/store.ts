@@ -364,10 +364,7 @@ const useStore = defineStore("main", {
           ) {
             gain2.gain.value = 1;
 
-            if (closeTimeout) {
-              clearTimeout(closeTimeout);
-            }
-
+            clearTimeout(closeTimeout);
             closeTimeout = +setTimeout(() => {
               gain2.gain.value = 0;
             }, 200);

@@ -123,9 +123,7 @@ const expand = async () => {
 const resetControlsTimeout = () => {
   controls.value = true;
 
-  if (controlsTimeout) {
-    clearTimeout(controlsTimeout);
-  }
+  clearTimeout(controlsTimeout);
 
   if (isFullscreen.value) {
     controlsTimeout = +setTimeout(() => {

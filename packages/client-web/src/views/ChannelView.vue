@@ -210,8 +210,8 @@ const messageListBefore: Ref<HTMLDivElement | null> = ref(null);
 const messageListAfter: Ref<HTMLDivElement | null> = ref(null);
 const typingStatus = ref("");
 let lastTyping = 0;
-let updateInterval: number;
 let scrollUpdated = false; // make sure chat is scrolled down when initially loaded.
+let updateTypingStatusTimeout = 0;
 
 const channel = computed(() => {
   return store.channels.find(
@@ -605,13 +605,14 @@ const attachFile = async () => {
   el.click();
 };
 
-const update = async () => {
+const updateTitle = () => {
+  document.title = `Hyalus \u2022 ${name.value}`;
+};
+
+const updateTypingStatus = () => {
   if (!channel.value) {
-    await router.push("/app");
     return;
   }
-
-  document.title = `Hyalus \u2022 ${name.value}`;
 
   const typingUsers = channel.value.users
     .filter((u) => !u.hidden && +u.lastTyping > +new Date() - 1000 * 3)
@@ -626,15 +627,42 @@ const update = async () => {
           `${typingUsers[0]}, ${typingUsers[1]}, and ${typingUsers[2]} are typing...`,
         ][typingUsers.length]
       : "Many users are typing...";
+
+  clearTimeout(updateTypingStatusTimeout);
+  updateTypingStatusTimeout = +setTimeout(updateTypingStatus, 3000);
 };
+
+watch(
+  () => name.value,
+  () => {
+    updateTitle();
+  }
+);
+
+watch(
+  () => channel.value && channel.value.users.map((user) => user.lastTyping),
+  () => {
+    updateTypingStatus();
+  }
+);
+
+watch(
+  () => !!channel.value,
+  async () => {
+    if (!channel.value) {
+      await router.push("/app");
+      return;
+    }
+  }
+);
 
 onMounted(async () => {
   if (!channel.value) {
     return;
   }
 
-  await update();
-  updateInterval = +setInterval(update, 100);
+  updateTitle();
+  updateTypingStatus();
 
   if (
     !messageBox.value ||
@@ -646,8 +674,6 @@ onMounted(async () => {
   }
 
   new MutationObserver(async () => {
-    await update();
-
     if (!messageList.value) {
       return;
     }
