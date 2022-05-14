@@ -167,7 +167,7 @@ const submit = async () => {
 
         if (data.t === "video") {
           const frame = new VideoFrame(new Uint8Array(buffer), {
-            format: "BGRA",
+            format: "BGRX",
             codedWidth: data.d.width,
             codedHeight: data.d.height,
             timestamp: data.d.timestamp,
