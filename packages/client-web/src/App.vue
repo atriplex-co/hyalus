@@ -2,44 +2,32 @@
   <div
     class="selection:bg-primary-400 flex h-screen min-h-0 select-none flex-col bg-gray-800 text-white selection:text-black"
     :class="{
-      'accent-red': store.state.value.config.colorTheme === ColorTheme.Red,
-      'accent-orange':
-        store.state.value.config.colorTheme === ColorTheme.Orange,
-      'accent-amber': store.state.value.config.colorTheme === ColorTheme.Amber,
-      'accent-yellow':
-        store.state.value.config.colorTheme === ColorTheme.Yellow,
-      'accent-lime': store.state.value.config.colorTheme === ColorTheme.Lime,
-      'accent-green': store.state.value.config.colorTheme === ColorTheme.Green,
-      'accent-emerald':
-        store.state.value.config.colorTheme === ColorTheme.Emerald,
-      'accent-teal': store.state.value.config.colorTheme === ColorTheme.Teal,
-      'accent-cyan': store.state.value.config.colorTheme === ColorTheme.Cyan,
-      'accent-sky': store.state.value.config.colorTheme === ColorTheme.Sky,
-      'accent-blue': store.state.value.config.colorTheme === ColorTheme.Blue,
-      'accent-indigo':
-        store.state.value.config.colorTheme === ColorTheme.Indigo,
-      'accent-violet':
-        store.state.value.config.colorTheme === ColorTheme.Violet,
-      'accent-purple':
-        store.state.value.config.colorTheme === ColorTheme.Purple,
-      'accent-fuchsia':
-        store.state.value.config.colorTheme === ColorTheme.Fuchsia,
-      'accent-pink': store.state.value.config.colorTheme === ColorTheme.Pink,
-      'accent-rose': store.state.value.config.colorTheme === ColorTheme.Rose,
-      'grayscale filter': store.state.value.config.grayscale,
+      'accent-red': store.config.colorTheme === ColorTheme.Red,
+      'accent-orange': store.config.colorTheme === ColorTheme.Orange,
+      'accent-amber': store.config.colorTheme === ColorTheme.Amber,
+      'accent-yellow': store.config.colorTheme === ColorTheme.Yellow,
+      'accent-lime': store.config.colorTheme === ColorTheme.Lime,
+      'accent-green': store.config.colorTheme === ColorTheme.Green,
+      'accent-emerald': store.config.colorTheme === ColorTheme.Emerald,
+      'accent-teal': store.config.colorTheme === ColorTheme.Teal,
+      'accent-cyan': store.config.colorTheme === ColorTheme.Cyan,
+      'accent-sky': store.config.colorTheme === ColorTheme.Sky,
+      'accent-blue': store.config.colorTheme === ColorTheme.Blue,
+      'accent-indigo': store.config.colorTheme === ColorTheme.Indigo,
+      'accent-violet': store.config.colorTheme === ColorTheme.Violet,
+      'accent-purple': store.config.colorTheme === ColorTheme.Purple,
+      'accent-fuchsia': store.config.colorTheme === ColorTheme.Fuchsia,
+      'accent-pink': store.config.colorTheme === ColorTheme.Pink,
+      'accent-rose': store.config.colorTheme === ColorTheme.Rose,
+      'grayscale filter': store.config.grayscale,
     }"
   >
     <DesktopTitlebar v-if="isDesktop" />
     <div class="min-h-0 flex-1">
       <template v-if="inApp">
-        <LoadingView
-          v-show="!store.state.value.updateRequired && !store.state.value.ready"
-        />
-        <UpdateRequiredView v-show="store.state.value.updateRequired" />
-        <div
-          v-if="store.state.value.ready && !store.state.value.updateRequired"
-          class="flex h-full"
-        >
+        <LoadingView v-show="!store.updateRequired && !store.ready" />
+        <UpdateRequiredView v-show="store.updateRequired" />
+        <div v-if="store.ready && !store.updateRequired" class="flex h-full">
           <SideBar v-if="showSideBar" />
           <router-view v-slot="{ Component }">
             <transition
@@ -62,7 +50,7 @@
       </template>
       <router-view v-else />
     </div>
-    <UserInviteModal :show="!!store.state.value.invite" />
+    <UserInviteModal :show="!!store.invite" />
     <div class="hidden">{{ fontScale }}</div>
     <!-- DON'T REMOVE THIS! -->
     <!-- this is here to keep some random css classes from being puregd. -->
@@ -77,10 +65,10 @@ import UpdateRequiredView from "./views/UpdateRequiredView.vue";
 import SideBar from "./components/SideBar.vue";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { store } from "./global/store";
 import { ColorTheme } from "common";
 import UserInviteModal from "./components/UserInviteModal.vue";
 import { isDesktop, isMobile } from "./global/helpers";
+import { store } from "./global/store";
 
 const inAppRoutes = [
   "app",
@@ -110,7 +98,7 @@ const showSideBar = computed(() => {
     return false;
   }
 
-  if (isMobile && !store.state.value.sideBarOpen) {
+  if (isMobile && !store.sideBarOpen) {
     return false;
   }
 
@@ -125,9 +113,7 @@ const fontScale = computed(() => {
     document.body.appendChild(el);
   }
 
-  el.innerText = `:root{font-size:${
-    (store.state.value.config.fontScale / 100) * 16
-  }px}`;
+  el.innerText = `:root{font-size:${(store.config.fontScale / 100) * 16}px}`;
 
   return "";
 });

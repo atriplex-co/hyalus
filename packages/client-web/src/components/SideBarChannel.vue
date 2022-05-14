@@ -29,9 +29,9 @@ import UserAvatar from "./UserAvatar.vue";
 import EmptyAvatar from "./EmptyAvatar.vue";
 import { ref, computed, PropType, onUnmounted } from "vue";
 import { IChannel, IChannelUser, IUser } from "../global/types";
-import { store } from "../global/store";
 import { useRoute } from "vue-router";
 import { ChannelType, MessageType } from "common";
+import { store } from "../global/store";
 
 const props = defineProps({
   channel: {
@@ -53,8 +53,8 @@ const lastMessage = computed(() => {
   let user: IChannelUser | IUser | undefined;
   let ret = "";
 
-  if (store.state.value.user && message.userId === store.state.value.user.id) {
-    user = store.state.value.user;
+  if (store.user && message.userId === store.user.id) {
+    user = store.user;
   } else {
     user = props.channel.users.find((user) => user.id === message.userId);
   }

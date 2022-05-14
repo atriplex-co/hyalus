@@ -22,8 +22,8 @@ import ModalInput from "./ModalInput.vue";
 import ModalError from "./ModalError.vue";
 import IdentityIcon from "../icons/IdentityIcon.vue";
 import { ref, watch } from "vue";
-import { store } from "../global/store";
 import { axios, prettyError } from "../global/helpers";
+import { store } from "../global/store";
 
 const props = defineProps({
   show: {
@@ -53,7 +53,7 @@ watch(
   () => props.show,
   () => {
     error.value = "";
-    name.value = store.state.value.user?.name || "";
+    name.value = store.user?.name || "";
   }
 );
 </script>

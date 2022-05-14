@@ -1,25 +1,24 @@
 
 FROM alpine:latest as base
-RUN apk add nodejs npm git ffmpeg
-RUN npm i -g pnpm
+RUN apk add nodejs yarn git ffmpeg
 WORKDIR /app
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json yarn.lock ./
 COPY packages/common/package.json ./packages/common/package.json
 COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client-web/package.json ./packages/client-web/package.json
 
 FROM base as deps
-RUN --mount=type=cache,target=/root/.pnpm-store pnpm i
+RUN --mount=type=cache,target=/usr/local/share/.cache yarn --frozen-lockfile
 
 FROM deps as build
 COPY packages/common ./packages/common
 COPY packages/server ./packages/server
 COPY packages/client-web ./packages/client-web
-RUN pnpm build:server
-RUN pnpm build:client-web
+RUN yarn build:server
+RUN yarn build:client-web
 
 FROM base
 COPY --from=build /app/packages/server/dist ./packages/server/dist
 COPY --from=build /app/packages/client-web/dist ./packages/client-web/dist
 ENV NODE_ENV=production
-CMD [ "pnpm", "start" ]
+CMD [ "yarn", "start" ]

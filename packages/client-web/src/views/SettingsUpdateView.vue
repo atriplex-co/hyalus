@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts" setup>
-import { store } from "../global/store";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { isMobile } from "../global/helpers";
+import { store } from "../global/store";
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 document.title = "Hyalus \u2022 Updates & Changelog";
 </script>

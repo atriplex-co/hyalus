@@ -73,9 +73,9 @@ import AppDownloadModal from "../components/AppDownloadModal.vue";
 import WarningIcon from "../icons/WarningIcon.vue";
 import InputKeys from "../components/InputKeys.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
-import { store } from "../global/store";
 import { configToComputed } from "../global/helpers";
 import { isDesktop, isMobile } from "../global/helpers";
+import { store } from "../global/store";
 
 const appDownloadModal = ref(false);
 const searchKeys = configToComputed<string>("searchKeys");
@@ -89,5 +89,5 @@ const uploadFileKeys = configToComputed<string>("uploadFileKeys");
 
 document.title = `Hyalus \u2022 Keyboard Shortcuts`;
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>

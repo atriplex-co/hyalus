@@ -43,7 +43,7 @@ const password = ref("");
 const error = ref("");
 
 const submit = async () => {
-  if (!store.state.value.config.salt) {
+  if (!store.config.salt) {
     return;
   }
 
@@ -51,7 +51,7 @@ const submit = async () => {
     const symKey = sodium.crypto_pwhash(
       32,
       password.value,
-      store.state.value.config.salt,
+      store.config.salt,
       sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
       sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
       sodium.crypto_pwhash_ALG_ARGON2ID13
@@ -60,7 +60,7 @@ const submit = async () => {
     const authKey = sodium.crypto_pwhash(
       32,
       symKey,
-      store.state.value.config.salt,
+      store.config.salt,
       sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
       sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
       sodium.crypto_pwhash_ALG_ARGON2ID13

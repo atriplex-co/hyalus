@@ -25,7 +25,6 @@ import {
   ISocketHook,
   ISocketMessage,
 } from "./types";
-import { store } from "./store";
 import {
   axios,
   isDesktop,
@@ -37,6 +36,7 @@ import {
 } from "./helpers";
 import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
 import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
+import { store } from "../global/store";
 
 let updateCheck: string;
 let awayController: AbortController;
@@ -53,7 +53,7 @@ export class Socket {
 
   constructor() {
     this.ws.addEventListener("open", async () => {
-      if (!store.state.value.config.token) {
+      if (!store.config.token) {
         this.close();
         return;
       }
@@ -62,8 +62,8 @@ export class Socket {
         t: SocketMessageType.CStart,
         d: {
           proto: SocketProtocol,
-          token: sodium.to_base64(store.state.value.config.token),
-          away: store.state.value.away,
+          token: sodium.to_base64(store.config.token),
+          away: store.away,
           fileChunks: (await idbKeys())
             .filter((key) => key.startsWith("file:"))
             .map((key) => key.slice("file:".length)),
@@ -160,7 +160,7 @@ export class Socket {
 
         this.meta = data.meta;
 
-        store.state.value.user = {
+        store.user = {
           id: data.user.id,
           name: data.user.name,
           username: data.user.username,
@@ -172,12 +172,12 @@ export class Socket {
           totpEnabled: data.user.totpEnabled,
         };
 
-        store.state.value.sessions = [];
-        store.state.value.friends = [];
-        store.state.value.channels = [];
+        store.sessions = [];
+        store.friends = [];
+        store.channels = [];
 
         for (const session of data.sessions) {
-          store.state.value.sessions.push({
+          store.sessions.push({
             id: session.id,
             self: session.self,
             ip: session.ip,
@@ -188,7 +188,7 @@ export class Socket {
         }
 
         for (const friend of data.friends) {
-          store.state.value.friends.push({
+          store.friends.push({
             id: friend.id,
             username: friend.username,
             name: friend.name,
@@ -237,28 +237,28 @@ export class Socket {
             out.messages.push(lastMessage);
           }
 
-          store.state.value.channels.push(out);
+          store.channels.push(out);
         }
 
-        store.state.value.channels.sort((a, b) =>
+        store.channels.sort((a, b) =>
           (a.messages.at(-1)?.created || a.created) <
           (b.messages.at(-1)?.created || b.created)
             ? 1
             : -1
         );
 
-        store.state.value.ready = true;
+        store.ready = true;
 
-        if (store.state.value.call) {
+        if (store.call) {
           this.send({
             t: SocketMessageType.CCallStart,
             d: {
-              channelId: store.state.value.call.channelId,
+              channelId: store.call.channelId,
             },
           });
 
-          const channel = store.state.value.channels.find(
-            (channel) => channel.id === store.state.value.call?.channelId
+          const channel = store.channels.find(
+            (channel) => channel.id === store.call?.channelId
           );
 
           if (!channel) {
@@ -266,7 +266,7 @@ export class Socket {
           }
 
           for (const user of channel.users.filter((user) => user.inCall)) {
-            for (const stream of store.state.value.call.localStreams) {
+            for (const stream of store.call.localStreams) {
               await store.callSendLocalStream(stream, user.id);
             }
           }
@@ -282,7 +282,7 @@ export class Socket {
           });
 
           if (updateCheck && updateCheck !== data) {
-            store.state.value.updateAvailable = true;
+            store.updateAvailable = true;
           }
 
           updateCheck = data;
@@ -371,14 +371,14 @@ export class Socket {
                 awayDetector.screenState === "unlocked"
               );
 
-              if (store.state.value.away === away) {
+              if (store.away === away) {
                 return;
               }
 
-              store.state.value.away = away;
+              store.away = away;
 
-              if (store.state.value.ready) {
-                store.state.value.socket?.send({
+              if (store.ready) {
+                store.socket?.send({
                   t: SocketMessageType.CSetAway,
                   d: {
                     away,
@@ -402,18 +402,14 @@ export class Socket {
           await initPermissions();
         }
 
-        if (
-          isDesktop &&
-          store.state.value.config.callPersist &&
-          !store.state.value.call
-        ) {
+        if (isDesktop && store.config.callPersist && !store.call) {
           const callPersist = JSON.parse(
-            store.state.value.config.callPersist
+            store.config.callPersist
           ) as ICallPersist;
 
           if (
             +new Date() - callPersist.updated > 1000 * 60 * 5 ||
-            !store.state.value.channels.find(
+            !store.channels.find(
               (channel) => channel.id === callPersist.channelId
             )
           ) {
@@ -442,8 +438,8 @@ export class Socket {
         };
 
         if (data && data.updateRequired) {
-          store.state.value.updateAvailable = true;
-          store.state.value.updateRequired = true;
+          store.updateAvailable = true;
+          store.updateRequired = true;
           this.close();
           return;
         }
@@ -463,12 +459,12 @@ export class Socket {
           totpEnabled?: boolean;
         };
 
-        if (!store.state.value.user) {
+        if (!store.user) {
           return;
         }
 
-        store.state.value.user = {
-          ...store.state.value.user,
+        store.user = {
+          ...store.user,
           ...data,
         };
 
@@ -485,7 +481,7 @@ export class Socket {
           created: number;
         };
 
-        store.state.value.sessions.push({
+        store.sessions.push({
           id: data.id,
           ip: data.ip,
           agent: data.agent,
@@ -501,7 +497,7 @@ export class Socket {
           lastStart?: number;
         };
 
-        const session = store.state.value.sessions.find(
+        const session = store.sessions.find(
           (session) => session.id === data.id
         );
 
@@ -520,7 +516,7 @@ export class Socket {
           id: string;
         };
 
-        store.state.value.sessions = store.state.value.sessions.filter(
+        store.sessions = store.sessions.filter(
           (session) => session.id !== data.id
         );
       }
@@ -536,7 +532,7 @@ export class Socket {
           acceptable: boolean;
         };
 
-        store.state.value.friends.push({
+        store.friends.push({
           id: data.id,
           username: data.username,
           name: data.name,
@@ -564,9 +560,7 @@ export class Socket {
           status?: Status;
         };
 
-        const friend = store.state.value.friends.find(
-          (friend) => friend.id === data.id
-        );
+        const friend = store.friends.find((friend) => friend.id === data.id);
 
         if (!friend) {
           console.warn(`SFriendUpdate for invalid ID: ${data.id}`);
@@ -584,7 +578,7 @@ export class Socket {
         if (data.status !== undefined) {
           friend.status = data.status;
 
-          for (const channel of store.state.value.channels) {
+          for (const channel of store.channels) {
             const user = channel.users.find((user) => user.id === data.id);
 
             if (user) {
@@ -599,11 +593,9 @@ export class Socket {
           id: string;
         };
 
-        store.state.value.friends = store.state.value.friends.filter(
-          (friend) => friend.id !== data.id
-        );
+        store.friends = store.friends.filter((friend) => friend.id !== data.id);
 
-        for (const channel of store.state.value.channels) {
+        for (const channel of store.channels) {
           const user = channel.users.find((user) => user.id === data.id);
 
           if (user) {
@@ -677,16 +669,16 @@ export class Socket {
           channel.messages.push(lastMessage);
         }
 
-        store.state.value.channels.push(channel);
+        store.channels.push(channel);
 
-        store.state.value.channels.sort((a, b) =>
+        store.channels.sort((a, b) =>
           (a.messages.at(-1)?.created || a.created) <
           (b.messages.at(-1)?.created || b.created)
             ? 1
             : -1
         );
 
-        if (msg.t === store.state.value.expectedEvent) {
+        if (msg.t === store.expectedEvent) {
           await router.push(`/channels/${data.id}`);
         }
       }
@@ -699,7 +691,7 @@ export class Socket {
           owner?: boolean;
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.id
         );
 
@@ -726,7 +718,7 @@ export class Socket {
           id: string;
         };
 
-        store.state.value.channels = store.state.value.channels.filter(
+        store.channels = store.channels.filter(
           (channel) => channel.id !== data.id
         );
       }
@@ -745,7 +737,7 @@ export class Socket {
           inCall: boolean;
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -778,7 +770,7 @@ export class Socket {
           inCall?: boolean;
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -807,11 +799,8 @@ export class Socket {
         if (data.inCall !== undefined) {
           user.inCall = data.inCall;
 
-          if (
-            store.state.value.call &&
-            store.state.value.call.channelId === data.channelId
-          ) {
-            for (const stream of store.state.value.call.localStreams) {
+          if (store.call && store.call.channelId === data.channelId) {
+            for (const stream of store.call.localStreams) {
               for (const peer of stream.peers.filter(
                 (peer) => peer.userId === data.id
               )) {
@@ -821,19 +810,18 @@ export class Socket {
               }
             }
 
-            for (const stream of store.state.value.call.remoteStreams.filter(
+            for (const stream of store.call.remoteStreams.filter(
               (stream) => stream.userId === data.id
             )) {
               stream.pc.close();
 
-              store.state.value.call.remoteStreams =
-                store.state.value.call.remoteStreams.filter(
-                  (stream2) => stream2.pc !== stream.pc
-                );
+              store.call.remoteStreams = store.call.remoteStreams.filter(
+                (stream2) => stream2.pc !== stream.pc
+              );
             }
 
             if (data.inCall) {
-              for (const stream of store.state.value.call.localStreams) {
+              for (const stream of store.call.localStreams) {
                 await store.callSendLocalStream(stream, data.id);
               }
             }
@@ -854,15 +842,13 @@ export class Socket {
 
         const targets: (IFriend | IChannelUser)[] = [];
 
-        const friend = store.state.value.friends.find(
-          (friend) => friend.id === data.id
-        );
+        const friend = store.friends.find((friend) => friend.id === data.id);
 
         if (friend) {
           targets.push(friend);
         }
 
-        for (const channel of store.state.value.channels) {
+        for (const channel of store.channels) {
           const user = channel.users.find((user) => user.id === data.id);
 
           if (user) {
@@ -901,7 +887,7 @@ export class Socket {
           key?: string;
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -922,14 +908,14 @@ export class Socket {
         channel.messages.push(message);
         channel.messages.sort((a, b) => (a.created > b.created ? 1 : -1));
 
-        store.state.value.channels.sort((a, b) =>
+        store.channels.sort((a, b) =>
           (a.messages.at(-1)?.created || a.created) <
           (b.messages.at(-1)?.created || b.created)
             ? 1
             : -1
         );
 
-        if (msg.t === store.state.value.expectedEvent) {
+        if (msg.t === store.expectedEvent) {
           await router.push(`/channels/${data.channelId}`);
         }
 
@@ -991,7 +977,7 @@ export class Socket {
           };
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -1023,7 +1009,7 @@ export class Socket {
           channel.messages.sort((a, b) => (a.created > b.created ? 1 : -1));
         }
 
-        store.state.value.channels.sort((a, b) =>
+        store.channels.sort((a, b) =>
           (a.messages.at(-1)?.created || a.created) <
           (b.messages.at(-1)?.created || b.created)
             ? 1
@@ -1040,7 +1026,7 @@ export class Socket {
           key: string;
         };
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -1087,7 +1073,7 @@ export class Socket {
           return;
         }
 
-        const channel = store.state.value.channels.find(
+        const channel = store.channels.find(
           (channel) => channel.id === data.channelId
         );
 
@@ -1100,11 +1086,8 @@ export class Socket {
 
         let publicKey: Uint8Array | undefined;
 
-        if (
-          store.state.value.user &&
-          store.state.value.user.id === data.userId
-        ) {
-          publicKey = store.state.value.config.publicKey;
+        if (store.user && store.user.id === data.userId) {
+          publicKey = store.config.publicKey;
         } else {
           publicKey = channel.users.find(
             (user) => user.id === data.userId
@@ -1136,7 +1119,7 @@ export class Socket {
                     JSON.stringify(val),
                     nonce,
                     publicKey as unknown as Uint8Array,
-                    store.state.value.config.privateKey as unknown as Uint8Array
+                    store.config.privateKey as unknown as Uint8Array
                   ),
                 ])
               ),
@@ -1172,7 +1155,7 @@ export class Socket {
                     sodium.crypto_box_NONCEBYTES
                   ),
                   publicKey as unknown as Uint8Array,
-                  store.state.value.config.privateKey as unknown as Uint8Array
+                  store.config.privateKey as unknown as Uint8Array
                 )
               )
             );
@@ -1250,12 +1233,12 @@ export class Socket {
           data: string;
         };
 
-        if (!store.state.value.call) {
+        if (!store.call) {
           return;
         }
 
-        const channel = store.state.value.channels.find(
-          (channel) => channel.id === store.state.value.call?.channelId
+        const channel = store.channels.find(
+          (channel) => channel.id === store.call?.channelId
         );
 
         if (!channel) {
@@ -1264,7 +1247,7 @@ export class Socket {
 
         const user = channel.users.find((user) => user.id === data.userId);
 
-        if (!user || !store.state.value.config.privateKey) {
+        if (!user || !store.config.privateKey) {
           return;
         }
 
@@ -1275,7 +1258,7 @@ export class Socket {
               new Uint8Array(dataBytes.buffer, sodium.crypto_box_NONCEBYTES),
               new Uint8Array(dataBytes.buffer, 0, sodium.crypto_box_NONCEBYTES),
               user.publicKey,
-              store.state.value.config.privateKey
+              store.config.privateKey
             )
           )
         );
@@ -1321,8 +1304,7 @@ export class Socket {
                       JSON.stringify(val),
                       nonce,
                       user.publicKey,
-                      store.state.value.config
-                        .privateKey as unknown as Uint8Array
+                      store.config.privateKey as unknown as Uint8Array
                     ),
                   ])
                 ),
@@ -1449,14 +1431,13 @@ export class Socket {
               // stream.decoder.close();
               stream.writer.close();
 
-              if (!store.state.value.call) {
+              if (!store.call) {
                 return;
               }
 
-              store.state.value.call.remoteStreams =
-                store.state.value.call.remoteStreams.filter(
-                  (stream) => stream.pc !== pc
-                );
+              store.call.remoteStreams = store.call.remoteStreams.filter(
+                (stream) => stream.pc !== pc
+              );
             });
 
             if (ctx) {
@@ -1471,13 +1452,12 @@ export class Socket {
                   .createMediaStreamSource(el2.srcObject as MediaStream)
                   .connect(gain);
                 gain.connect(dest);
-                gain.gain.value =
-                  store.state.value.config.audioOutputGain / 100;
+                gain.gain.value = store.config.audioOutputGain / 100;
                 el.srcObject = dest.stream;
-                el.volume = !store.state.value.call?.deaf ? 1 : 0;
+                el.volume = !store.call?.deaf ? 1 : 0;
 
                 if (!isMobile) {
-                  el.setSinkId(store.state.value.config.audioOutput);
+                  el.setSinkId(store.config.audioOutput);
                 }
 
                 el.play();
@@ -1506,7 +1486,7 @@ export class Socket {
             writer,
           };
 
-          store.state.value.call.remoteStreams.push(stream);
+          store.call.remoteStreams.push(stream);
 
           await pc.setRemoteDescription(
             new RTCSessionDescription({
@@ -1527,7 +1507,7 @@ export class Socket {
           let stream: ICallRemoteStream | undefined;
 
           for (let i = 0; i < 10; ++i) {
-            stream = store.state.value.call.remoteStreams.find(
+            stream = store.call.remoteStreams.find(
               (stream) =>
                 stream.userId === data.userId &&
                 stream.type === dataDecrypted.st
@@ -1558,7 +1538,7 @@ export class Socket {
             CallRTCDataType.LocalTrackICECandidate,
           ].indexOf(dataDecrypted.mt) !== -1
         ) {
-          const stream = store.state.value.call.localStreams.find(
+          const stream = store.call.localStreams.find(
             (stream) => stream.type === dataDecrypted.st
           );
 
@@ -1599,23 +1579,23 @@ export class Socket {
     });
 
     this.ws.addEventListener("close", () => {
-      store.state.value.ready = false;
+      store.ready = false;
 
-      if (store.state.value.call) {
-        for (const stream of store.state.value.call.localStreams) {
+      if (store.call) {
+        for (const stream of store.call.localStreams) {
           for (const peer of stream.peers) {
             peer.pc.close();
           }
         }
 
-        for (const stream of store.state.value.call.remoteStreams) {
+        for (const stream of store.call.remoteStreams) {
           stream.pc.close();
         }
       }
 
       if (!this.preventReconnect) {
         setTimeout(() => {
-          store.state.value.socket = new Socket();
+          store.socket = new Socket();
         }, 1000);
       }
     });

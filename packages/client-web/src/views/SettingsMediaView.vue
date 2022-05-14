@@ -126,9 +126,9 @@ import InputList from "../components/InputList.vue";
 import InputListItem from "../components/InputListItem.vue";
 import InputBoolean from "../components/InputBoolean.vue";
 import { computed, onMounted, ref, Ref } from "vue";
-import { store } from "../global/store";
 import { configToComputed, isDesktop, isMobile } from "../global/helpers";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
+import { store } from "../global/store";
 
 const usableVideoModes = [
   "480p30",
@@ -146,7 +146,7 @@ const usableVideoInputs: Ref<MediaDeviceInfo[]> = ref([]);
 const audioOutput = computed({
   get() {
     const device = usableAudioOutputs.value.find(
-      (d) => d.deviceId === store.state.value.config.audioOutput
+      (d) => d.deviceId === store.config.audioOutput
     );
 
     if (device) {
@@ -163,7 +163,7 @@ const audioOutput = computed({
 const audioInput = computed({
   get() {
     const device = usableAudioInputs.value.find(
-      (d) => d.deviceId === store.state.value.config.audioInput
+      (d) => d.deviceId === store.config.audioInput
     );
 
     if (device) {
@@ -180,7 +180,7 @@ const audioInput = computed({
 const videoInput = computed({
   get() {
     const device = usableVideoInputs.value.find(
-      (d) => d.deviceId === store.state.value.config.videoInput
+      (d) => d.deviceId === store.config.videoInput
     );
 
     if (device) {
@@ -231,5 +231,5 @@ onMounted(async () => {
   usableVideoInputs.value = devices.filter((d) => d.kind === "videoinput");
 });
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>

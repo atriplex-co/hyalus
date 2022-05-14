@@ -31,7 +31,7 @@ import { store } from "../global/store";
 
 const addFriendModal = ref(false);
 const friends = computed(() =>
-  [...store.state.value.friends]
+  [...store.friends]
     .sort((a, b) => (a.name > b.name ? -1 : 1))
     .sort((a) => (!a.accepted ? -1 : 1))
 );

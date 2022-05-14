@@ -54,9 +54,9 @@ import ModalBase from "./ModalBase.vue";
 import DisplayIcon from "../icons/DisplayIcon.vue";
 import InputBoolean from "./InputBoolean.vue";
 import { ref, Ref, watch } from "vue";
-import { store } from "../global/store";
 import { CallStreamType } from "common";
 import { ICallLocalStream } from "../global/types";
+import { store } from "../global/store";
 
 interface ISource {
   id: string;
@@ -88,8 +88,8 @@ const submit = async () => {
     return;
   }
 
-  const height = +store.state.value.config.videoMode.split("p")[0];
-  const fps = +store.state.value.config.videoMode.split("p")[1];
+  const height = +store.config.videoMode.split("p")[0];
+  const fps = +store.config.videoMode.split("p")[1];
   const width = {
     360: 640,
     480: 854,

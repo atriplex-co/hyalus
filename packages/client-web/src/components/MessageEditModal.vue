@@ -30,10 +30,10 @@ import ModalBase from "./ModalBase.vue";
 import ModalError from "./ModalError.vue";
 import { ref, PropType, Ref, watch } from "vue";
 import { axios, prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import { IMessage, IChannel } from "../global/types";
 import sodium from "libsodium-wrappers";
 import PencilIcon from "../icons/PencilIcon.vue";
+import { store } from "../global/store";
 
 const props = defineProps({
   message: {
@@ -64,11 +64,7 @@ const messageBoxSubmit = async () => {
 
   try {
     if (data) {
-      if (
-        !store.state.value.user ||
-        !store.state.value.config.publicKey ||
-        !store.state.value.config.privateKey
-      ) {
+      if (!store.user || !store.config.publicKey || !store.config.privateKey) {
         return;
       }
 
@@ -91,7 +87,7 @@ const messageBoxSubmit = async () => {
                 key,
                 userKeyNonce,
                 user.publicKey,
-                store.state.value.config.privateKey
+                store.config.privateKey
               ),
             ])
           ),
@@ -103,15 +99,15 @@ const messageBoxSubmit = async () => {
       );
 
       keys.push({
-        userId: store.state.value.user.id,
+        userId: store.user.id,
         data: sodium.to_base64(
           new Uint8Array([
             ...selfKeyNonce,
             ...sodium.crypto_box_easy(
               key,
               selfKeyNonce,
-              store.state.value.config.publicKey,
-              store.state.value.config.privateKey
+              store.config.publicKey,
+              store.config.privateKey
             ),
           ])
         ),

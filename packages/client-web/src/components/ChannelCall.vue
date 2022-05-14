@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="store.state.value.call"
+    v-if="store.call"
     class="relative flex flex-col bg-gray-900 p-2"
     :style="`height: ${resizeHeight}px;`"
   >
@@ -60,12 +60,12 @@
           class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
           :class="{
             'border-transparent bg-gray-600 text-white hover:bg-gray-600':
-              store.state.value.call.deaf,
+              store.call.deaf,
             'border-gray-600 text-gray-400 hover:text-gray-300':
-              !store.state.value.call.deaf,
+              !store.call.deaf,
           }"
         >
-          <AudioOffIcon v-if="store.state.value.call" />
+          <AudioOffIcon v-if="store.call" />
           <AudioIcon v-else />
         </div>
       </div>
@@ -95,9 +95,9 @@ import AudioIcon from "../icons/AudioIcon.vue";
 import AudioOffIcon from "../icons/AudioOffIcon.vue";
 import { ref, computed, onMounted, Ref } from "vue";
 import { ICallTile } from "../global/types";
-import { store } from "../global/store";
 import { CallStreamType, SocketMessageType } from "common";
 import { isDesktop } from "../global/helpers";
+import { store } from "../global/store";
 
 const desktopCaptureModal = ref(false);
 const tileContainer: Ref<HTMLDivElement | null> = ref(null);
@@ -110,13 +110,11 @@ const getTileId = (tile: ICallTile) => {
 
 const getComputedStream = (type: CallStreamType) => {
   return computed(() => {
-    if (!store.state.value.call) {
+    if (!store.call) {
       return undefined;
     }
 
-    return store.state.value.call.localStreams.find(
-      (track) => track.type === type
-    );
+    return store.call.localStreams.find((track) => track.type === type);
   });
 };
 
@@ -125,13 +123,11 @@ const videoStream = getComputedStream(CallStreamType.Video);
 const displayVideoStream = getComputedStream(CallStreamType.DisplayVideo);
 
 const channel = computed(() => {
-  return store.state.value.channels.find(
-    (channel) => channel.id === store.state.value.call?.channelId
-  );
+  return store.channels.find((channel) => channel.id === store.call?.channelId);
 });
 
 const tiles = computed(() => {
-  if (!store.state.value.user || !store.state.value.call || !channel.value) {
+  if (!store.user || !store.call || !channel.value) {
     return [];
   }
 
@@ -140,7 +136,7 @@ const tiles = computed(() => {
   for (const user of channel.value.users.filter((user) => user.inCall)) {
     const userTiles: ICallTile[] = [];
 
-    for (const stream of store.state.value.call.remoteStreams.filter(
+    for (const stream of store.call.remoteStreams.filter(
       (stream) => stream.userId === user.id
     )) {
       if (
@@ -166,14 +162,14 @@ const tiles = computed(() => {
 
   const selfTiles: ICallTile[] = [];
 
-  for (const stream of store.state.value.call.localStreams) {
+  for (const stream of store.call.localStreams) {
     if (
       [CallStreamType.Video, CallStreamType.DisplayVideo].indexOf(
         stream.type
       ) !== -1
     ) {
       selfTiles.push({
-        user: store.state.value.user,
+        user: store.user,
         stream,
       });
     }
@@ -181,7 +177,7 @@ const tiles = computed(() => {
 
   if (!selfTiles.length) {
     selfTiles.push({
-      user: store.state.value.user,
+      user: store.user,
     });
   }
 
@@ -197,11 +193,7 @@ const toggleStream = (type: CallStreamType) => async (e: MouseEvent) => {
       type,
     });
   } else {
-    if (
-      type === CallStreamType.Audio &&
-      store.state.value.call?.deaf &&
-      !e.shiftKey
-    ) {
+    if (type === CallStreamType.Audio && store.call?.deaf && !e.shiftKey) {
       await store.callSetDeaf(false);
     }
 
@@ -327,7 +319,7 @@ const updateTileBounds = () => {
 };
 
 const stop = async () => {
-  store.state.value.socket?.send({
+  store.socket?.send({
     t: SocketMessageType.CCallStop,
   });
 
@@ -335,9 +327,9 @@ const stop = async () => {
 };
 
 const toggleDeaf = async (e: MouseEvent) => {
-  store.callSetDeaf(!store.state.value.call?.deaf);
+  store.callSetDeaf(!store.call?.deaf);
 
-  if (!e.shiftKey && audioStream.value && store.state.value.call?.deaf) {
+  if (!e.shiftKey && audioStream.value && store.call?.deaf) {
     await store.callRemoveLocalStream({
       type: CallStreamType.Audio,
       silent: true,

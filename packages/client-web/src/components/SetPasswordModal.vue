@@ -41,7 +41,6 @@ import ModalError from "./ModalError.vue";
 import KeyIcon from "../icons/KeyIcon.vue";
 import { ref, watch } from "vue";
 import { axios, prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import {
   crypto_pwhash,
   crypto_pwhash_ALG_ARGON2ID13,
@@ -53,6 +52,7 @@ import {
   randombytes_buf,
   to_base64,
 } from "libsodium-wrappers";
+import { store } from "../global/store";
 
 const props = defineProps({
   show: {
@@ -73,7 +73,7 @@ const submit = async () => {
     return;
   }
 
-  if (!store.state.value.config.salt || !store.state.value.config.privateKey) {
+  if (!store.config.salt || !store.config.privateKey) {
     error.value = "Missing credentials";
     return;
   }
@@ -81,7 +81,7 @@ const submit = async () => {
   const oldSymKey = crypto_pwhash(
     32,
     password.value,
-    store.state.value.config.salt,
+    store.config.salt,
     crypto_pwhash_OPSLIMIT_INTERACTIVE,
     crypto_pwhash_MEMLIMIT_INTERACTIVE,
     crypto_pwhash_ALG_ARGON2ID13
@@ -90,7 +90,7 @@ const submit = async () => {
   const oldAuthKey = crypto_pwhash(
     32,
     oldSymKey,
-    store.state.value.config.salt,
+    store.config.salt,
     crypto_pwhash_OPSLIMIT_INTERACTIVE,
     crypto_pwhash_MEMLIMIT_INTERACTIVE,
     crypto_pwhash_ALG_ARGON2ID13
@@ -121,7 +121,7 @@ const submit = async () => {
   const encryptedPrivateKey = new Uint8Array([
     ...encryptedPrivateKeyNonce,
     ...crypto_secretbox_easy(
-      store.state.value.config.privateKey,
+      store.config.privateKey,
       encryptedPrivateKeyNonce,
       symKey
     ),

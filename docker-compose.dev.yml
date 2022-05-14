@@ -9,7 +9,7 @@ services:
       - ${PORT}:3001
     volumes:
       - ".:/home/app/app"
-      - "$HOME/.pnpm-store:/home/app/.pnpm-store"
+      - "$HOME/.cache:/home/app/.cache"
     environment:
       - VAPID_SUBJECT=${VAPID_SUBJECT}
       - VAPID_PUBLIC=${VAPID_PUBLIC}
@@ -17,8 +17,8 @@ services:
   db:
     image: mongo:latest
     restart: always
-    ports:
-      - 127.0.0.1:27017:27017
+#    ports:
+#      - 127.0.0.1:27017:27017
     volumes:
       - db:/data/db
 volumes:

@@ -1,9 +1,8 @@
 import { AxiosError } from "axios";
 import { computed } from "vue";
-import { store } from "./store";
 import Axios from "axios";
 import sodium from "libsodium-wrappers";
-import { AvatarType, MessageType, Status } from "common";
+import { AvatarType, ColorTheme, MessageType, Status } from "common";
 import SoundNotification from "../assets/sounds/notification_simple-01.ogg";
 import ImageIcon from "../assets/images/icon-background.png";
 import {
@@ -15,6 +14,7 @@ import {
   IUser,
 } from "./types";
 import { messageFormatter } from "./config";
+import { store } from "./store";
 
 export const axios = Axios.create();
 
@@ -31,7 +31,7 @@ export const prettyError = (e: unknown): string => {
 export const configToComputed = <T>(k: string) => {
   return computed({
     get() {
-      return (store.state.value.config as Record<string, unknown>)[k] as T;
+      return (store.config as Record<string, unknown>)[k] as T;
     },
     async set(v: T) {
       await store.writeConfig(k, v);
@@ -61,13 +61,9 @@ export const processMessage = (opts: {
   const data = opts.data ? sodium.from_base64(opts.data) : undefined;
   const key = opts.key ? sodium.from_base64(opts.key) : undefined;
 
-  if (
-    store.state.value.user &&
-    store.state.value.config.publicKey &&
-    opts.userId === store.state.value.user?.id
-  ) {
-    sender = store.state.value.user;
-    publicKey = store.state.value.config.publicKey;
+  if (store.user && store.config.publicKey && opts.userId === store.user?.id) {
+    sender = store.user;
+    publicKey = store.config.publicKey;
   } else {
     sender = opts.channel.users.find((user) => user.id === opts.userId);
     publicKey = sender?.publicKey;
@@ -79,7 +75,7 @@ export const processMessage = (opts: {
   }
 
   if (opts.data) {
-    if (data && key && store.state.value.config.privateKey) {
+    if (data && key && store.config.privateKey) {
       try {
         dataString = sodium.to_string(
           sodium.crypto_secretbox_open_easy(
@@ -89,7 +85,7 @@ export const processMessage = (opts: {
               new Uint8Array(key.buffer, sodium.crypto_box_NONCEBYTES),
               new Uint8Array(key.buffer, 0, sodium.crypto_box_NONCEBYTES),
               publicKey,
-              store.state.value.config.privateKey
+              store.config.privateKey
             )
           )
         );
@@ -121,8 +117,8 @@ export const processMessage = (opts: {
     ) {
       let target: IChannelUser | IUser | undefined;
 
-      if (store.state.value.user && opts.data === store.state.value.user?.id) {
-        target = store.state.value.user;
+      if (store.user && opts.data === store.user?.id) {
+        target = store.user;
       } else {
         target = opts.channel.users.find((user) => user.id === opts.data);
       }
@@ -146,7 +142,7 @@ export const processMessage = (opts: {
     }
 
     if (opts.type === MessageType.FriendAccept) {
-      if (sender === store.state.value.user) {
+      if (sender === store.user) {
         dataString = `You accepted ${opts.channel.users[0].name}'s friend request`;
       } else {
         dataString = `${opts.channel.users[0].name} accepted your friend request`;
@@ -180,15 +176,15 @@ export const notifySend = (opts: {
   title: string;
   body: string;
 }) => {
-  if (store.state.value.user?.wantStatus === Status.Busy) {
+  if (store.user?.wantStatus === Status.Busy) {
     return;
   }
 
-  if (store.state.value.config.notifySound) {
+  if (store.config.notifySound) {
     playSound(SoundNotification);
   }
 
-  if (store.state.value.config.notifySystem) {
+  if (store.config.notifySystem) {
     try {
       new Notification(opts.title, {
         icon: opts.icon,
@@ -214,14 +210,12 @@ export const notifyGetAvatarUrl = async (
 export const callUpdatePersist = async () => {
   await store.writeConfig(
     "callPersist",
-    store.state.value.call &&
+    store.call &&
       JSON.stringify({
         // idk why we JSON'd it but otherwise, IDB will shit itself.
         updated: +new Date(),
-        channelId: store.state.value.call.channelId,
-        localStreams: store.state.value.call.localStreams.map(
-          (stream) => stream.type
-        ),
+        channelId: store.call.channelId,
+        localStreams: store.call.localStreams.map((stream) => stream.type),
       } as ICallPersist)
   );
 };
@@ -234,9 +228,19 @@ export const playSound = (url: string) => {
     const el = document.createElement("audio") as IHTMLAudioElement;
     el.src = url;
     el.volume = 0.5;
-    el.setSinkId(store.state.value.config.audioOutput);
+    el.setSinkId(store.config.audioOutput);
     el.play();
   } catch {
     //
   }
+};
+
+export const updateIcon = async () => {
+  (document.querySelector("link[rel='icon']") as HTMLLinkElement).href = (
+    await import(
+      `../assets/images/icon-standalone-${ColorTheme[
+        store.config.colorTheme
+      ].toLowerCase()}.png`
+    )
+  ).default;
 };

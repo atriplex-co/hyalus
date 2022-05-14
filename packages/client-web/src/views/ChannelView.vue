@@ -185,7 +185,6 @@ import {
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { axios, processMessage, isMobile } from "../global/helpers";
-import { store } from "../global/store";
 import { idbSet } from "../global/idb";
 import {
   CallStreamType,
@@ -197,9 +196,11 @@ import sodium from "libsodium-wrappers";
 import ChannelCall from "../components/ChannelCall.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { MaxFileSize, MaxFileChunkSize } from "../global/config";
+import { store } from "../global/store";
 
 const route = useRoute();
 const router = useRouter();
+
 const messageBoxText = ref("");
 const groupNameModal = ref(false);
 const showInfo = ref(false);
@@ -213,7 +214,7 @@ let updateInterval: number;
 let scrollUpdated = false; // make sure chat is scrolled down when initially loaded.
 
 const channel = computed(() => {
-  return store.state.value.channels.find(
+  return store.channels.find(
     (channel) => channel.id === route.params.channelId
   );
 });
@@ -280,23 +281,19 @@ const writable = computed(() => {
   if (channel.value.type === ChannelType.Private) {
     const friendId = channel.value.users[0].id;
 
-    return store.state.value.friends.find((friend) => friend.id === friendId)
-      ?.accepted;
+    return store.friends.find((friend) => friend.id === friendId)?.accepted;
   }
 
   return true;
 });
 
 const inCall = computed(() => {
-  return (
-    store.state.value.call &&
-    store.state.value.call.channelId === channel.value?.id
-  );
+  return store.call && store.call.channelId === channel.value?.id;
 });
 
 const getMessages = async (method: "before" | "after") => {
   // dereference ref->state to prevent change during HTTP request.
-  const channelObj = store.state.value.channels.find(
+  const channelObj = store.channels.find(
     (channel2) => channel2.id === channel.value?.id
   );
 
@@ -347,7 +344,7 @@ const getMessages = async (method: "before" | "after") => {
 
   channelObj.messages.sort((a, b) => (a.created > b.created ? 1 : -1));
 
-  store.state.value.channels.sort((a, b) =>
+  store.channels.sort((a, b) =>
     (a.messages.at(-1)?.created || a.created) <
     (b.messages.at(-1)?.created || b.created)
       ? 1
@@ -358,9 +355,9 @@ const getMessages = async (method: "before" | "after") => {
 const sendMessage = async (type: MessageType, data: string) => {
   if (
     !channel.value ||
-    !store.state.value.user ||
-    !store.state.value.config.publicKey ||
-    !store.state.value.config.privateKey
+    !store.user ||
+    !store.config.publicKey ||
+    !store.config.privateKey
   ) {
     return;
   }
@@ -384,7 +381,7 @@ const sendMessage = async (type: MessageType, data: string) => {
             key,
             userKeyNonce,
             user.publicKey,
-            store.state.value.config.privateKey
+            store.config.privateKey
           ),
         ])
       ),
@@ -396,15 +393,15 @@ const sendMessage = async (type: MessageType, data: string) => {
   );
 
   keys.push({
-    userId: store.state.value.user.id,
+    userId: store.user.id,
     data: sodium.to_base64(
       new Uint8Array([
         ...selfKeyNonce,
         ...sodium.crypto_box_easy(
           key,
           selfKeyNonce,
-          store.state.value.config.publicKey,
-          store.state.value.config.privateKey
+          store.config.publicKey,
+          store.config.privateKey
         ),
       ])
     ),
@@ -444,10 +441,10 @@ const messageBoxInput = async () => {
   messageBox.value.style.height = "auto";
   messageBox.value.style.height = `${messageBox.value.scrollHeight}px`;
 
-  if (store.state.value.user?.typingEvents && +new Date() - 2000 > lastTyping) {
+  if (store.user?.typingEvents && +new Date() - 2000 > lastTyping) {
     lastTyping = +new Date();
 
-    store.state.value.socket?.send({
+    store.socket?.send({
       t: SocketMessageType.CChannelTyping,
       d: {
         id: channel.value?.id,
@@ -500,10 +497,10 @@ const callStart = async (e: MouseEvent) => {
     return;
   }
 
-  if (store.state.value.call) {
+  if (store.call) {
     await store.callReset();
 
-    store.state.value.socket?.send({
+    store.socket?.send({
       t: SocketMessageType.CCallStop,
     });
   }
@@ -551,7 +548,7 @@ const uploadFile = async (file: File) => {
 
     await idbSet(`file:${hash}`, data);
 
-    store.state.value.socket?.send({
+    store.socket?.send({
       t: SocketMessageType.CFileChunkOwned,
       d: {
         hash,
@@ -690,7 +687,7 @@ watch(
   }
 );
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>
 
 <style scoped>

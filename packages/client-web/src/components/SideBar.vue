@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="store.state.value.user"
+    v-if="store.user"
     class="flex w-full"
     :class="{
       'fixed inset-0 z-40': isMobile,
@@ -14,9 +14,9 @@
         >
           <div class="relative">
             <UserAvatar
-              :id="store.state.value.user.avatarId"
+              :id="store.user.avatarId"
               class="h-10 w-10 cursor-pointer rounded-full"
-              :status="store.state.value.user.wantStatus"
+              :status="store.user.wantStatus"
               @click="menu !== 'status' ? (menu = 'status') : (menu = '')"
             />
             <SideBarStatusPicker :show="menu === 'status'" @close="menu = ''" />
@@ -26,12 +26,9 @@
           class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
             'text-primary-400':
-              store.state.value.sideBarContent ===
-              SideBarContent.CHANNELS_PRIVATE,
+              store.sideBarContent === SideBarContent.CHANNELS_PRIVATE,
           }"
-          @click="
-            store.state.value.sideBarContent = SideBarContent.CHANNELS_PRIVATE
-          "
+          @click="store.sideBarContent = SideBarContent.CHANNELS_PRIVATE"
         >
           <ChatIcon class="h-6 w-6" />
         </div>
@@ -39,22 +36,18 @@
           class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
             'text-primary-400':
-              store.state.value.sideBarContent ===
-              SideBarContent.CHANNELS_GROUP,
+              store.sideBarContent === SideBarContent.CHANNELS_GROUP,
           }"
-          @click="
-            store.state.value.sideBarContent = SideBarContent.CHANNELS_GROUP
-          "
+          @click="store.sideBarContent = SideBarContent.CHANNELS_GROUP"
         >
           <GroupIcon class="h-6 w-6" />
         </div>
         <div
           class="hover:text-primary-400 relative flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           :class="{
-            'text-primary-400':
-              store.state.value.sideBarContent === SideBarContent.FRIENDS,
+            'text-primary-400': store.sideBarContent === SideBarContent.FRIENDS,
           }"
-          @click="store.state.value.sideBarContent = SideBarContent.FRIENDS"
+          @click="store.sideBarContent = SideBarContent.FRIENDS"
         >
           <FriendsIcon class="h-6 w-6" />
           <div
@@ -65,7 +58,7 @@
           </div>
         </div>
         <div
-          v-if="store.state.value.updateAvailable"
+          v-if="store.updateAvailable"
           class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
           @click="updateReloadModal = true"
         >
@@ -75,10 +68,9 @@
       <div
         class="hover:text-primary-400 flex h-16 cursor-pointer items-center justify-center text-gray-400 transition hover:bg-gray-800"
         :class="{
-          'text-primary-400':
-            store.state.value.sideBarContent === SideBarContent.SETTINGS,
+          'text-primary-400': store.sideBarContent === SideBarContent.SETTINGS,
         }"
-        @click="store.state.value.sideBarContent = SideBarContent.SETTINGS"
+        @click="store.sideBarContent = SideBarContent.SETTINGS"
       >
         <SettingsIcon class="h-6 w-6" />
       </div>
@@ -86,7 +78,7 @@
     <div
       class="min-w-0 flex-1 bg-gray-700"
       :class="{
-        hidden: store.state.value.sideBarContent === SideBarContent.NONE,
+        hidden: store.sideBarContent === SideBarContent.NONE,
       }"
     >
       <SideBarChannelList
@@ -94,14 +86,14 @@
           [
             SideBarContent.CHANNELS_PRIVATE,
             SideBarContent.CHANNELS_GROUP,
-          ].indexOf(+store.state.value.sideBarContent) !== -1
+          ].indexOf(+store.sideBarContent) !== -1
         "
       />
       <SideBarSettings
-        v-if="store.state.value.sideBarContent === SideBarContent.SETTINGS"
+        v-if="store.sideBarContent === SideBarContent.SETTINGS"
       />
       <SideBarFriendList
-        v-if="store.state.value.sideBarContent === SideBarContent.FRIENDS"
+        v-if="store.sideBarContent === SideBarContent.FRIENDS"
       />
       <UpdateReloadModal
         :show="updateReloadModal"
@@ -126,9 +118,9 @@ import UpdateReloadModal from "./UpdateReloadModal.vue";
 import { ref, watch, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { SideBarContent } from "../global/types";
-import { store } from "../global/store";
 import { ChannelType } from "common";
 import { isMobile } from "../global/helpers";
+import { store } from "../global/store";
 
 const route = useRoute();
 const menu = ref("");
@@ -136,33 +128,31 @@ const updateReloadModal = ref(false);
 
 const updateRoute = () => {
   if (route.name === "channel") {
-    const channel = store.state.value.channels.find(
-      (c) => c.id === route.params.channelId
-    );
+    const channel = store.channels.find((c) => c.id === route.params.channelId);
 
     if (channel?.type === ChannelType.Private) {
-      store.state.value.sideBarContent = SideBarContent.CHANNELS_PRIVATE;
+      store.sideBarContent = SideBarContent.CHANNELS_PRIVATE;
     }
 
     if (channel?.type === ChannelType.Group) {
-      store.state.value.sideBarContent = SideBarContent.CHANNELS_GROUP;
+      store.sideBarContent = SideBarContent.CHANNELS_GROUP;
     }
 
     return;
   }
 
   if (String(route.name).startsWith("settings")) {
-    store.state.value.sideBarContent = SideBarContent.SETTINGS;
+    store.sideBarContent = SideBarContent.SETTINGS;
     return;
   }
 
   if (!isMobile) {
-    store.state.value.sideBarContent = SideBarContent.NONE;
+    store.sideBarContent = SideBarContent.NONE;
   }
 };
 
 const acceptableFriends = computed(() => {
-  return store.state.value.friends.filter((friend) => friend.acceptable).length;
+  return store.friends.filter((friend) => friend.acceptable).length;
 });
 
 onMounted(updateRoute);

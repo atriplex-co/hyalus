@@ -24,9 +24,9 @@ import ModalInput from "./ModalInput.vue";
 import ModalError from "./ModalError.vue";
 import InputUser from "./InputUser.vue";
 import { ref, watch } from "vue";
-import { store } from "../global/store";
 import { prettyError, axios } from "../global/helpers";
 import { SocketMessageType } from "common";
+import { store } from "../global/store";
 
 const props = defineProps({
   show: {
@@ -42,7 +42,7 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 const users = ref(
-  store.state.value.friends
+  store.friends
     .filter((f) => f.accepted)
     .map((f) => ({
       ...f,
@@ -54,14 +54,14 @@ const name = ref("");
 
 const submit = async () => {
   try {
-    store.state.value.expectedEvent = SocketMessageType.SChannelCreate;
+    store.expectedEvent = SocketMessageType.SChannelCreate;
 
     await axios.post("/api/channels", {
       name: name.value,
       userIds: users.value.filter((f) => f.selected).map((f) => f.id),
     });
 
-    delete store.state.value.expectedEvent;
+    delete store.expectedEvent;
   } catch (e) {
     error.value = prettyError(e);
     return;

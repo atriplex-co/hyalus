@@ -1,15 +1,16 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import { router } from "./router";
-import { store } from "./global/store";
 import ServiceWorker from "./shared/serviceWorker?worker";
 import { getWorkerUrl } from "./global/helpers";
 import { idbDel, idbGet, idbKeys, idbSet } from "./global/idb";
+import { pinia, store } from "./global/store";
 
 await store.start();
 
 const app = createApp(App);
 app.use(router);
+app.use(pinia);
 app.mount("#app");
 
 window.dev = {

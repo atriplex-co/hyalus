@@ -126,10 +126,11 @@ import DesktopIcon from "../icons/DesktopIcon.vue";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ChipIcon from "../icons/ChipIcon.vue";
-import { store } from "../global/store";
 import { isDesktop, isMobile } from "../global/helpers";
+import { store } from "../global/store";
 
 const router = useRouter();
+
 const active = ref("");
 const logoutModal = ref(false);
 
@@ -154,5 +155,5 @@ watch(
 
 update();
 
-store.state.value.sideBarOpen = true;
+store.sideBarOpen = true;
 </script>

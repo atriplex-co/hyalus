@@ -41,7 +41,7 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 const error = ref("");
 const users = ref(
-  store.state.value.friends
+  store.friends
     .filter(
       (friend) =>
         friend.accepted &&

@@ -26,10 +26,10 @@
 import UserAvatar from "./UserAvatar.vue";
 import TrashIcon from "../icons/TrashIcon.vue";
 import { computed, PropType } from "vue";
-import { store } from "../global/store";
 import { axios } from "../global/helpers";
 import { IChannel, IChannelUser, IUser } from "../global/types";
 import { ChannelType } from "common";
+import { store } from "../global/store";
 
 const props = defineProps({
   channel: {
@@ -50,7 +50,7 @@ const removable = computed(
   () =>
     props.channel.type === ChannelType.Group &&
     props.channel.owner &&
-    props.user.id !== store.state.value.user?.id
+    props.user.id !== store.user?.id
 );
 
 const status = computed(() => {

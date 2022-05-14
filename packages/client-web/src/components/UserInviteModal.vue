@@ -34,9 +34,9 @@ import ModalError from "./ModalError.vue";
 import UserAvatar from "./UserAvatar.vue";
 import UserAddIcon from "../icons/UserAddIcon.vue";
 import { ref, Ref, watch } from "vue";
-import { store } from "../global/store";
 import { axios, prettyError } from "../global/helpers";
 import { IUser } from "../global/types";
+import { store } from "../global/store";
 
 const user: Ref<IUser | null> = ref(null);
 const error = ref("");
@@ -48,21 +48,17 @@ const props = defineProps({
 });
 
 const reset = () => {
-  delete store.state.value.invite;
+  delete store.invite;
 };
 
 const submit = async () => {
-  if (
-    store.state.value.friends.find(
-      (friend) => friend.username === store.state.value.invite
-    )
-  ) {
+  if (store.friends.find((friend) => friend.username === store.invite)) {
     return;
   }
 
   try {
     await axios.post("/api/friends", {
-      username: store.state.value.invite,
+      username: store.invite,
     });
   } catch (e) {
     error.value = prettyError(e);
@@ -80,9 +76,7 @@ watch(
     }
 
     try {
-      const { data } = await axios.get(
-        `/api/users/${store.state.value.invite}`
-      );
+      const { data } = await axios.get(`/api/users/${store.invite}`);
 
       user.value = data;
     } catch {

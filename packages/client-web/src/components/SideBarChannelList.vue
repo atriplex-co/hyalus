@@ -36,10 +36,10 @@ import GroupCreateModal from "./GroupCreateModal.vue";
 import PlusIcon from "../icons/PlusIcon.vue";
 import { computed, ref, watch } from "vue";
 import { SideBarContent } from "../global/types";
-import { store } from "../global/store";
 import { useRoute, useRouter } from "vue-router";
 import { ChannelType } from "common";
 import { isMobile } from "../global/helpers";
+import { store } from "../global/store";
 
 const route = useRoute();
 const router = useRouter();
@@ -51,11 +51,11 @@ const type = computed(
     ({
       [SideBarContent.CHANNELS_PRIVATE]: ChannelType.Private,
       [SideBarContent.CHANNELS_GROUP]: ChannelType.Group,
-    }[+store.state.value.sideBarContent])
+    }[+store.sideBarContent])
 );
 
 const channels = computed(() =>
-  store.state.value.channels.filter((c) => c.type === type.value)
+  store.channels.filter((c) => c.type === type.value)
 );
 
 const updateRoute = () => {
@@ -64,8 +64,8 @@ const updateRoute = () => {
     channels.value.length &&
     (route.name !== "channel" ||
       (route.name === "channel" &&
-        store.state.value.channels.find((c) => c.id === route.params.channelId)
-          ?.type !== type.value))
+        store.channels.find((c) => c.id === route.params.channelId)?.type !==
+          type.value))
   ) {
     router.push(`/channels/${channels.value[0].id}`);
   }

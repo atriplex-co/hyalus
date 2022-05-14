@@ -34,5 +34,5 @@ const notifySystem = configToComputed<boolean>("notifySystem");
 
 document.title = "Hyalus \u2022 Notifications";
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>

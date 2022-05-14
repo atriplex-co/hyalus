@@ -90,8 +90,8 @@ import {
   computed,
 } from "vue";
 import { ICallTile } from "../global/types";
-import { store } from "../global/store";
 import { CallStreamType } from "common";
+import { store } from "../global/store";
 
 const props = defineProps({
   tile: {
@@ -146,16 +146,16 @@ const updateIsFullscreen = () => {
 };
 
 const muted = computed(() => {
-  if (!store.state.value.call) {
+  if (!store.call) {
     return true;
   }
 
-  if (props.tile.user === store.state.value.user) {
-    return !store.state.value.call.localStreams.find(
+  if (props.tile.user === store.user) {
+    return !store.call.localStreams.find(
       (stream) => stream.type === CallStreamType.Audio
     );
   } else {
-    return !store.state.value.call.remoteStreams.find(
+    return !store.call.remoteStreams.find(
       (stream) =>
         stream.userId === props.tile.user.id &&
         stream.type === CallStreamType.Audio

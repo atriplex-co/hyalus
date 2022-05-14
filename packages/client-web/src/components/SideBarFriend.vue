@@ -31,10 +31,10 @@ import UserAvatar from "./UserAvatar.vue";
 import CheckIcon from "../icons/CheckIcon.vue";
 import CloseIcon from "../icons/CloseIcon.vue";
 import { PropType } from "vue";
-import { store } from "../global/store";
 import { axios } from "../global/helpers";
 import { IFriend } from "../global/types";
 import { SocketMessageType } from "common";
+import { store } from "../global/store";
 
 const props = defineProps({
   friend: {
@@ -45,13 +45,13 @@ const props = defineProps({
 
 const setAccepted = async (accepted: boolean) => {
   if (accepted) {
-    store.state.value.expectedEvent = SocketMessageType.SMessageCreate;
+    store.expectedEvent = SocketMessageType.SMessageCreate;
   }
 
   await axios.post(`/api/friends/${props.friend.id}`, {
     accepted,
   });
 
-  delete store.state.value.expectedEvent;
+  delete store.expectedEvent;
 };
 </script>

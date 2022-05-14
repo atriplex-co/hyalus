@@ -48,8 +48,8 @@ import GroupCreateModal from "./GroupCreateModal.vue";
 import { ref, computed, PropType } from "vue";
 import { axios } from "../global/helpers";
 import { IChannel } from "../global/types";
-import { store } from "../global/store";
 import { ChannelType } from "common";
+import { store } from "../global/store";
 
 defineEmits(["close"]);
 
@@ -65,7 +65,7 @@ const props = defineProps({
 const inviteModal = ref(false);
 
 const users = computed(() => {
-  const me = store.state.value.user;
+  const me = store.user;
 
   return [...props.channel.users, ...(me ? [me] : [])]
     .filter((u) => !("hidden" in u) || !u.hidden)

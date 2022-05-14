@@ -1,5 +1,5 @@
 <template>
-  <div v-if="store.state.value.user" class="flex-1 overflow-auto">
+  <div v-if="store.user" class="flex-1 overflow-auto">
     <div class="flex h-16 items-center px-4 text-2xl font-bold text-gray-200">
       <router-link
         v-if="isMobile"
@@ -14,10 +14,7 @@
       <div class="flex h-16 items-center justify-between px-6">
         <div class="flex items-center">
           <p class="w-48 font-bold">Avatar</p>
-          <UserAvatar
-            :id="store.state.value.user.avatarId"
-            class="h-8 w-8 rounded-full"
-          />
+          <UserAvatar :id="store.user.avatarId" class="h-8 w-8 rounded-full" />
         </div>
         <div
           class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
@@ -29,7 +26,7 @@
       <div class="flex h-16 items-center justify-between px-6">
         <div class="flex">
           <p class="w-48 font-bold">Name</p>
-          <p class="text-gray-400">{{ store.state.value.user.name }}</p>
+          <p class="text-gray-400">{{ store.user.name }}</p>
         </div>
         <div
           class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
@@ -41,7 +38,7 @@
       <div class="flex h-16 items-center justify-between px-6">
         <div class="flex">
           <p class="w-48 font-bold">Username</p>
-          <p class="text-gray-400">@{{ store.state.value.user.username }}</p>
+          <p class="text-gray-400">@{{ store.user.username }}</p>
         </div>
         <div
           class="bg-primary-500 hover:bg-primary-600 h-8 w-8 cursor-pointer rounded-full p-2 text-white transition"
@@ -100,8 +97,8 @@ import PencilIcon from "../icons/PencilIcon.vue";
 import moment from "moment";
 import { ref, computed } from "vue";
 import { axios, isMobile } from "../global/helpers";
-import { store } from "../global/store";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
+import { store } from "../global/store";
 
 const setNameModal = ref(false);
 const setUsernameModal = ref(false);
@@ -110,23 +107,20 @@ const totpEnableModal = ref(false);
 const totpDisableModal = ref(false);
 
 const authKeyUpdated = computed(() => {
-  if (
-    !store.state.value.user ||
-    +store.state.value.user.created === +store.state.value.user.authKeyUpdated
-  ) {
+  if (!store.user || +store.user.created === +store.user.authKeyUpdated) {
     return "";
   }
 
-  return `Updated ${moment(store.state.value.user.authKeyUpdated).fromNow()}`;
+  return `Updated ${moment(store.user.authKeyUpdated).fromNow()}`;
 });
 
 const totpEnabled = computed({
   get() {
-    if (!store.state.value.user) {
+    if (!store.user) {
       return false;
     }
 
-    return store.state.value.user.totpEnabled;
+    return store.user.totpEnabled;
   },
   set(val: boolean) {
     if (val) {
@@ -139,11 +133,11 @@ const totpEnabled = computed({
 
 const typingEvents = computed({
   get() {
-    if (!store.state.value.user) {
+    if (!store.user) {
       return true;
     }
 
-    return store.state.value.user.typingEvents;
+    return store.user.typingEvents;
   },
   async set(val: boolean) {
     await axios.post("/api/self", {
@@ -175,5 +169,5 @@ const setAvatar = async () => {
 };
 
 document.title = `Hyalus \u2022 Account`;
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>

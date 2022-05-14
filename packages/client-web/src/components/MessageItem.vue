@@ -217,7 +217,6 @@ import PhotographIcon from "../icons/PhotographIcon.vue";
 import moment from "moment";
 import { ref, computed, onBeforeUnmount, onMounted, PropType, Ref } from "vue";
 import { axios } from "../global/helpers";
-import { store } from "../global/store";
 import { IChannel, IMessage, ISocketMessage } from "../global/types";
 import { idbGet, idbSet } from "../global/idb";
 import { iceServers, MaxFileSize, MaxFileChunkSize } from "../global/config";
@@ -239,6 +238,7 @@ import {
   to_base64,
   to_string,
 } from "libsodium-wrappers";
+import { store } from "../global/store";
 
 const chunkThreshold = 1000 * 60 * 5;
 
@@ -272,16 +272,16 @@ const fileDownloadActive = ref(false);
 let updateDateInterval: number;
 
 const sentByMe = computed(() => {
-  if (!store.state.value.user) {
+  if (!store.user) {
     return false; // hmr seems to cause the store to get broken here. (just reload, or fix it.)
   }
 
-  return props.message.userId === store.state.value.user.id;
+  return props.message.userId === store.user.id;
 });
 
 const user = computed(() => {
-  if (store.state.value.user && sentByMe.value) {
-    return store.state.value.user;
+  if (store.user && sentByMe.value) {
+    return store.user;
   }
 
   const user = props.channel.users.find(
@@ -392,7 +392,7 @@ const fileDownload = async (save: boolean) => {
         }); // yes, there's a reason for this.
         const nonce = randombytes_buf(crypto_box_NONCEBYTES);
 
-        store.state.value.socket?.send({
+        store.socket?.send({
           t: SocketMessageType.CFileChunkRTC,
           d: {
             hash,
@@ -404,7 +404,7 @@ const fileDownload = async (save: boolean) => {
                   jsonRaw,
                   nonce,
                   publicKey,
-                  store.state.value.config.privateKey as unknown as Uint8Array
+                  store.config.privateKey as unknown as Uint8Array
                 ),
               ])
             ),
@@ -478,7 +478,7 @@ const fileDownload = async (save: boolean) => {
           console.debug(`f_rtc/peer: ${pc.connectionState}`);
         });
 
-        store.state.value.socket?.registerHook({
+        store.socket?.registerHook({
           ttl: 1000 * 10,
           type: SocketMessageType.SFileChunkRTC,
           async hook(msg: ISocketMessage) {
@@ -494,8 +494,8 @@ const fileDownload = async (save: boolean) => {
               return;
             }
 
-            if (data.userId === store.state.value.user?.id) {
-              publicKey = store.state.value.config.publicKey;
+            if (data.userId === store.user?.id) {
+              publicKey = store.config.publicKey;
             } else {
               publicKey = props.channel.users.find(
                 (user) => user.id === data.userId
@@ -517,7 +517,7 @@ const fileDownload = async (save: boolean) => {
                   new Uint8Array(dataBytes.buffer, crypto_box_NONCEBYTES),
                   new Uint8Array(dataBytes.buffer, 0, crypto_box_NONCEBYTES),
                   publicKey,
-                  store.state.value.config.privateKey as unknown as Uint8Array
+                  store.config.privateKey as unknown as Uint8Array
                 )
               )
             );
@@ -547,7 +547,7 @@ const fileDownload = async (save: boolean) => {
           },
         });
 
-        store.state.value.socket?.send({
+        store.socket?.send({
           t: SocketMessageType.CFileChunkRequest,
           d: {
             hash,

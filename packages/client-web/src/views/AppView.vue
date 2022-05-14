@@ -11,5 +11,5 @@ import AppIcon from "../icons/AppIcon.vue";
 import { store } from "../global/store";
 
 document.title = "Hyalus";
-store.state.value.sideBarOpen = true;
+store.sideBarOpen = true;
 </script>

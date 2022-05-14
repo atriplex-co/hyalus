@@ -5,4 +5,3 @@ node_modules
 packages/*/dist
 packages/*/node_modules
 packages/*/tsconfig.tsbuildinfo
-.pnpm-store

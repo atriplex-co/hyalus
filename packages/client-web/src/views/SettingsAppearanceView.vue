@@ -124,7 +124,7 @@ const grayscale = configToComputed<boolean>("grayscale");
 
 const colorTheme = computed({
   get(): ColorTheme {
-    return store.state.value.config.colorTheme;
+    return store.config.colorTheme;
   },
   async set(val: ColorTheme): Promise<void> {
     await axios.post("/api/self", {
@@ -139,5 +139,5 @@ const formatColorTheme = (val: ColorTheme) => {
 
 document.title = `Hyalus \u2022 Appearance`;
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 </script>

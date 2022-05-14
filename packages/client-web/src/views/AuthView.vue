@@ -1,5 +1,5 @@
 <template>
-  <BetaBanner v-if="store.state.value.config.betaBanner" />
+  <BetaBanner v-if="store.config.betaBanner" />
   <div class="flex h-full flex-1 items-center justify-center bg-gray-900">
     <div
       class="flex w-full max-w-sm flex-col rounded-md border border-gray-700 bg-gray-800 shadow-2xl"
@@ -120,7 +120,6 @@ import ErrorIcon from "../icons/ErrorIcon.vue";
 import AppIcon from "../icons/AppIcon.vue";
 import { ref, onMounted, watch } from "vue";
 import { axios, prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import {
   crypto_box_keypair,
   crypto_pwhash,
@@ -137,6 +136,7 @@ import {
 } from "libsodium-wrappers";
 import { router } from "../router";
 import BetaBanner from "../components/BetaBanner.vue";
+import { store } from "../global/store";
 
 const stage = ref("login");
 const username = ref("");

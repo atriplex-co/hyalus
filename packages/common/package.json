@@ -1,6 +1,6 @@
 {
   "name": "common",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "AGPL-3.0-only",
   "main": "src",
   "scripts": {

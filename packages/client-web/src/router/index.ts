@@ -11,7 +11,7 @@ const requireAuth = (
   _from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  if (!store.state.value.config.token) {
+  if (!store.config.token) {
     return next("/auth");
   }
 
@@ -23,7 +23,7 @@ const requireNoAuth = (
   _from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  if (store.state.value.config.token) {
+  if (store.config.token) {
     return next("/app");
   }
 
@@ -119,7 +119,7 @@ export const router = createRouter({
         _from: RouteLocationNormalized,
         next: NavigationGuardNext
       ) => {
-        store.state.value.invite = String(to.params.username);
+        store.invite = String(to.params.username);
         next("/app");
       },
     },

@@ -46,7 +46,7 @@ onMounted(async () => {
   startupMinimized.value = startupSettings.minimized;
 });
 
-store.state.value.sideBarOpen = false;
+store.sideBarOpen = false;
 
 watch(
   () => [startupEnabled.value, startupMinimized.value],
