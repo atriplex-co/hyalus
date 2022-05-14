@@ -23,8 +23,9 @@ import InputUser from "./InputUser.vue";
 import UserAddIcon from "../icons/UserAddIcon.vue";
 import { ref, PropType, watch } from "vue";
 import { IChannel } from "../global/types";
-import { axios, prettyError } from "../global/helpers";
+import { prettyError } from "../global/helpers";
 import { store } from "../global/store";
+import axios from "axios";
 
 const props = defineProps({
   show: {

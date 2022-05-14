@@ -26,7 +26,6 @@ import {
   SideBarContent,
 } from "./types";
 import {
-  axios,
   callUpdatePersist,
   getWorkerUrl,
   playSound,
@@ -34,6 +33,7 @@ import {
 } from "./helpers";
 import { Socket } from "./socket";
 import { createPinia, defineStore } from "pinia";
+import axios from "axios";
 
 const useStore = defineStore("main", {
   state(): IState {

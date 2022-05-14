@@ -46,10 +46,10 @@ import GroupAddModal from "./GroupAddModal.vue";
 import TrashIcon from "../icons/TrashIcon.vue";
 import GroupCreateModal from "./GroupCreateModal.vue";
 import { ref, computed, PropType } from "vue";
-import { axios } from "../global/helpers";
 import { IChannel } from "../global/types";
 import { ChannelType } from "common";
 import { store } from "../global/store";
+import axios from "axios";
 
 defineEmits(["close"]);
 

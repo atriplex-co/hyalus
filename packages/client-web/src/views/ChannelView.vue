@@ -184,7 +184,7 @@ import {
   watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { axios, processMessage, isMobile } from "../global/helpers";
+import { processMessage, isMobile } from "../global/helpers";
 import { idbSet } from "../global/idb";
 import {
   CallStreamType,
@@ -197,6 +197,7 @@ import ChannelCall from "../components/ChannelCall.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { MaxFileSize, MaxFileChunkSize } from "../global/config";
 import { store } from "../global/store";
+import axios from "axios";
 
 const route = useRoute();
 const router = useRouter();

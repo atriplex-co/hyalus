@@ -96,9 +96,10 @@ import TotpDisableModal from "../components/TotpDisableModal.vue";
 import PencilIcon from "../icons/PencilIcon.vue";
 import moment from "moment";
 import { ref, computed } from "vue";
-import { axios, isMobile } from "../global/helpers";
+import { isMobile } from "../global/helpers";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { store } from "../global/store";
+import axios from "axios";
 
 const setNameModal = ref(false);
 const setUsernameModal = ref(false);

@@ -46,8 +46,8 @@ import TrashIcon from "../icons/TrashIcon.vue";
 import moment from "moment";
 import UAParser from "ua-parser-js";
 import { PropType } from "vue";
-import { axios } from "../global/helpers";
 import { ISession } from "../global/types";
+import axios from "axios";
 
 const props = defineProps({
   session: {

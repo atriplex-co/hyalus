@@ -216,7 +216,6 @@ import PencilIcon from "../icons/PencilIcon.vue";
 import PhotographIcon from "../icons/PhotographIcon.vue";
 import moment from "moment";
 import { ref, computed, onBeforeUnmount, onMounted, PropType, Ref } from "vue";
-import { axios } from "../global/helpers";
 import { IChannel, IMessage, ISocketMessage } from "../global/types";
 import { idbGet, idbSet } from "../global/idb";
 import { iceServers, MaxFileSize, MaxFileChunkSize } from "../global/config";
@@ -239,6 +238,7 @@ import {
   to_string,
 } from "libsodium-wrappers";
 import { store } from "../global/store";
+import axios from "axios";
 
 const chunkThreshold = 1000 * 60 * 5;
 

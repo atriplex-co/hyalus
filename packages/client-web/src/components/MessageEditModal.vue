@@ -29,11 +29,12 @@
 import ModalBase from "./ModalBase.vue";
 import ModalError from "./ModalError.vue";
 import { ref, PropType, Ref, watch } from "vue";
-import { axios, prettyError } from "../global/helpers";
+import { prettyError } from "../global/helpers";
 import { IMessage, IChannel } from "../global/types";
 import sodium from "libsodium-wrappers";
 import PencilIcon from "../icons/PencilIcon.vue";
 import { store } from "../global/store";
+import axios from "axios";
 
 const props = defineProps({
   message: {

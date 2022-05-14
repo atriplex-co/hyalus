@@ -26,7 +26,6 @@ import {
   ISocketMessage,
 } from "./types";
 import {
-  axios,
   isDesktop,
   isMobile,
   notifyGetAvatarUrl,
@@ -37,6 +36,7 @@ import {
 import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
 import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
 import { store } from "../global/store";
+import axios from "axios";
 
 let updateCheck: string;
 let awayController: AbortController;

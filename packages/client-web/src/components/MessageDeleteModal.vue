@@ -29,8 +29,9 @@ import ModalBase from "./ModalBase.vue";
 import ModalError from "./ModalError.vue";
 import TrashIcon from "../icons/TrashIcon.vue";
 import { ref, PropType, Ref, watch } from "vue";
-import { axios, prettyError } from "../global/helpers";
+import { prettyError } from "../global/helpers";
 import { IMessage, IChannel } from "../global/types";
+import axios from "axios";
 
 const props = defineProps({
   show: {

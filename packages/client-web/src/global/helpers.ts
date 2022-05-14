@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
 import { computed } from "vue";
-import Axios from "axios";
 import sodium from "libsodium-wrappers";
 import { AvatarType, ColorTheme, MessageType, Status } from "common";
 import SoundNotification from "../assets/sounds/notification_simple-01.ogg";
@@ -15,8 +14,6 @@ import {
 } from "./types";
 import { messageFormatter } from "./config";
 import { store } from "./store";
-
-export const axios = Axios.create();
 
 export const prettyError = (e: unknown): string => {
   return (

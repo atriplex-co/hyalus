@@ -72,8 +72,9 @@ import qrcode from "qrcode";
 import { ref, onMounted, watch } from "vue";
 import sodium from "libsodium-wrappers";
 import b32 from "base32-encode";
-import { axios, prettyError } from "../global/helpers";
+import { prettyError } from "../global/helpers";
 import { store } from "../global/store";
+import axios from "axios";
 
 const props = defineProps({
   show: {

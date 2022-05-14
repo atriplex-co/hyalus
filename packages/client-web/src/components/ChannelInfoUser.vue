@@ -26,10 +26,10 @@
 import UserAvatar from "./UserAvatar.vue";
 import TrashIcon from "../icons/TrashIcon.vue";
 import { computed, PropType } from "vue";
-import { axios } from "../global/helpers";
 import { IChannel, IChannelUser, IUser } from "../global/types";
 import { ChannelType } from "common";
 import { store } from "../global/store";
+import axios from "axios";
 
 const props = defineProps({
   channel: {

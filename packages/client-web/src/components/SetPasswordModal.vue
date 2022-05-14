@@ -40,7 +40,7 @@ import ModalInput from "./ModalInput.vue";
 import ModalError from "./ModalError.vue";
 import KeyIcon from "../icons/KeyIcon.vue";
 import { ref, watch } from "vue";
-import { axios, prettyError } from "../global/helpers";
+import { prettyError } from "../global/helpers";
 import {
   crypto_pwhash,
   crypto_pwhash_ALG_ARGON2ID13,
@@ -53,6 +53,7 @@ import {
   to_base64,
 } from "libsodium-wrappers";
 import { store } from "../global/store";
+import axios from "axios";
 
 const props = defineProps({
   show: {

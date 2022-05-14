@@ -45,8 +45,8 @@
 
 <script lang="ts" setup>
 import { watch } from "vue";
-import { axios } from "../global/helpers";
 import { Status } from "common";
+import axios from "axios";
 
 const props = defineProps({
   show: {
