@@ -699,7 +699,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  clearInterval(updateInterval);
+  clearTimeout(updateTypingStatusTimeout);
 });
 
 watch(
