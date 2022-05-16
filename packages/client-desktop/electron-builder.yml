@@ -28,5 +28,9 @@ publish:
   vPrefixedTagName: false
   releaseType: release
 files:
-  - src
-  - build
+  - dist/build
+  - from: assets/main
+    to: assets
+directories:
+  buildResources: assets/main
+  output: dist/packaged

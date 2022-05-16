@@ -1,6 +1,6 @@
 require("v8-compile-cache");
 
-const {
+import {
   app,
   BrowserWindow,
   nativeTheme,
@@ -11,19 +11,20 @@ const {
   desktopCapturer,
   crashReporter,
   contentTracing,
-} = require("electron");
-const path = require("path");
-const os = require("os");
-const { autoUpdater } = require("electron-updater");
-const fs = require("fs");
-const pkg = require("../package.json");
-const contextMenu = require("electron-context-menu");
-const Registry = require("winreg");
+} from "electron";
+import path from "path";
+import os from "os";
+import { autoUpdater } from "electron-updater";
+import fs from "fs";
+import contextMenu from "electron-context-menu";
+import Registry from "winreg";
 
-let tray;
-let mainWindow;
-let quitting;
-let running;
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../package.json")).toString()
+);
+
+let mainWindow: BrowserWindow | null = null;
+let quitting = false;
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -63,10 +64,7 @@ const getStartupSettings = async () => {
 
     await new Promise((resolve) => {
       reg.get(
-        {
-          Hyalus: "app.hyalus",
-          HyalusDev: "app.hyalus.dev",
-        }[pkg.name],
+        `app.hyalus${pkg.name === "HyalusDev" ? ".dev" : ""}`,
         (err, v) => {
           if (err) {
             minimized = false;
@@ -74,7 +72,7 @@ const getStartupSettings = async () => {
             minimized = v.value.includes("--minimized");
           }
 
-          resolve();
+          resolve(0);
         }
       );
     });
@@ -86,7 +84,10 @@ const getStartupSettings = async () => {
   };
 };
 
-const setStartupSettings = async (opts) => {
+const setStartupSettings = async (opts: {
+  enabled: boolean;
+  minimized: boolean;
+}) => {
   app.setLoginItemSettings({
     openAtLogin: os.platform() === "win32" ? true : opts.enabled,
     openAsHidden: opts.minimized,
@@ -102,10 +103,7 @@ const setStartupSettings = async (opts) => {
 
     await new Promise((resolve) => {
       reg.set(
-        {
-          Hyalus: "app.hyalus",
-          HyalusDev: "app.hyalus.dev",
-        }[pkg.name],
+        `app.hyalus${pkg.name === "HyalusDev" ? ".dev" : ""}`,
         Registry.REG_SZ,
         `"${process.execPath}"${opts.minimized ? " --minimized" : ""}`,
         resolve
@@ -117,18 +115,58 @@ const setStartupSettings = async (opts) => {
 const restart = () => {
   quitting = true;
   app.releaseSingleInstanceLock();
-  app.relaunch({
-    args: [`--resume=${mainWindow.webContents.getURL()}`],
-  });
+  app.relaunch(
+    mainWindow
+      ? {
+          args: [`--resume=${mainWindow.webContents.getURL()}`],
+        }
+      : {}
+  );
   app.quit();
 };
 
-const start = async () => {
-  if (running) {
-    return;
-  }
+app.on("ready", async () => {
+  await app.whenReady();
 
-  running = true;
+  const tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
+
+  tray.setToolTip(`${pkg.name} ${pkg.version}`);
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        label: "Open",
+        click() {
+          mainWindow?.show();
+        },
+      },
+      {
+        label: "Restart",
+        click: restart,
+      },
+      {
+        label: "Quit",
+        click() {
+          quitting = true;
+          app.quit();
+        },
+      },
+    ])
+  );
+
+  tray.on("click", () => {
+    mainWindow?.show();
+  });
+
+  await new Promise((resolve) => {
+    autoUpdater.on("update-downloaded", () => {
+      autoUpdater.quitAndInstall(true, true);
+    });
+
+    autoUpdater.on("update-not-available", resolve);
+    autoUpdater.on("error", resolve);
+
+    autoUpdater.checkForUpdates();
+  });
 
   if (pkg.name === "Hyalus") {
     app.setAppUserModelId("app.hyalus");
@@ -136,17 +174,17 @@ const start = async () => {
 
   if (pkg.name === "HyalusDev") {
     app.setAppUserModelId("app.hyalus.dev");
-  }
 
-  if (process.argv.indexOf("--trace") !== -1) {
-    (async () => {
-      await contentTracing.startRecording({
-        included_categories: ["*"],
-      });
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      const path = await contentTracing.stopRecording();
-      console.log(path);
-    })();
+    if (process.argv.indexOf("--trace") !== -1) {
+      (async () => {
+        await contentTracing.startRecording({
+          included_categories: ["*"],
+        });
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const path = await contentTracing.stopRecording();
+        console.log(path);
+      })();
+    }
   }
 
   const initPath = path.join(app.getPath("userData"), "init2");
@@ -167,8 +205,8 @@ const start = async () => {
     show: false,
     width: 1200,
     height: 800,
-    minWidth: 600,
-    minHeight: 400,
+    minWidth: 900,
+    minHeight: 600,
     autoHideMenuBar: true,
     ...(["win32", "darwin"].indexOf(os.platform())
       ? {
@@ -180,7 +218,6 @@ const start = async () => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       backgroundThrottling: false,
-      experimentalFeatures: true,
     },
   });
 
@@ -201,7 +238,7 @@ const start = async () => {
   mainWindow.on("close", (e) => {
     if (!quitting) {
       e.preventDefault();
-      mainWindow.hide();
+      mainWindow?.hide();
     }
   });
 
@@ -213,7 +250,7 @@ const start = async () => {
       return;
     }
 
-    mainWindow.show();
+    mainWindow?.show();
   });
 
   mainWindow.webContents.on("before-input-event", (e, input) => {
@@ -222,11 +259,11 @@ const start = async () => {
     }
 
     if (input.key === "F12") {
-      mainWindow.webContents.openDevTools();
+      mainWindow?.webContents.openDevTools();
     }
 
     if (input.key === "F5") {
-      mainWindow.reload();
+      mainWindow?.reload();
     }
 
     if (input.key === "F6") {
@@ -235,48 +272,10 @@ const start = async () => {
   });
 
   mainWindow.webContents.on("did-fail-load", () => {
-    mainWindow.loadFile(path.join(__dirname, "error.html"));
+    mainWindow?.loadFile(path.join(__dirname, "../public/error.html"));
   });
 
   mainWindow.removeMenu();
-};
-
-app.on("ready", () => {
-  tray = new Tray(path.join(__dirname, "../build/icon.png"));
-
-  tray.setToolTip(`${pkg.name} ${pkg.version}`);
-
-  tray.setContextMenu(
-    Menu.buildFromTemplate([
-      {
-        label: "Open",
-        click() {
-          mainWindow.show();
-        },
-      },
-      {
-        label: "Restart",
-        click: restart,
-      },
-      {
-        label: "Quit",
-        click() {
-          quitting = true;
-          app.quit();
-        },
-      },
-    ])
-  );
-
-  tray.on("click", () => {
-    mainWindow.show();
-  });
-
-  autoUpdater.checkForUpdates();
-
-  setInterval(() => {
-    autoUpdater.checkForUpdates();
-  }, 1000 * 60 * 60);
 });
 
 app.on("second-instance", () => {
@@ -288,6 +287,10 @@ app.on("second-instance", () => {
 app.on("web-contents-created", (e, contents) => {
   contents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
+
+    return {
+      action: "deny",
+    };
   });
 
   contents.on("will-navigate", (e, url) => {
@@ -304,31 +307,20 @@ app.on("web-contents-created", (e, contents) => {
   });
 });
 
-autoUpdater.on("update-downloaded", () => {
-  if (!running) {
-    autoUpdater.quitAndInstall(true, true);
-  } else {
-    //TODO: notify renderer process via IPC of update.
-  }
-});
-
-autoUpdater.on("update-not-available", start);
-autoUpdater.on("error", start);
-
 ipcMain.handle("close", () => {
-  mainWindow.close();
+  mainWindow?.close();
 });
 
 ipcMain.handle("maximize", () => {
-  if (mainWindow.isMaximized()) {
-    mainWindow.unmaximize();
+  if (mainWindow?.isMaximized()) {
+    mainWindow?.unmaximize();
   } else {
-    mainWindow.maximize();
+    mainWindow?.maximize();
   }
 });
 
 ipcMain.handle("minimize", () => {
-  mainWindow.minimize();
+  mainWindow?.minimize();
 });
 
 ipcMain.handle("restart", () => {

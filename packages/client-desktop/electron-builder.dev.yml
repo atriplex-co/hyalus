@@ -28,8 +28,10 @@ publish:
   vPrefixedTagName: false
   releaseType: release
 files:
-  - src
-  - from: build.dev
-    to: build
+  - dist/build
+  - from: assets/dev
+    to: assets
 directories:
-  buildResources: build.dev
+  buildResources: assets/dev
+  output: dist/packaged
+compression: store
