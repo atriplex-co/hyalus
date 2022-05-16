@@ -214,7 +214,7 @@ import DownloadIcon from "../icons/DownloadIcon.vue";
 import LoadingIcon from "../icons/LoadingIcon.vue";
 import PencilIcon from "../icons/PencilIcon.vue";
 import PhotographIcon from "../icons/PhotographIcon.vue";
-import moment from "moment";
+import Day from "dayjs";
 import { ref, computed, onBeforeUnmount, onMounted, PropType, Ref } from "vue";
 import { IChannel, IMessage, ISocketMessage } from "../global/types";
 import { idbGet, idbSet } from "../global/idb";
@@ -299,7 +299,7 @@ const user = computed(() => {
   };
 });
 
-const time = computed(() => moment(props.message.created).format("LT"));
+const time = computed(() => Day(props.message.created).format("LT"));
 
 const precedingMessage = computed(
   () =>
@@ -610,7 +610,7 @@ const delPreview = () => {
 };
 
 const updateDate = () => {
-  date.value = moment(props.message.created).calendar();
+  date.value = Day(props.message.created).calendar();
 };
 
 const del = async (e: MouseEvent) => {

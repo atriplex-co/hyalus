@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import moment from "moment";
+import Day from "dayjs";
 import UserAvatar from "./UserAvatar.vue";
 import EmptyAvatar from "./EmptyAvatar.vue";
 import { ref, computed, PropType, onUnmounted } from "vue";
@@ -122,7 +122,7 @@ const updateLastMessageTime = () => {
   }
 
   const date = props.channel.messages.at(-1)?.created || +props.channel.created;
-  const duration = moment.duration(+new Date() - +date);
+  const duration = Day.duration(+new Date() - +date);
 
   lastMessageTime.value = "now";
 
@@ -139,7 +139,7 @@ const updateLastMessageTime = () => {
   }
 
   if (duration.asMonths() >= 1) {
-    lastMessageTime.value = `${moment(date).format("l")}`;
+    lastMessageTime.value = `${Day(date).format("l")}`;
   }
 };
 

@@ -1324,8 +1324,15 @@ export class Socket {
           const writer = track.writable.getWriter();
 
           const decoderInit = {
-            async output(data: MediaData) {
-              await writer.write(data);
+            output(data: MediaData) {
+              if (
+                track.kind === "video" &&
+                document.visibilityState === "hidden"
+              ) {
+                return;
+              }
+
+              writer.write(data);
             },
             error() {
               //
@@ -1403,7 +1410,7 @@ export class Socket {
 
                 try {
                   decoder.decode(chunk);
-                } catch {
+                } catch (e) {
                   dc.send("");
                 }
 
@@ -1428,7 +1435,7 @@ export class Socket {
                 ctx.close();
               }
 
-              // stream.decoder.close();
+              stream.decoder.close();
               stream.writer.close();
 
               if (!store.call) {
@@ -1456,8 +1463,10 @@ export class Socket {
                 el.srcObject = dest.stream;
                 el.volume = !store.call?.deaf ? 1 : 0;
 
-                if (!isMobile) {
+                try {
                   el.setSinkId(store.config.audioOutput);
+                } catch {
+                  //
                 }
 
                 el.play();

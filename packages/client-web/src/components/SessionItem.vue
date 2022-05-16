@@ -43,7 +43,7 @@ import DesktopIcon from "../icons/DesktopIcon.vue";
 import MobileIcon from "../icons/MobileIcon.vue";
 import GlobeIcon from "../icons/GlobeIcon.vue";
 import TrashIcon from "../icons/TrashIcon.vue";
-import moment from "moment";
+import Day from "dayjs";
 import UAParser from "ua-parser-js";
 import { PropType } from "vue";
 import { ISession } from "../global/types";
@@ -56,8 +56,8 @@ const props = defineProps({
   },
 });
 
-const created = moment(props.session.created).calendar();
-const lastStart = moment(props.session.lastStart).fromNow();
+const created = Day(props.session.created).calendar();
+const lastStart = Day(props.session.lastStart).fromNow();
 const ip = props.session.ip.replace("::ffff:", "");
 const agentParsed = UAParser(props.session.agent);
 

@@ -167,7 +167,7 @@ const submit = async () => {
 
         if (data.t === "video") {
           const frame = new VideoFrame(new Uint8Array(buffer), {
-            format: "BGRX",
+            format: "BGRA",
             codedWidth: data.d.width,
             codedHeight: data.d.height,
             timestamp: data.d.timestamp,
@@ -208,7 +208,11 @@ const submit = async () => {
           maxFrameRate: fps,
         },
       },
-      audio,
+      audio: audio && {
+        mandatory: {
+          chromeMediaSource: "desktop",
+        },
+      },
     } as unknown as MediaStreamConstraints);
   };
 

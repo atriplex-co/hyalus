@@ -94,7 +94,7 @@ import SetPasswordModal from "../components/SetPasswordModal.vue";
 import TotpEnableModal from "../components/TotpEnableModal.vue";
 import TotpDisableModal from "../components/TotpDisableModal.vue";
 import PencilIcon from "../icons/PencilIcon.vue";
-import moment from "moment";
+import Day from "dayjs";
 import { ref, computed } from "vue";
 import { isMobile } from "../global/helpers";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
@@ -112,7 +112,7 @@ const authKeyUpdated = computed(() => {
     return "";
   }
 
-  return `Updated ${moment(store.user.authKeyUpdated).fromNow()}`;
+  return `Updated ${Day(store.user.authKeyUpdated).fromNow()}`;
 });
 
 const totpEnabled = computed({

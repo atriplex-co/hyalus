@@ -494,7 +494,6 @@ const useStore = defineStore("main", {
                 })
               );
             } catch {
-              console.log("fuck 2");
               //
             }
           }
@@ -521,7 +520,8 @@ const useStore = defineStore("main", {
         data: MediaData,
         writer?: WritableStreamDefaultWriter<MediaData>
       ) => {
-        if (encoder.encodeQueueSize > 2) {
+        if (encoder.encodeQueueSize > 32) {
+          console.log("encoder overloaded; dropping frame");
           data.close();
           return;
         }
@@ -614,19 +614,17 @@ const useStore = defineStore("main", {
           encoder.encode(data, {
             keyFrame: stream.config.requestKeyFrame,
           });
+
+          stream.config.requestKeyFrame = false;
         } catch (e) {
           console.log(e);
         }
 
-        if (writer) {
-          await writer.write(data);
+        if (writer && document.visibilityState === "visible") {
+          writer.write(data);
         }
 
         data.close();
-
-        if (stream.config.requestKeyFrame) {
-          stream.config.requestKeyFrame = false;
-        }
       };
 
       const stream: ICallLocalStream = {

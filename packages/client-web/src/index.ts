@@ -5,6 +5,14 @@ import ServiceWorker from "./shared/serviceWorker?worker";
 import { getWorkerUrl } from "./global/helpers";
 import { idbDel, idbGet, idbKeys, idbSet } from "./global/idb";
 import { pinia, store } from "./global/store";
+import Day from "dayjs";
+import DayCalendar from "dayjs/plugin/calendar";
+import DayDuration from "dayjs/plugin/duration";
+import DayRelativeTime from "dayjs/plugin/relativeTime";
+
+Day.extend(DayCalendar);
+Day.extend(DayDuration);
+Day.extend(DayRelativeTime);
 
 await store.start();
 

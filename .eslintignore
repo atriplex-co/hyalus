@@ -1,5 +1,4 @@
 packages/client-web/tailwind.config.js
 packages/client-web/postcss.config.js
-packages/client-desktop
 .eslintrc.js
 prettier.config.js
