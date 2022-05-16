@@ -135,7 +135,7 @@ const useStore = defineStore("main", {
           "voiceRtcGain",
           "voiceRtcNoise",
           "voiceRnnoise",
-        ].indexOf(k) !== -1 &&
+        ].includes(k) &&
         this.call &&
         this.call.localStreams.find(
           (stream) => stream.type === CallStreamType.Audio
@@ -702,6 +702,10 @@ const useStore = defineStore("main", {
 
       for (const { pc } of stream.peers) {
         pc.close();
+      }
+
+      if (opts.type === CallStreamType.DisplayVideo) {
+        window.HyalusDesktop?.stopWin32Capture();
       }
 
       if (

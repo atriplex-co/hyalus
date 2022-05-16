@@ -26,7 +26,7 @@ const pkg = JSON.parse(
 let mainWindow: BrowserWindow | null = null;
 let quitting = false;
 
-if (!app.requestSingleInstanceLock()) {
+if (!app.requestSingleInstanceLock() && !process.argv.includes("--dupe")) {
   app.quit();
 }
 
@@ -175,7 +175,7 @@ app.on("ready", async () => {
   if (pkg.name === "HyalusDev") {
     app.setAppUserModelId("app.hyalus.dev");
 
-    if (process.argv.indexOf("--trace") !== -1) {
+    if (process.argv.includes("--trace")) {
       (async () => {
         await contentTracing.startRecording({
           included_categories: ["*"],
@@ -245,7 +245,7 @@ app.on("ready", async () => {
   mainWindow.on("ready-to-show", () => {
     if (
       app.getLoginItemSettings().wasOpenedAsHidden ||
-      process.argv.indexOf("--minimized") !== -1
+      process.argv.includes("--minimized")
     ) {
       return;
     }
@@ -297,10 +297,10 @@ app.on("web-contents-created", (e, contents) => {
     const parsedURL = new URL(url);
 
     if (
-      [
+      ![
         "https://hyalus.app",
         "https://dev.hyalus.app", // dev server
-      ].indexOf(parsedURL.origin) === -1
+      ].includes(parsedURL.origin)
     ) {
       e.preventDefault();
     }

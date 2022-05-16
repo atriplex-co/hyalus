@@ -28,10 +28,7 @@
       <div class="flex flex-col items-center p-8">
         <form class="w-full text-gray-300" @submit.prevent="submit">
           <div class="space-y-4">
-            <div
-              v-if="['login', 'register'].indexOf(stage) !== -1"
-              class="space-y-2"
-            >
+            <div v-if="['login', 'register'].includes(stage)" class="space-y-2">
               <p>Username</p>
               <input
                 v-model="username"
@@ -40,10 +37,7 @@
                 autocomplete="username"
               />
             </div>
-            <div
-              v-if="['login', 'register'].indexOf(stage) !== -1"
-              class="space-y-2"
-            >
+            <div v-if="['login', 'register'].includes(stage)" class="space-y-2">
               <p>Password</p>
               <input
                 v-model="password"

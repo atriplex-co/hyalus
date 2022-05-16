@@ -348,7 +348,7 @@ const isEvent = (message: IMessage) =>
     MessageType.GroupAdd,
     MessageType.GroupRemove,
     MessageType.GroupLeave,
-  ].indexOf(message.type) !== -1;
+  ].includes(message.type);
 
 const fileDownload = async (save: boolean) => {
   if (!file.value || fileDownloadActive.value) {

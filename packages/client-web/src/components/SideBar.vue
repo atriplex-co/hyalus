@@ -86,7 +86,7 @@
           [
             SideBarContent.CHANNELS_PRIVATE,
             SideBarContent.CHANNELS_GROUP,
-          ].indexOf(+store.sideBarContent) !== -1
+          ].includes(+store.sideBarContent)
         "
       />
       <SideBarSettings

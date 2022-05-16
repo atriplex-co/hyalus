@@ -419,7 +419,7 @@ export class Socket {
           await store.callStart(callPersist.channelId);
 
           for (const stream of callPersist.localStreams) {
-            if ([CallStreamType.Audio].indexOf(stream) === -1) {
+            if (![CallStreamType.Audio].includes(stream)) {
               continue;
             }
 
@@ -1275,9 +1275,9 @@ export class Socket {
           let ctx: AudioContext;
 
           if (
-            [CallStreamType.Audio, CallStreamType.DisplayAudio].indexOf(
+            [CallStreamType.Audio, CallStreamType.DisplayAudio].includes(
               dataDecrypted.st
-            ) !== -1
+            )
           ) {
             ctx = new AudioContext();
           }
@@ -1545,7 +1545,7 @@ export class Socket {
           [
             CallRTCDataType.LocalTrackAnswer,
             CallRTCDataType.LocalTrackICECandidate,
-          ].indexOf(dataDecrypted.mt) !== -1
+          ].includes(dataDecrypted.mt)
         ) {
           const stream = store.call.localStreams.find(
             (stream) => stream.type === dataDecrypted.st

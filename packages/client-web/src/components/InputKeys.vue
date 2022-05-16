@@ -45,7 +45,7 @@ let recordKeys: string[] = [];
 const keyDownHandler = (e: KeyboardEvent) => {
   e.preventDefault();
 
-  if (recordKeys.indexOf(e.key) === -1) {
+  if (!recordKeys.includes(e.key)) {
     recordKeys.push(e.key);
   }
 

@@ -90,11 +90,11 @@ const inAppRoutes = [
 const route = useRoute();
 
 const inApp = computed(() => {
-  return inAppRoutes.indexOf(route.name as string) !== -1;
+  return inAppRoutes.includes(route.name as string);
 });
 
 const showSideBar = computed(() => {
-  if (inAppRoutes.indexOf(route.name as string) === -1) {
+  if (!inAppRoutes.includes(route.name as string)) {
     return false;
   }
 

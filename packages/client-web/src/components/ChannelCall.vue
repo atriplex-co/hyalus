@@ -140,9 +140,9 @@ const tiles = computed(() => {
       (stream) => stream.userId === user.id
     )) {
       if (
-        [CallStreamType.Video, CallStreamType.DisplayVideo].indexOf(
+        [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
           stream.type
-        ) !== -1
+        )
       ) {
         userTiles.push({
           user,
@@ -164,9 +164,7 @@ const tiles = computed(() => {
 
   for (const stream of store.call.localStreams) {
     if (
-      [CallStreamType.Video, CallStreamType.DisplayVideo].indexOf(
-        stream.type
-      ) !== -1
+      [CallStreamType.Video, CallStreamType.DisplayVideo].includes(stream.type)
     ) {
       selfTiles.push({
         user: store.user,

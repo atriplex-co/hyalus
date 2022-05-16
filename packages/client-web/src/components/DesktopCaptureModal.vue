@@ -39,10 +39,6 @@
         <InputBoolean v-model="selectedAudio" />
         <p>Share audio</p>
       </div>
-      <div class="flex items-center space-x-3 px-2">
-        <InputBoolean v-model="win32CaptureAvailable" />
-        <p>Dark blockchain</p>
-      </div>
     </template>
   </ModalBase>
 </template>
@@ -77,11 +73,10 @@ const sources: Ref<ISource[]> = ref([]);
 const selectedSourceId = ref("screen:0:0");
 const selectedAudio = ref(true);
 
-const win32CaptureAvailable = ref(
+const win32CaptureAvailable =
   window.HyalusDesktop?.osPlatform === "win32" &&
-    +window.HyalusDesktop?.osRelease.split(".")[0] >= 10 &&
-    +window.HyalusDesktop?.osRelease.split(".")[2] >= 19041
-);
+  +window.HyalusDesktop?.osRelease.split(".")[0] >= 10 &&
+  +window.HyalusDesktop?.osRelease.split(".")[2] >= 19041;
 
 const submit = async () => {
   if (!selectedSourceId.value) {
@@ -97,45 +92,60 @@ const submit = async () => {
     1080: 1920,
   }[height];
 
-  let videoTrack: MediaStreamTrack | null = null;
-  let audioTrack: MediaStreamTrack | null = null;
+  const getStream = async (audio: boolean): Promise<MediaStream> => {
+    return await navigator.mediaDevices.getUserMedia({
+      video: {
+        mandatory: {
+          chromeMediaSource: "desktop",
+          chromeMediaSourceId: selectedSourceId.value,
+          maxWidth: width,
+          maxHeight: height,
+          maxFrameRate: fps,
+        },
+      },
+      audio: audio && {
+        mandatory: {
+          chromeMediaSource: "desktop",
+        },
+      },
+    } as unknown as MediaStreamConstraints);
+  };
 
-  if (win32CaptureAvailable.value) {
+  if (win32CaptureAvailable) {
     let videoWriter: WritableStreamDefaultWriter<VideoFrame>;
     let audioWriter: WritableStreamDefaultWriter<AudioData>;
     let videoStream: ICallLocalStream | undefined;
     let audioStream: ICallLocalStream | undefined;
 
-    const videoGenerator = new MediaStreamTrackGenerator({
-      kind: "video",
-    });
+    if (selectedSourceId.value.startsWith("screen:")) {
+      await store.callAddLocalStream({
+        type: CallStreamType.DisplayVideo,
+        track: (await getStream(false)).getTracks()[0],
+      });
+    }
 
-    videoTrack = videoGenerator;
-    videoWriter = videoGenerator.writable.getWriter();
+    if (selectedSourceId.value.startsWith("window:")) {
+      const videoGenerator = new MediaStreamTrackGenerator({
+        kind: "video",
+      });
 
-    videoStream = await store.callAddLocalStream({
-      type: CallStreamType.DisplayVideo,
-      track: videoTrack,
-      procOverride: true,
-    });
-
-    const videoTrackStop = videoTrack.stop.bind(videoTrack);
-    videoTrack.stop = () => {
-      videoTrackStop();
-      window.HyalusDesktop?.stopWin32Capture();
-    };
+      videoWriter = videoGenerator.writable.getWriter();
+      videoStream = await store.callAddLocalStream({
+        type: CallStreamType.DisplayVideo,
+        track: videoGenerator,
+        procOverride: true,
+      });
+    }
 
     if (selectedAudio.value) {
       const audioGenerator = new MediaStreamTrackGenerator({
         kind: "audio",
       });
 
-      audioTrack = audioGenerator;
       audioWriter = audioGenerator.writable.getWriter();
-
       audioStream = await store.callAddLocalStream({
         type: CallStreamType.DisplayAudio,
-        track: audioTrack,
+        track: audioGenerator,
         procOverride: true,
         silent: true,
       });
@@ -152,12 +162,11 @@ const submit = async () => {
       {
         id: selectedSourceId.value,
         fps,
-        video: true,
-        audio: selectedAudio.value,
+        video: !!videoStream,
+        audio: !!audioStream,
       },
       async (data) => {
         if (!data) {
-          videoTrack?.stop();
           return;
         }
 
@@ -196,25 +205,6 @@ const submit = async () => {
   }
 
   let stream: MediaStream | null = null;
-
-  const getStream = async (audio: boolean): Promise<MediaStream> => {
-    return await navigator.mediaDevices.getUserMedia({
-      video: {
-        mandatory: {
-          chromeMediaSource: "desktop",
-          chromeMediaSourceId: selectedSourceId.value,
-          maxWidth: width,
-          maxHeight: height,
-          maxFrameRate: fps,
-        },
-      },
-      audio: audio && {
-        mandatory: {
-          chromeMediaSource: "desktop",
-        },
-      },
-    } as unknown as MediaStreamConstraints);
-  };
 
   try {
     stream = await getStream(selectedAudio.value);
