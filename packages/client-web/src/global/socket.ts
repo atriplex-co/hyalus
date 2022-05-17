@@ -1329,6 +1329,7 @@ export class Socket {
                 track.kind === "video" &&
                 document.visibilityState === "hidden"
               ) {
+                data.close();
                 return;
               }
 
@@ -1388,6 +1389,7 @@ export class Socket {
                     description:
                       parsedDecoderConfig.description &&
                       sodium.from_base64(parsedDecoderConfig.description),
+                    optimizeForLatency: true,
                   });
                 }
 
@@ -1435,8 +1437,10 @@ export class Socket {
                 ctx.close();
               }
 
-              stream.decoder.close();
-              stream.writer.close();
+              if (stream.decoder.state !== "closed") {
+                stream.decoder.close();
+                stream.writer.close();
+              }
 
               if (!store.call) {
                 return;
