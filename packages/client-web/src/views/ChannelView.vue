@@ -710,7 +710,7 @@ watch(
       return;
     }
 
-    channel.value.messages = channel.value.messages.slice(-100);
+    channel.value.messages = channel.value.messages.slice(-50);
   }
 );
 
