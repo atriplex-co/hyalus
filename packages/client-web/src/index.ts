@@ -9,10 +9,12 @@ import Day from "dayjs";
 import DayCalendar from "dayjs/plugin/calendar";
 import DayDuration from "dayjs/plugin/duration";
 import DayRelativeTime from "dayjs/plugin/relativeTime";
+import DayLocalizedFormat from "dayjs/plugin/localizedFormat";
 
 Day.extend(DayCalendar);
 Day.extend(DayDuration);
 Day.extend(DayRelativeTime);
+Day.extend(DayLocalizedFormat);
 
 await store.start();
 

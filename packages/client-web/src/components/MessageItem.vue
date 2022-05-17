@@ -299,7 +299,7 @@ const user = computed(() => {
   };
 });
 
-const time = computed(() => Day(props.message.created).format("LT"));
+const time = Day(props.message.created).format("LT");
 
 const precedingMessage = computed(
   () =>
