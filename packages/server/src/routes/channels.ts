@@ -74,7 +74,7 @@ app.get(
       .sort({
         created: -1,
       })
-      .limit(Math.min(Number(req.query.limit) || 100, 100))) {
+      .limit(Math.min(Number(req.query.limit) || 50, 50))) {
       const key =
         message.keys &&
         message.keys.find((key) => !key.userId.compare(session.userId))?.data;
