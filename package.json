@@ -15,6 +15,7 @@
     "test": "concurrently yarn:test:*",
     "test:server": "yarn workspace server test",
     "test:client-web": "yarn workspace client-web test",
+    "test:client-desktop": "yarn workspace client-desktop test",
     "test:common": "yarn workspace common test",
     "lint": "eslint --fix --ext .ts,.vue .",
     "sloc": "find . -not \\( -regex '.*node_modules' -prune \\) -type f -regextype posix-extended -regex '.*\\.(js|ts|vue)' | xargs wc -l",
