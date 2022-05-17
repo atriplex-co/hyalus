@@ -158,6 +158,12 @@ app.on("ready", async () => {
   });
 
   await new Promise((resolve) => {
+    if (pkg.name === "HyalusDev") {
+      autoUpdater.channel = "alpha";
+      autoUpdater.allowDowngrade = true;
+      autoUpdater.allowPrerelease = true;
+    }
+
     autoUpdater.on("update-downloaded", () => {
       autoUpdater.quitAndInstall(true, true);
     });

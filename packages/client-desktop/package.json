@@ -1,6 +1,6 @@
 {
   "name": "client-desktop",
-  "version": "0.0.62-alpha4",
+  "version": "0.0.62-alpha.1",
   "license": "AGPL-3.0-only",
   "main": "dist/build/main.js",
   "scripts": {
