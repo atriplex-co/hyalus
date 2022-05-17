@@ -9,27 +9,39 @@
       'border-gray-400': status === Status.Offline,
     }"
   >
-    <div v-if="id" class="h-full w-full">
+    <div
+      v-if="id"
+      class="h-full w-full bg-gray-800"
+      @mouseenter="!animateDisabled && (animate = true)"
+      @mouseleave="
+        animate = false;
+        animateReady = false;
+      "
+    >
       <img
-        v-if="type === 'image'"
-        :src="url"
+        v-show="!animateReady"
+        :src="`/api/avatars/${id}/${AvatarType.WEBP}`"
         class="h-full w-full object-cover"
         :class="{
           'rounded-full border border-transparent': status !== undefined,
         }"
       />
       <video
-        v-if="type === 'video'"
-        ref="video"
-        :src="url"
+        v-if="animate"
+        v-show="animateReady"
+        :src="`/api/avatars/${id}/${AvatarType.MP4}`"
         class="h-full w-full object-cover"
         :class="{
           'rounded-full border border-transparent': status !== undefined,
         }"
+        autoplay
         muted
         loop
-        @mouseover="animate(true)"
-        @mouseout="animate(false)"
+        @error="
+          animate = false;
+          animateDisabled = true;
+        "
+        @timeupdate="animate && (animateReady = true)"
       />
     </div>
     <div
@@ -46,12 +58,14 @@
 
 <script lang="ts" setup>
 import UserIcon from "../icons/UserIcon.vue";
-import { watch, ref, onUnmounted, PropType } from "vue";
-import { Status } from "common";
+import { PropType, ref } from "vue";
+import { AvatarType, Status } from "common";
 
-const video = ref<HTMLVideoElement | null>(null);
+const animate = ref(false);
+const animateReady = ref(false);
+const animateDisabled = ref(false);
 
-const props = defineProps({
+defineProps({
   id: {
     type: String as PropType<string | undefined>,
     default() {
@@ -65,40 +79,4 @@ const props = defineProps({
     },
   },
 });
-
-const type = ref("");
-const url = ref("");
-
-const reset = () => {
-  if (url.value) {
-    URL.revokeObjectURL(url.value);
-  }
-};
-
-const update = async () => {
-  reset();
-
-  if (props.id) {
-    const res = await fetch(`/api/avatars/${props.id}`);
-    url.value = URL.createObjectURL(await res.blob());
-    type.value = (res.headers.get("content-type") || "").split("/")[0];
-  }
-};
-
-const animate = (val: boolean) => {
-  if (!video.value) {
-    return;
-  }
-
-  if (val) {
-    video.value.play();
-  } else {
-    video.value.pause();
-    video.value.currentTime = 0;
-  }
-};
-
-update();
-watch(() => props.id, update);
-onUnmounted(() => reset);
 </script>
