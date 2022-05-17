@@ -10,7 +10,6 @@ import {
   shell,
   desktopCapturer,
   crashReporter,
-  contentTracing,
 } from "electron";
 import path from "path";
 import os from "os";
@@ -18,6 +17,7 @@ import { autoUpdater } from "electron-updater";
 import fs from "fs";
 import contextMenu from "electron-context-menu";
 import Registry from "winreg";
+import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 
 const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../../package.json")).toString()
@@ -175,16 +175,8 @@ app.on("ready", async () => {
   if (pkg.name === "HyalusDev") {
     app.setAppUserModelId("app.hyalus.dev");
 
-    if (process.argv.includes("--trace")) {
-      (async () => {
-        await contentTracing.startRecording({
-          included_categories: ["*"],
-        });
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        const path = await contentTracing.stopRecording();
-        console.log(path);
-      })();
-    }
+    // devtools
+    await installExtension(VUEJS_DEVTOOLS);
   }
 
   const initPath = path.join(app.getPath("userData"), "init2");
