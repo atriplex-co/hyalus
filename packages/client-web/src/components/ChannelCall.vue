@@ -97,7 +97,9 @@ import { ref, computed, onMounted, Ref } from "vue";
 import { ICallTile } from "../global/types";
 import { CallStreamType, SocketMessageType } from "common";
 import { isDesktop } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const desktopCaptureModal = ref(false);
 const tileContainer: Ref<HTMLDivElement | null> = ref(null);

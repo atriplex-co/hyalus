@@ -58,6 +58,8 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const submit = async (wantStatus: Status) => {
+  emit("close");
+
   await axios.post("/api/self", {
     wantStatus,
   });
@@ -65,17 +67,17 @@ const submit = async (wantStatus: Status) => {
 
 watch(
   () => props.show,
-  () => {
+  async () => {
     if (!props.show) {
       return;
     }
 
     const close = () => {
+      removeEventListener("mouseup", close);
       emit("close");
-      removeEventListener("click", close);
     };
 
-    setTimeout(() => addEventListener("click", close));
+    addEventListener("mouseup", close);
   }
 );
 </script>

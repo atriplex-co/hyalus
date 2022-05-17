@@ -25,7 +25,9 @@ import SessionItem from "../components/SessionItem.vue";
 import { computed } from "vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const sessions = computed(() =>
   [...store.sessions].sort((a, b) =>

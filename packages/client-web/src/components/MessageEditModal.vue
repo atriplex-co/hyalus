@@ -33,8 +33,10 @@ import { prettyError } from "../global/helpers";
 import { IMessage, IChannel } from "../global/types";
 import sodium from "libsodium-wrappers";
 import PencilIcon from "../icons/PencilIcon.vue";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   message: {

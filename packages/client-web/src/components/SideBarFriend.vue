@@ -33,8 +33,10 @@ import CloseIcon from "../icons/CloseIcon.vue";
 import { PropType } from "vue";
 import { IFriend } from "../global/types";
 import { SocketMessageType } from "common";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   friend: {

@@ -237,8 +237,10 @@ import {
   to_base64,
   to_string,
 } from "libsodium-wrappers";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const chunkThreshold = 1000 * 60 * 5;
 

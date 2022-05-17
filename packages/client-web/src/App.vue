@@ -68,7 +68,9 @@ import { useRoute } from "vue-router";
 import { ColorTheme } from "common";
 import UserInviteModal from "./components/UserInviteModal.vue";
 import { isDesktop, isMobile } from "./global/helpers";
-import { store } from "./global/store";
+import { useStore } from "./global/store";
+
+const store = useStore();
 
 const inAppRoutes = [
   "app",

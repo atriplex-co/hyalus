@@ -196,12 +196,12 @@ import sodium from "libsodium-wrappers";
 import ChannelCall from "../components/ChannelCall.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { MaxFileSize, MaxFileChunkSize } from "../global/config";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const route = useRoute();
 const router = useRouter();
-
 const messageBoxText = ref("");
 const groupNameModal = ref(false);
 const showInfo = ref(false);

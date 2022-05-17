@@ -1,36 +1,34 @@
 <template>
   <div
-    class="relative h-3 w-96 rounded-md border border-gray-700 bg-gray-900 py-px"
+    class="relative h-3 w-full rounded-md border border-gray-700 bg-gray-900"
   >
+    <div
+      id="val"
+      class="absolute -top-10 z-10 flex w-10 items-center justify-center rounded-md border border-gray-800 bg-gray-900 py-1 px-2 text-sm transition"
+      :class="{
+        'opacity-0': !valueShow,
+      }"
+    >
+      {{ value }}
+    </div>
     <input
       ref="input"
+      v-model="value"
       type="range"
       :min="min"
       :max="max"
-      :style="style"
-      class="absolute -top-px h-3 w-96 appearance-none bg-transparent"
-      @input="$emit('update:modelValue', +($event?.target as HTMLInputElement).value)"
+      class="absolute w-full appearance-none bg-transparent"
+      @mouseenter="valueShow = true"
+      @mouseleave="valueShow = false"
     />
-    <div
-      id="bar"
-      class="bg-primary-500 absolute -top-px h-3 rounded-l-md"
-      :style="style"
-    />
+    <div id="bar" class="bg-primary-500 absolute h-full rounded-l-md" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {
-  defineEmits,
-  onMounted,
-  ref,
-  watch,
-  Ref,
-  computed,
-  StyleValue,
-} from "vue";
+import { defineEmits, ref, Ref, computed } from "vue";
 
-defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const props = defineProps({
   min: {
@@ -48,42 +46,38 @@ const props = defineProps({
 });
 
 const input: Ref<HTMLInputElement | null> = ref(null);
-const width = ref("0px");
+const value = ref(props.modelValue.toString());
+const valueShow = ref(false);
 
-const update = () => {
+const barWidth = computed(() => {
   if (!input.value) {
-    return;
+    return "";
   }
 
-  width.value = `${(+input.value.value / +props.max) * 22.5}rem`;
-};
-
-const style = computed(() => {
-  return {
-    "--width": width.value,
-  } as unknown as StyleValue;
+  return `${(+value.value / +props.max) * (input.value.offsetWidth - 16)}px`;
 });
-
-onMounted(() => {
-  if (!input.value) {
-    return;
-  }
-
-  input.value.value = String(props.modelValue);
-  update();
-});
-
-watch(() => props.modelValue, update);
 </script>
 
 <style scoped>
+:root {
+  --val-display: none;
+}
+
+input {
+  pointer-events: none;
+}
+
 input::-webkit-slider-thumb {
-  appearance: none;
-  left: var(--width);
-  @apply absolute -top-1 z-10 h-5 w-5 cursor-[ew-resize] rounded-full bg-white;
+  pointer-events: auto;
+  @apply absolute -top-[0.3125rem] z-10 h-5 w-2 cursor-[ew-resize] appearance-none rounded-full bg-white;
+  left: v-bind(barWidth);
 }
 
 #bar {
-  width: var(--width);
+  width: v-bind(barWidth);
+}
+
+#val {
+  left: calc(v-bind(barWidth) - 1rem);
 }
 </style>

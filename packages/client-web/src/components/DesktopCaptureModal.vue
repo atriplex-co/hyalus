@@ -52,7 +52,9 @@ import InputBoolean from "./InputBoolean.vue";
 import { ref, Ref, watch } from "vue";
 import { CallStreamType } from "common";
 import { ICallLocalStream } from "../global/types";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 interface ISource {
   id: string;

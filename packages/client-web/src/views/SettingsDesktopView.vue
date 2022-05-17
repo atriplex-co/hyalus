@@ -28,8 +28,9 @@ import InputBoolean from "../components/InputBoolean.vue";
 import { ref, onMounted, watch } from "vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const startupEnabled = ref(false);
 const startupMinimized = ref(false);
 

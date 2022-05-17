@@ -7,8 +7,10 @@
 </template>
 
 <script setup lang="ts">
+import { useStore } from "../global/store";
 import AppIcon from "../icons/AppIcon.vue";
-import { store } from "../global/store";
+
+const store = useStore();
 
 document.title = "Hyalus";
 store.sideBarOpen = true;

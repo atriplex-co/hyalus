@@ -130,8 +130,10 @@ import {
 } from "libsodium-wrappers";
 import { router } from "../router";
 import BetaBanner from "../components/BetaBanner.vue";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const stage = ref("login");
 const username = ref("");

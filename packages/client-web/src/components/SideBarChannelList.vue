@@ -39,8 +39,9 @@ import { SideBarContent } from "../global/types";
 import { useRoute, useRouter } from "vue-router";
 import { ChannelType } from "common";
 import { isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const route = useRoute();
 const router = useRouter();
 

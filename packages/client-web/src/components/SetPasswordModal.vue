@@ -52,8 +52,10 @@ import {
   randombytes_buf,
   to_base64,
 } from "libsodium-wrappers";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   show: {

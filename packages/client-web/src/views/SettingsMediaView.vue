@@ -30,7 +30,7 @@
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Audio Output Volume</p>
-        <InputRange v-model="audioOutputGain" min="0" max="200" />
+        <InputRange v-model="audioOutputGain" min="0" max="200" class="w-96" />
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Audio Output Test</p>
@@ -54,11 +54,16 @@
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Audio Input Volume</p>
-        <InputRange v-model="audioInputGain" min="0" max="200" />
+        <InputRange v-model="audioInputGain" min="0" max="200" class="w-96" />
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Audio Input Sensitivity</p>
-        <InputRange v-model="audioInputTrigger" min="0" max="100" />
+        <InputRange
+          v-model="audioInputTrigger"
+          min="0"
+          max="100"
+          class="w-96"
+        />
       </div>
       <div class="flex h-16 items-center justify-between px-6">
         <p class="font-bold">Audio Input Test</p>
@@ -128,7 +133,9 @@ import InputBoolean from "../components/InputBoolean.vue";
 import { computed, onMounted, ref, Ref } from "vue";
 import { configToComputed, isDesktop, isMobile } from "../global/helpers";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const usableVideoModes = [
   "480p30",

@@ -92,8 +92,10 @@ import { computed } from "vue";
 import { configToComputed, isMobile } from "../global/helpers";
 import { ColorTheme } from "common";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const usableColorThemes = [
   ColorTheme.Red,

@@ -48,8 +48,10 @@ import GroupCreateModal from "./GroupCreateModal.vue";
 import { ref, computed, PropType } from "vue";
 import { IChannel } from "../global/types";
 import { ChannelType } from "common";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 defineEmits(["close"]);
 

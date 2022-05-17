@@ -75,8 +75,9 @@ import InputKeys from "../components/InputKeys.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { configToComputed } from "../global/helpers";
 import { isDesktop, isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const appDownloadModal = ref(false);
 const searchKeys = configToComputed<string>("searchKeys");
 const openAppKeys = configToComputed<string>("openAppKeys");

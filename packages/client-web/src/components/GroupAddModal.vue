@@ -24,8 +24,10 @@ import UserAddIcon from "../icons/UserAddIcon.vue";
 import { ref, PropType, watch } from "vue";
 import { IChannel } from "../global/types";
 import { prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   show: {

@@ -27,7 +27,9 @@
 import CloseIcon from "../icons/CloseIcon.vue";
 import WarningIcon from "../icons/WarningIcon.vue";
 import { isDesktop } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const hide = async () => {
   await store.writeConfig("betaBanner", false);

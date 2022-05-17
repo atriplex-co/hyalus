@@ -36,8 +36,10 @@ import UserAddIcon from "../icons/UserAddIcon.vue";
 import { ref, Ref, watch } from "vue";
 import { prettyError } from "../global/helpers";
 import { IUser } from "../global/types";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const user: Ref<IUser | null> = ref(null);
 const error = ref("");

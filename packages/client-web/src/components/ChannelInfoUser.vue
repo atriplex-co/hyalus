@@ -28,8 +28,10 @@ import TrashIcon from "../icons/TrashIcon.vue";
 import { computed, PropType } from "vue";
 import { IChannel, IChannelUser, IUser } from "../global/types";
 import { ChannelType } from "common";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   channel: {

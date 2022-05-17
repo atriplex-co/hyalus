@@ -12,14 +12,17 @@
         <div
           class="mt-px flex h-16 items-center justify-center border-b border-gray-700"
         >
-          <div class="relative">
+          <div class="relative" @mouseup.stop>
             <UserAvatar
               :id="store.user.avatarId"
               class="h-10 w-10 cursor-pointer rounded-full"
               :status="store.user.wantStatus"
-              @click="menu !== 'status' ? (menu = 'status') : (menu = '')"
+              @click="statusPickerShow = !statusPickerShow"
             />
-            <SideBarStatusPicker :show="menu === 'status'" @close="menu = ''" />
+            <SideBarStatusPicker
+              :show="statusPickerShow"
+              @close="statusPickerShow = false"
+            />
           </div>
         </div>
         <div
@@ -120,10 +123,11 @@ import { useRoute } from "vue-router";
 import { SideBarContent } from "../global/types";
 import { ChannelType } from "common";
 import { isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const route = useRoute();
-const menu = ref("");
+const statusPickerShow = ref(false);
 const updateReloadModal = ref(false);
 
 const updateRoute = () => {

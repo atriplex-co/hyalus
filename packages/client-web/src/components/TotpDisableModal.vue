@@ -29,8 +29,10 @@ import LockIcon from "../icons/LockIcon.vue";
 import { ref, watch } from "vue";
 import sodium from "libsodium-wrappers";
 import { prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   show: {

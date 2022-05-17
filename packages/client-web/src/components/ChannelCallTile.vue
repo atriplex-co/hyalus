@@ -1,33 +1,23 @@
 <template>
   <div
     ref="main"
+    class="hover:ring-primary-600 h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 hover:ring hover:ring-opacity-75"
     :class="{
       'cursor-none': !controls,
-      'overflow-hidden rounded-md border border-gray-600 shadow-lg':
-        !isFullscreen,
+      'rounded- overflow-hidden shadow-lg': !isFullscreen,
     }"
     @mousemove="resetControlsTimeout"
     @fullscreenchange="updateIsFullscreen"
+    @contextmenu.prevent="
+      menuX = $event.x;
+      menuY = $event.y;
+      menuShow = true;
+    "
   >
     <div
-      class="h-full w-full overflow-hidden rounded-md border border-gray-600"
-      :class="{
-        'bg-gray-600': srcObject,
-        'bg-primary-500': !srcObject && !tile.user.avatarId,
-      }"
-    >
-      <UserAvatar
-        v-if="!srcObject && tile.user.avatarId"
-        :id="tile.user.avatarId"
-        class="h-full w-full"
-      />
-    </div>
-    <div
-      class="group absolute top-0 left-0 flex h-full w-full items-center justify-center overflow-hidden bg-black bg-opacity-25"
+      class="group flex h-full w-full items-center justify-center overflow-hidden bg-black bg-opacity-25"
       :class="{
         'bg-gray-800': srcObject,
-        'backdrop-blur-3xl': isFullscreen,
-        'backdrop-blur-2xl': !isFullscreen,
       }"
     >
       <video
@@ -45,19 +35,16 @@
       <UserAvatar
         v-else
         :id="tile.user.avatarId"
-        class="aspect-square w-[25%] rounded-full shadow-2xl"
+        class="w-[25%] rounded-full shadow-lg"
       />
       <div
         v-if="controls"
-        class="absolute -bottom-px -mx-px flex h-9 w-full items-end justify-between"
+        class="absolute -bottom-px -mx-px flex h-10 w-full items-end justify-between"
       >
         <div
-          class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-3"
+          class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-4"
         >
-          <div class="flex items-center space-x-2">
-            <UserAvatar :id="tile.user.avatarId" class="h-5 w-5 rounded-full" />
-            <p class="text-sm font-bold">{{ tile.user.name }}</p>
-          </div>
+          <p class="text-sm font-bold">{{ tile.user.name }}</p>
           <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
           <DisplayIcon
             v-if="tile.stream?.type === CallStreamType.DisplayVideo"
@@ -65,13 +52,20 @@
           />
         </div>
         <div
-          class="flex h-full cursor-pointer items-center rounded-tl-md border border-gray-600 bg-gray-800 px-3 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
+          class="flex h-full w-12 cursor-pointer items-center justify-center rounded-tl-md border border-gray-600 bg-gray-800 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
           @click="expand"
         >
           <FullscreenIcon class="h-4 w-4" />
         </div>
       </div>
     </div>
+    <ChannelCallTileMenu
+      :show="menuShow"
+      :x="menuX"
+      :y="menuY"
+      :tile="tile"
+      @close="menuShow = false"
+    />
   </div>
 </template>
 
@@ -91,7 +85,10 @@ import {
 } from "vue";
 import { ICallTile } from "../global/types";
 import { CallStreamType } from "common";
-import { store } from "../global/store";
+import ChannelCallTileMenu from "./ChannelCallTileMenu.vue";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   tile: {
@@ -104,6 +101,9 @@ const props = defineProps({
 
 const controls = ref(true);
 const isFullscreen = ref(false);
+const menuShow = ref(false);
+const menuX = ref(0);
+const menuY = ref(0);
 const srcObject: Ref<MediaStream | null> = ref(null);
 const main: Ref<HTMLDivElement | null> = ref(null);
 let controlsTimeout: number;

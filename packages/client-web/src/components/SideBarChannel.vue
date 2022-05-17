@@ -31,7 +31,9 @@ import { ref, computed, PropType, onUnmounted } from "vue";
 import { IChannel, IChannelUser, IUser } from "../global/types";
 import { useRoute } from "vue-router";
 import { ChannelType, MessageType } from "common";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   channel: {

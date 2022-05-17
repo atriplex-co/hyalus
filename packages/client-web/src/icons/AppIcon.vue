@@ -73,5 +73,7 @@
 
 <script setup lang="ts">
 import { ColorTheme } from "common";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
+
+const store = useStore();
 </script>

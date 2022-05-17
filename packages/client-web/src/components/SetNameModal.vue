@@ -23,8 +23,10 @@ import ModalError from "./ModalError.vue";
 import IdentityIcon from "../icons/IdentityIcon.vue";
 import { ref, watch } from "vue";
 import { prettyError } from "../global/helpers";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
+
+const store = useStore();
 
 const props = defineProps({
   show: {

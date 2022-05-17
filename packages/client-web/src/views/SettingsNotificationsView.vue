@@ -27,8 +27,9 @@
 import InputBoolean from "../components/InputBoolean.vue";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { configToComputed, isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const notifySound = configToComputed<boolean>("notifySound");
 const notifySystem = configToComputed<boolean>("notifySystem");
 

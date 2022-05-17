@@ -98,9 +98,10 @@ import Day from "dayjs";
 import { ref, computed } from "vue";
 import { isMobile } from "../global/helpers";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
-import { store } from "../global/store";
 import axios from "axios";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const setNameModal = ref(false);
 const setUsernameModal = ref(false);
 const setPasswordModal = ref(false);

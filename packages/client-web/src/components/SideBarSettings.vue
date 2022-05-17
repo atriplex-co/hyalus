@@ -127,10 +127,10 @@ import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ChipIcon from "../icons/ChipIcon.vue";
 import { isDesktop, isMobile } from "../global/helpers";
-import { store } from "../global/store";
+import { useStore } from "../global/store";
 
+const store = useStore();
 const router = useRouter();
-
 const active = ref("");
 const logoutModal = ref(false);
 
