@@ -13,8 +13,8 @@
     "build:packaged:dev": "electron-builder -wc electron-builder.dev.yml",
     "release": "yarn build -p always",
     "release:dev": "yarn build:dev -p always",
-    "deploy": "powershell.exe -command dist/packaged/nsis-web/HyalusDesktop-win32.exe",
-    "deploy:dev": "powershell.exe -command dist/packaged/nsis-web/HyalusDesktopDev-win32.exe",
+    "deploy": "powershell.exe -command dist/packaged/HyalusDesktop-win32.exe",
+    "deploy:dev": "powershell.exe -command dist/packaged/HyalusDesktopDev-win32.exe",
     "test": "tsc"
   },
   "dependencies": {

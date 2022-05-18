@@ -7,7 +7,7 @@ extraMetadata:
   author: https://hyalus.app
 win:
   target:
-    - target: nsis-web
+    - target: nsis
       arch: x64
   artifactName: HyalusDesktopDev-win32.exe
 linux:

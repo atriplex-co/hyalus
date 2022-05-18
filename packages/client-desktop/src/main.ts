@@ -23,6 +23,8 @@ const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../../package.json")).toString()
 );
 
+console.log(process.argv);
+
 let mainWindow: BrowserWindow | null = null;
 let quitting = false;
 
@@ -126,8 +128,6 @@ const restart = () => {
 };
 
 app.on("ready", async () => {
-  await app.whenReady();
-
   const tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
 
   tray.setToolTip(`${pkg.name} ${pkg.version}`);
@@ -200,7 +200,6 @@ app.on("ready", async () => {
   }
 
   mainWindow = new BrowserWindow({
-    show: false,
     width: 1200,
     height: 800,
     minWidth: 900,
@@ -218,6 +217,13 @@ app.on("ready", async () => {
       backgroundThrottling: false,
     },
   });
+
+  if (
+    app.getLoginItemSettings().wasOpenedAsHidden ||
+    process.argv.includes("--minimized")
+  ) {
+    mainWindow.hide();
+  }
 
   const resumeArg = process.argv.find((arg) => arg.startsWith("--resume="));
 
@@ -238,17 +244,6 @@ app.on("ready", async () => {
       e.preventDefault();
       mainWindow?.hide();
     }
-  });
-
-  mainWindow.on("ready-to-show", () => {
-    if (
-      app.getLoginItemSettings().wasOpenedAsHidden ||
-      process.argv.includes("--minimized")
-    ) {
-      return;
-    }
-
-    mainWindow?.show();
   });
 
   mainWindow.webContents.on("before-input-event", (e, input) => {
@@ -272,8 +267,6 @@ app.on("ready", async () => {
   mainWindow.webContents.on("did-fail-load", () => {
     mainWindow?.loadFile(path.join(__dirname, "../public/error.html"));
   });
-
-  mainWindow.removeMenu();
 });
 
 app.on("second-instance", () => {
