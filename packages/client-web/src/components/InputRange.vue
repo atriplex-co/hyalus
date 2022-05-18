@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, ref, Ref, computed } from "vue";
+import { defineEmits, ref, Ref, computed, watch } from "vue";
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -56,6 +56,26 @@ const barWidth = computed(() => {
 
   return `${(+value.value / +props.max) * (input.value.offsetWidth - 16)}px`;
 });
+
+let lastEmitTime = 0;
+let emitTimeout = 0;
+
+watch(
+  () => value.value,
+  () => {
+    if (Date.now() - lastEmitTime < 100) {
+      clearTimeout(emitTimeout);
+      emitTimeout = +setTimeout(() => {
+        emit("update:modelValue", +value.value);
+      }, 100);
+
+      return;
+    }
+
+    lastEmitTime = Date.now();
+    emit("update:modelValue", +value.value);
+  }
+);
 </script>
 
 <style scoped>

@@ -18,7 +18,7 @@
     "test": "tsc"
   },
   "dependencies": {
-    "@atriplex-co/hyalus-win32-utils": "github:atriplex-co/hyalus-win32-utils#ccd05806350b49c87934b6cd97e82dfbb767a532"
+    "@atriplex-co/hyalus-win32-utils": "atriplex-co/hyalus-win32-utils#ccfe50a4e614d8e6302a3978bc80a15253ed6504"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",

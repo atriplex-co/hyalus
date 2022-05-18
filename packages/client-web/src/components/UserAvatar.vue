@@ -23,7 +23,7 @@
         :src="`/api/avatars/${id}/${AvatarType.WEBP}`"
         class="h-full w-full object-cover"
         :class="{
-          'rounded-full border border-transparent': status !== undefined,
+          'border border-transparent': status !== undefined,
         }"
       />
       <video
@@ -32,7 +32,7 @@
         :src="`/api/avatars/${id}/${AvatarType.MP4}`"
         class="h-full w-full object-cover"
         :class="{
-          'rounded-full border border-transparent': status !== undefined,
+          'border border-transparent': status !== undefined,
         }"
         autoplay
         muted

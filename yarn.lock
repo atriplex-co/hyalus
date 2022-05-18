@@ -28,9 +28,13 @@
   version "0.0.5"
   resolved "https://codeload.github.com/atriplex-co/hyalus-rnnoise/tar.gz/667cdd24bb8e7ddfd3c54aaf595e88ce3e05a56d"
 
-"@atriplex-co/hyalus-win32-utils@github:atriplex-co/hyalus-win32-utils#ccd05806350b49c87934b6cd97e82dfbb767a532":
+"@atriplex-co/hyalus-win32-utils@atriplex-co/hyalus-win32-utils#ccfe50a4e614d8e6302a3978bc80a15253ed6504":
   version "0.0.0"
-  resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/ccd05806350b49c87934b6cd97e82dfbb767a532"
+  resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/ccfe50a4e614d8e6302a3978bc80a15253ed6504"
+
+"@atriplex-co/hyalus-win32-utils@atriplex-co/hyalus-win32-utils#e59e93105b1b4d4bb5a66a9210438d3bf72f3fc6":
+  version "0.0.0"
+  resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/e59e93105b1b4d4bb5a66a9210438d3bf72f3fc6"
 
 "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.7":
   version "7.16.7"

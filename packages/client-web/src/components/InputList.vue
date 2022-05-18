@@ -1,5 +1,5 @@
 <template>
-  <div ref="root" class="cursor-pointer text-sm" @click="open = !open">
+  <div ref="root" class="cursor-pointer" @click="open = !open">
     <div
       class="flex w-96 items-center justify-between rounded-md border border-gray-700 bg-gray-900 px-2 py-1 transition hover:border-gray-600"
     >

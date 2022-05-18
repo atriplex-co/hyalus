@@ -97,6 +97,7 @@ export interface ICallLocalStreamPeer {
 export interface ICallLocalStreamConfig {
   gain?: GainNode;
   requestKeyFrame?: boolean;
+  speaking?: boolean;
 }
 
 export interface ICallRemoteStream {
@@ -112,6 +113,7 @@ export interface ICallRemoteStream {
 export interface ICallRemoteStreamConfig {
   el?: unknown; // TS won't let us put IHTMLAudioElement in an interface for whatever fucking reason.
   gain?: GainNode;
+  speaking?: boolean;
 }
 
 export interface ICallTile {

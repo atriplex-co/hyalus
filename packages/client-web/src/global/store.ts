@@ -32,7 +32,7 @@ import {
   updateIcon,
 } from "./helpers";
 import { Socket } from "./socket";
-import { acceptHMRUpdate, createPinia, defineStore } from "pinia";
+import { createPinia, defineStore } from "pinia";
 import axios from "axios";
 
 export const useStore = defineStore("main", {
@@ -793,7 +793,3 @@ export const useStore = defineStore("main", {
 export const pinia = createPinia();
 
 export const store = useStore(pinia);
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useStore, import.meta.hot));
-}

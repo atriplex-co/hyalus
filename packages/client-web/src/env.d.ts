@@ -124,6 +124,8 @@ declare interface MediaEncoderOutputInfo {
 
 declare class MediaData {
   close(): void;
+  timestamp: number;
+  duration: number;
 }
 
 declare class MediaEncoder {
