@@ -78,7 +78,7 @@ const selectedAudio = ref(true);
 const win32CaptureAvailable =
   window.HyalusDesktop?.osPlatform === "win32" &&
   +window.HyalusDesktop?.osRelease.split(".")[0] >= 10 &&
-  +window.HyalusDesktop?.osRelease.split(".")[2] >= 19041;
+  +window.HyalusDesktop?.osRelease.split(".")[2] >= 19043;
 
 const submit = async () => {
   if (!selectedSourceId.value) {
