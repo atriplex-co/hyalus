@@ -1,7 +1,7 @@
 <template>
   <div
     ref="main"
-    class="hover:ring-primary-600 h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 hover:ring hover:ring-opacity-75"
+    class="hover:ring-primary-600 h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 transition hover:ring hover:ring-opacity-75"
     :class="{
       'cursor-none': !controls,
       'rounded- overflow-hidden shadow-lg': !isFullscreen,

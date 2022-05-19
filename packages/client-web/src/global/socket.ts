@@ -1325,50 +1325,55 @@ export class Socket {
 
           const fps = 60; // TODO: dynamically adjust this.
           const frames: MediaData[] = [];
-          const render = () => {
-            if (!writer.closed) {
-              setTimeout(
-                render,
-                frames.length >= 2
-                  ? (frames[1].timestamp - frames[0].timestamp) / 1000
-                  : 1000 / fps
-              );
-            } else {
-              for (const frame of frames) {
-                frame.close();
-              }
-            }
 
-            while (frames.length > fps / 10) {
-              frames.shift()?.close();
-            }
+          if (track.kind === "video") {
+            const render = async () => {
+              if (track.readyState === "ended") {
+                for (const frame of frames) {
+                  frame.close();
+                }
 
-            const frame = frames.shift();
-
-            if (!frame) {
-              return;
-            }
-
-            if (document.visibilityState === "visible") {
-              writer.write(frame);
-            } else {
-              frame.close();
-            }
-          };
-
-          render();
-
-          const decoderInit = {
-            output(data: MediaData) {
-              if (
-                track.kind === "video" &&
-                document.visibilityState === "hidden"
-              ) {
-                data.close();
                 return;
               }
 
-              writer.write(data);
+              // setTimeout(
+              //   render,
+              //   frames.length >= 2
+              //     ? (frames[1].timestamp - frames[0].timestamp) / 1000
+              //     : 1000 / fps
+              // );
+
+              requestAnimationFrame(render);
+
+              while (frames.length > fps / 10) {
+                frames.shift()?.close();
+              }
+
+              const frame = frames.shift();
+
+              if (!frame) {
+                return;
+              }
+
+              if (document.visibilityState === "visible") {
+                writer.write(frame);
+              } else {
+                frame.close();
+              }
+            };
+
+            render();
+          }
+
+          const decoderInit = {
+            output(frame: MediaData) {
+              if (track.kind === "audio") {
+                writer.write(frame);
+              }
+
+              if (track.kind === "video") {
+                frames.push(frame);
+              }
             },
             error() {
               //
