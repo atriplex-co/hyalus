@@ -1,6 +1,6 @@
 {
   "name": "client-desktop",
-  "version": "0.0.62-alpha.1",
+  "version": "0.0.62-alpha.3",
   "license": "AGPL-3.0-only",
   "main": "dist/build/main.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "test": "tsc"
   },
   "dependencies": {
-    "@atriplex-co/hyalus-win32-utils": "atriplex-co/hyalus-win32-utils#ccfe50a4e614d8e6302a3978bc80a15253ed6504"
+    "@atriplex-co/hyalus-win32-utils": "atriplex-co/hyalus-win32-utils#3e076880978ddff86ae858132acf9cd88e7d8414"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",
