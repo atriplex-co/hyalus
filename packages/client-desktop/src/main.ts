@@ -23,8 +23,6 @@ const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../../package.json")).toString()
 );
 
-console.log(process.argv);
-
 let mainWindow: BrowserWindow | null = null;
 let quitting = false;
 
