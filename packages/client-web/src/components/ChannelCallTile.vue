@@ -207,7 +207,7 @@ onMounted(() => {
 
     if (element) {
       element.play();
-      element.controls = true;
+      // element.controls = true;
       video.value.appendChild(element);
     }
 
