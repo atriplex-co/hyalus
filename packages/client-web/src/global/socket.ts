@@ -1422,7 +1422,9 @@ export class Socket {
               if (typeof data === "string") {
                 const info = JSON.parse(data);
 
-                stream.speaking = info.speaking;
+                if (stream.speaking !== info.speaking) {
+                  stream.speaking = info.speaking;
+                }
 
                 if (decoder) {
                   if (decoder.state === "closed") {
@@ -1471,7 +1473,7 @@ export class Socket {
                   }
                 }
 
-                if (muxer) {
+                if (muxer && document.visibilityState === "visible") {
                   muxer.feed({
                     video: new Uint8Array(rxBuffer.buffer, 0, rxBufferPos),
                   });
