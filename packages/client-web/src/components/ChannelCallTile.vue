@@ -1,11 +1,21 @@
 <template>
   <div
     ref="main"
-    class="h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 transition"
+    class="group absolute flex h-full w-full items-center justify-center overflow-hidden transition"
     :class="{
       'cursor-none': !controls,
-      'rounded- overflow-hidden shadow-lg': !isFullscreen,
+      'rounded-md border border-gray-600 shadow-lg': !isFullscreen,
       'ring-primary-600 ring ring-opacity-75': speaking,
+      'bg-black':
+        stream &&
+        [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
+          stream?.type
+        ),
+      'bg-gray-800':
+        !stream ||
+        ![CallStreamType.Video, CallStreamType.DisplayVideo].includes(
+          stream?.type
+        ),
     }"
     @mousemove="resetControlsTimeout"
     @fullscreenchange="updateIsFullscreen"
@@ -15,10 +25,7 @@
       menuShow = true;
     "
   >
-    <div
-      class="group flex h-full w-full items-center justify-center overflow-hidden bg-black bg-opacity-25"
-    >
-      <!-- <video
+    <!-- <video
         v-if="srcObject"
         class="h-full w-full"
         :class="{
@@ -30,45 +37,44 @@
         muted
         controls
       /> -->
+    <div
+      v-if="
+        stream &&
+        [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
+          stream?.type
+        )
+      "
+      ref="video"
+      class="flex h-full w-full"
+      :class="{
+        'object-cover':
+          !isFullscreen && stream?.type !== CallStreamType.DisplayVideo,
+      }"
+    ></div>
+    <UserAvatar
+      v-else
+      :id="tile.user.avatarId"
+      class="aspect-square w-[25%] rounded-full shadow-lg"
+    />
+    <div
+      v-if="controls"
+      class="absolute -bottom-px -mx-px flex h-10 w-full items-end justify-between"
+    >
       <div
-        v-if="
-          stream &&
-          [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
-            stream?.type
-          )
-        "
-        ref="video"
-        class="flex h-full w-full"
-        :class="{
-          'object-cover':
-            !isFullscreen && stream?.type !== CallStreamType.DisplayVideo,
-        }"
-      ></div>
-      <UserAvatar
-        v-else
-        :id="tile.user.avatarId"
-        class="aspect-square w-[25%] rounded-full shadow-lg"
-      />
-      <div
-        v-if="controls"
-        class="absolute -bottom-px -mx-px flex h-10 w-full items-end justify-between"
+        class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-4"
       >
-        <div
-          class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-4"
-        >
-          <p class="text-sm font-bold">{{ tile.user.name }}</p>
-          <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
-          <DisplayIcon
-            v-if="stream?.type === CallStreamType.DisplayVideo"
-            class="h-4 w-4 text-gray-300"
-          />
-        </div>
-        <div
-          class="flex h-full w-12 cursor-pointer items-center justify-center rounded-tl-md border border-gray-600 bg-gray-800 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
-          @click="expand"
-        >
-          <FullscreenIcon class="h-4 w-4" />
-        </div>
+        <p class="text-sm font-bold">{{ tile.user.name }}</p>
+        <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
+        <DisplayIcon
+          v-if="stream?.type === CallStreamType.DisplayVideo"
+          class="h-4 w-4 text-gray-300"
+        />
+      </div>
+      <div
+        class="flex h-full w-12 cursor-pointer items-center justify-center rounded-tl-md border border-gray-600 bg-gray-800 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
+        @click="expand"
+      >
+        <FullscreenIcon class="h-4 w-4" />
       </div>
     </div>
     <ChannelCallTileMenu
