@@ -7,6 +7,7 @@ import {
   SocketMessageType,
   Status,
 } from "common";
+import JMuxer from "jmuxer";
 import { Socket } from "./socket";
 
 export interface IState {
@@ -80,12 +81,16 @@ export interface ICallLocalStream {
   type: CallStreamType;
   track: MediaStreamTrack;
   peers: ICallLocalStreamPeer[];
-  config: ICallLocalStreamConfig;
   encoder: MediaEncoder;
   proc(
     data: MediaData,
     writer?: WritableStreamDefaultWriter<MediaData>
   ): Promise<void>;
+  context?: AudioContext;
+  gain?: GainNode;
+  gain2?: GainNode;
+  requestKeyFrame?: boolean;
+  speaking?: boolean;
 }
 
 export interface ICallLocalStreamPeer {
@@ -94,31 +99,23 @@ export interface ICallLocalStreamPeer {
   dc: RTCDataChannel;
 }
 
-export interface ICallLocalStreamConfig {
-  gain?: GainNode;
-  requestKeyFrame?: boolean;
-  speaking?: boolean;
-}
-
 export interface ICallRemoteStream {
   userId: string;
   type: CallStreamType;
   pc: RTCPeerConnection;
-  track: MediaStreamTrackGenerator;
-  config: ICallRemoteStreamConfig;
-  decoder: MediaDecoder;
-  writer: WritableStreamDefaultWriter; // allows us to close the MediaStreamTrackGenerator.
-}
-
-export interface ICallRemoteStreamConfig {
-  el?: unknown; // TS won't let us put IHTMLAudioElement in an interface for whatever fucking reason.
+  element: IHTMLMediaElement; // TS won't let us put IHTMLAudioElement in an interface for whatever fucking reason.
+  context?: AudioContext;
+  decoder?: MediaDecoder;
+  writer?: WritableStreamDefaultWriter; // allows us to close the MediaStreamTrackGenerator.
+  muxer?: JMuxer;
   gain?: GainNode;
   speaking?: boolean;
 }
 
 export interface ICallTile {
   user: IChannelUser | IUser;
-  stream?: ICallLocalStream | ICallRemoteStream;
+  localStream?: ICallLocalStream;
+  remoteStream?: ICallRemoteStream;
 }
 
 export interface ICallRTCData {
@@ -217,7 +214,7 @@ export interface ISocketHook {
   hook(msg: ISocketMessage): void;
 }
 
-export interface IHTMLAudioElement extends HTMLMediaElement {
+export interface IHTMLMediaElement extends HTMLMediaElement {
   setSinkId(sinkId: string): void;
 }
 

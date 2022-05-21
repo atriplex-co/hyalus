@@ -17,11 +17,9 @@ import SoundNavigateForward from "../assets/sounds/navigation_forward-selection.
 import SoundNavigateForwardMin from "../assets/sounds/navigation_forward-selection-minimal.ogg";
 import {
   ICallLocalStream,
-  ICallLocalStreamConfig,
   ICallLocalStreamPeer,
   ICallRTCData,
   IConfig,
-  IHTMLAudioElement,
   IState,
   SideBarContent,
 } from "./types";
@@ -112,18 +110,14 @@ export const useStore = defineStore("main", {
 
       if (k === "audioOutput" && this.call) {
         for (const stream of this.call.remoteStreams) {
-          if (stream.config?.el) {
-            (stream.config.el as IHTMLAudioElement).setSinkId(
-              this.config.audioOutput
-            );
-          }
+          stream.element.setSinkId(this.config.audioOutput);
         }
       }
 
       if (k === "audioOutputGain" && this.call) {
         for (const stream of this.call.remoteStreams) {
-          if (stream.config?.gain) {
-            stream.config.gain.gain.value = this.config.audioOutputGain / 100;
+          if (stream.gain) {
+            stream.gain.gain.value = this.config.audioOutputGain / 100;
           }
         }
       }
@@ -273,11 +267,11 @@ export const useStore = defineStore("main", {
       });
 
       dc.addEventListener("open", () => {
-        stream.config.requestKeyFrame = true;
+        stream.requestKeyFrame = true;
       });
 
       dc.addEventListener("message", () => {
-        stream.config.requestKeyFrame = true;
+        stream.requestKeyFrame = true;
       });
 
       dc.addEventListener("close", async () => {
@@ -305,7 +299,6 @@ export const useStore = defineStore("main", {
       type: CallStreamType;
       track?: MediaStreamTrack;
       silent?: boolean;
-      config?: ICallLocalStreamConfig;
       procOverride?: boolean;
     }): Promise<ICallLocalStream | undefined> {
       if (!this.call) {
@@ -313,12 +306,13 @@ export const useStore = defineStore("main", {
         return;
       }
 
-      if (!opts.config) {
-        opts.config = {};
-      }
+      let stream: ICallLocalStream | undefined = undefined;
+      let context: AudioContext | undefined = undefined;
+      let gain: GainNode | undefined = undefined;
+      let gain2: GainNode | undefined = undefined;
 
       if (!opts.track && opts.type === CallStreamType.Audio) {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const _stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             deviceId: {
               ideal: this.config.audioInput,
@@ -331,17 +325,17 @@ export const useStore = defineStore("main", {
           }, // TS is stupid here and complains.
         });
 
-        const ctx = new AudioContext();
-        const src = ctx.createMediaStreamSource(stream);
-        const dest = ctx.createMediaStreamDestination();
-        const gain = ctx.createGain();
-        const gain2 = ctx.createGain();
-        const analyser = ctx.createAnalyser();
+        context = new AudioContext();
+        gain = context.createGain();
+        gain2 = context.createGain();
+        const src = context.createMediaStreamSource(_stream);
+        const dest = context.createMediaStreamDestination();
+        const analyser = context.createAnalyser();
         const analyserData = new Uint8Array(analyser.frequencyBinCount);
         let closeTimeout: number;
 
-        await ctx.audioWorklet.addModule(getWorkerUrl(RnnoiseWorker));
-        const worklet = new AudioWorkletNode(ctx, "rnnoise-processor", {
+        await context.audioWorklet.addModule(getWorkerUrl(RnnoiseWorker));
+        const worklet = new AudioWorkletNode(context, "rnnoise-processor", {
           processorOptions: {
             wasm: this.config.voiceRnnoise
               ? new Uint8Array(
@@ -359,20 +353,25 @@ export const useStore = defineStore("main", {
           analyser.getByteFrequencyData(analyserData);
 
           if (
+            stream &&
+            gain2 &&
             analyserData.reduce((a, b) => a + b) / analyserData.length >
-            this.config.audioInputTrigger / 10
+              this.config.audioInputTrigger / 10
           ) {
             gain2.gain.value = 1;
+            stream.speaking = true;
 
             clearTimeout(closeTimeout);
             closeTimeout = +setTimeout(() => {
-              gain2.gain.value = 0;
+              if (stream && gain2) {
+                gain2.gain.value = 0;
+                stream.speaking = false;
+              } // this is irritating.
             }, 200);
           }
-
-          gain.gain.value = this.config.audioInputGain / 100;
         };
 
+        gain.gain.value = this.config.audioInputGain / 100;
         gain2.gain.value = 0;
 
         src.connect(gain);
@@ -382,17 +381,6 @@ export const useStore = defineStore("main", {
         gain2.connect(dest);
 
         opts.track = dest.stream.getTracks()[0];
-
-        const _stop = opts.track.stop.bind(opts.track);
-        opts.track.stop = () => {
-          _stop();
-          stream.getTracks()[0].stop();
-          ctx.close();
-        };
-
-        opts.config = {
-          gain,
-        };
       }
 
       if (!opts.track && opts.type === CallStreamType.Video) {
@@ -410,12 +398,21 @@ export const useStore = defineStore("main", {
       }
 
       if (!opts.track && opts.type === CallStreamType.DisplayVideo) {
-        const [height, frameRate] = this.config.videoMode.split("p");
+        const height = +this.config.videoMode.split("p")[0];
+        const fps = +this.config.videoMode.split("p")[1];
+        const width = {
+          360: 640,
+          480: 854,
+          720: 1280,
+          900: 1600,
+          1080: 1920,
+        }[height];
 
         const stream = await navigator.mediaDevices.getDisplayMedia({
           video: {
-            height: +height,
-            frameRate: +frameRate,
+            width,
+            height,
+            frameRate: fps,
           },
           audio: {
             autoGainControl: false,
@@ -449,13 +446,15 @@ export const useStore = defineStore("main", {
         return;
       }
 
-      const track = opts.track as MediaStreamTrack;
-
       const txBuffer = new Uint8Array(2 * 1024 * 1024);
       let decoderConfig = "";
 
       const encoderInit = {
         output(chunk: EncodedMediaChunk, info: MediaEncoderOutputInfo) {
+          if (!stream) {
+            return;
+          }
+
           if (info.decoderConfig) {
             decoderConfig = JSON.stringify({
               ...info.decoderConfig,
@@ -491,6 +490,7 @@ export const useStore = defineStore("main", {
                   timestamp: chunk.timestamp,
                   duration: chunk.duration,
                   decoderConfig,
+                  speaking: gain2 && !!gain2.gain.value,
                 })
               );
             } catch {
@@ -505,11 +505,11 @@ export const useStore = defineStore("main", {
 
       let encoder!: MediaEncoder;
 
-      if (track.kind === "audio") {
+      if (opts.track.kind === "audio") {
         encoder = new AudioEncoder(encoderInit);
       }
 
-      if (track.kind === "video") {
+      if (opts.track.kind === "video") {
         encoder = new VideoEncoder(encoderInit);
       }
 
@@ -520,8 +520,12 @@ export const useStore = defineStore("main", {
         data: MediaData,
         writer?: WritableStreamDefaultWriter<MediaData>
       ) => {
+        if (!stream) {
+          return;
+        }
+
         if (encoder.encodeQueueSize > 32) {
-          console.log("encoder overloaded; dropping frame");
+          console.log("dropping frame @ encoder");
           data.close();
           return;
         }
@@ -612,10 +616,10 @@ export const useStore = defineStore("main", {
 
         try {
           encoder.encode(data, {
-            keyFrame: stream.config.requestKeyFrame,
+            keyFrame: stream.requestKeyFrame,
           });
 
-          stream.config.requestKeyFrame = false;
+          stream.requestKeyFrame = false;
         } catch (e) {
           console.log(e);
         }
@@ -627,16 +631,20 @@ export const useStore = defineStore("main", {
         }
       };
 
-      const stream: ICallLocalStream = {
-        type: opts.type,
-        track: opts.track,
-        peers: [],
-        config: opts.config,
-        encoder,
-        proc,
-      };
-
-      this.call.localStreams.push(stream);
+      stream =
+        this.call.localStreams[
+          this.call.localStreams.push({
+            type: opts.type,
+            track: opts.track,
+            peers: [],
+            encoder,
+            proc,
+            context,
+            gain,
+            gain2,
+            speaking: false,
+          }) - 1
+        ]; // keeps things reactive.
 
       if (!opts.silent) {
         playSound(SoundNavigateForward);
@@ -649,6 +657,10 @@ export const useStore = defineStore("main", {
       }
 
       opts.track.addEventListener("ended", async () => {
+        if (!stream) {
+          return;
+        }
+
         await this.callRemoveLocalStream({
           type: stream.type,
         });
@@ -658,7 +670,7 @@ export const useStore = defineStore("main", {
         // allows us to return and throw this somewhere else on the event loop.
         (async () => {
           const reader = new MediaStreamTrackProcessor({
-            track,
+            track: opts.track as MediaStreamTrack,
           }).readable.getReader();
 
           for (;;) {
@@ -699,6 +711,10 @@ export const useStore = defineStore("main", {
 
       stream.track.stop();
       stream.encoder.close();
+
+      if (stream.context) {
+        stream.context.close();
+      }
 
       for (const { pc } of stream.peers) {
         pc.close();
@@ -778,9 +794,7 @@ export const useStore = defineStore("main", {
       }
 
       for (const stream of this.call.remoteStreams) {
-        if (stream.config?.el) {
-          (stream.config.el as IHTMLAudioElement).volume = val ? 0 : 1;
-        }
+        stream.element.volume = val ? 0 : 1;
       }
 
       this.call.deaf = val;

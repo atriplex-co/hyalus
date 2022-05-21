@@ -1,10 +1,11 @@
 <template>
   <div
     ref="main"
-    class="hover:ring-primary-600 h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 transition hover:ring hover:ring-opacity-75"
+    class="h-full w-full overflow-hidden rounded-md border border-gray-600 bg-gray-200 bg-opacity-10 transition"
     :class="{
       'cursor-none': !controls,
       'rounded- overflow-hidden shadow-lg': !isFullscreen,
+      'ring-primary-600 ring ring-opacity-75': speaking,
     }"
     @mousemove="resetControlsTimeout"
     @fullscreenchange="updateIsFullscreen"
@@ -16,11 +17,8 @@
   >
     <div
       class="group flex h-full w-full items-center justify-center overflow-hidden bg-black bg-opacity-25"
-      :class="{
-        'bg-gray-800': srcObject,
-      }"
     >
-      <video
+      <!-- <video
         v-if="srcObject"
         class="h-full w-full"
         :class="{
@@ -31,7 +29,21 @@
         autoplay
         muted
         controls
-      />
+      /> -->
+      <div
+        v-if="
+          stream &&
+          [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
+            stream?.type
+          )
+        "
+        ref="video"
+        class="flex h-full w-full"
+        :class="{
+          'object-cover':
+            !isFullscreen && stream?.type !== CallStreamType.DisplayVideo,
+        }"
+      ></div>
       <UserAvatar
         v-else
         :id="tile.user.avatarId"
@@ -47,7 +59,7 @@
           <p class="text-sm font-bold">{{ tile.user.name }}</p>
           <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
           <DisplayIcon
-            v-if="tile.stream?.type === CallStreamType.DisplayVideo"
+            v-if="stream?.type === CallStreamType.DisplayVideo"
             class="h-4 w-4 text-gray-300"
           />
         </div>
@@ -74,16 +86,8 @@ import UserAvatar from "./UserAvatar.vue";
 import FullscreenIcon from "../icons/FullscreenIcon.vue";
 import DisplayIcon from "../icons/DisplayIcon.vue";
 import MicOffIcon from "../icons/MicOffIcon.vue";
-import {
-  ref,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-  PropType,
-  Ref,
-  computed,
-} from "vue";
-import { ICallTile } from "../global/types";
+import { ref, PropType, Ref, computed, onMounted, onUnmounted } from "vue";
+import { ICallTile, IHTMLMediaElement } from "../global/types";
 import { CallStreamType } from "common";
 import ChannelCallTileMenu from "./ChannelCallTileMenu.vue";
 import { useStore } from "../global/store";
@@ -104,8 +108,8 @@ const isFullscreen = ref(false);
 const menuShow = ref(false);
 const menuX = ref(0);
 const menuY = ref(0);
-const srcObject: Ref<MediaStream | null> = ref(null);
 const main: Ref<HTMLDivElement | null> = ref(null);
+const video: Ref<HTMLDivElement | null> = ref(null);
 let controlsTimeout: number;
 
 const expand = async () => {
@@ -132,20 +136,22 @@ const resetControlsTimeout = () => {
   }
 };
 
-const updateSrcObject = () => {
-  if (props.tile.stream?.track.kind === "video") {
-    srcObject.value = new MediaStream([props.tile.stream.track]);
-  }
-};
-
 const updateIsFullscreen = () => {
   isFullscreen.value = !!document.fullscreenElement;
   resetControlsTimeout();
 };
 
+const stream = computed(() => {
+  return props.tile.localStream || props.tile.remoteStream;
+});
+
 const muted = computed(() => {
-  if (!store.call) {
+  if (!store.call || !stream.value) {
     return true;
+  }
+
+  if (stream.value.type === CallStreamType.DisplayVideo) {
+    return false;
   }
 
   if (props.tile.user === store.user) {
@@ -161,10 +167,55 @@ const muted = computed(() => {
   }
 });
 
-onMounted(updateSrcObject);
-watch(() => props.tile.stream, updateSrcObject);
+const speaking = computed(() => {
+  if (!stream.value || stream.value.type === CallStreamType.DisplayVideo) {
+    return false;
+  }
 
-onBeforeUnmount(() => {
-  srcObject.value = null; // https://webrtchacks.com/srcobject-intervention
+  if (props.tile.localStream) {
+    return store.call?.localStreams.find((stream2) => stream2.speaking);
+  }
+
+  if (props.tile.remoteStream) {
+    return store.call?.remoteStreams.find(
+      (stream2) => stream2.userId === props.tile.user.id && stream2.speaking
+    );
+  }
+
+  return false;
+});
+
+const onVisibilityChange = () => {
+  if (document.visibilityState === "visible") {
+    props.tile.remoteStream?.muxer?.reset();
+  }
+};
+
+onMounted(() => {
+  if (video.value) {
+    let element: IHTMLMediaElement | null = null;
+
+    if (video.value && props.tile.localStream) {
+      element = document.createElement("video") as unknown as IHTMLMediaElement;
+      element.srcObject = new MediaStream([props.tile.localStream.track]);
+    }
+
+    if (video.value && props.tile.remoteStream?.element) {
+      props.tile.remoteStream.muxer?.reset();
+      element = props.tile.remoteStream.element;
+    }
+
+    if (element) {
+      element.play();
+      element.controls = true;
+      video.value.appendChild(element);
+    }
+
+    addEventListener("visibilitychange", onVisibilityChange);
+  }
+});
+
+onUnmounted(() => {
+  removeEventListener("visibilitychange", onVisibilityChange);
 });
 </script>

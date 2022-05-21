@@ -176,7 +176,7 @@ const submit = async () => {
           return;
         }
 
-        if (data.t === "video") {
+        if (videoStream && data.t === "video") {
           const frame = new VideoFrame(new Uint8Array(buffer), {
             format: "BGRA",
             codedWidth: data.d.width,
@@ -184,10 +184,10 @@ const submit = async () => {
             timestamp: data.d.timestamp,
           });
 
-          await videoStream?.proc(frame, videoWriter);
+          await videoStream.proc(frame, videoWriter);
         }
 
-        if (data.t === "audio") {
+        if (audioStream && data.t === "audio") {
           const frame = new AudioData({
             format: "f32",
             sampleRate: data.d.sampleRate,
@@ -197,7 +197,7 @@ const submit = async () => {
             data: new Uint8Array(buffer, data.d.offset),
           });
 
-          await audioStream?.proc(frame, audioWriter);
+          await audioStream.proc(frame, audioWriter);
         }
       }
     );

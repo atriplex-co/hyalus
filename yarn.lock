@@ -28,10 +28,6 @@
   version "0.0.5"
   resolved "https://codeload.github.com/atriplex-co/hyalus-rnnoise/tar.gz/667cdd24bb8e7ddfd3c54aaf595e88ce3e05a56d"
 
-"@atriplex-co/hyalus-win32-utils@atriplex-co/hyalus-win32-utils#49dc27ef459482dc7dce1ebfb05168235b99f49e":
-  version "0.0.0"
-  resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/49dc27ef459482dc7dce1ebfb05168235b99f49e"
-
 "@atriplex-co/hyalus-win32-utils@atriplex-co/hyalus-win32-utils#d859156e0ae17c6fed04dabee8a23329790e88ee":
   version "0.0.0"
   resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/d859156e0ae17c6fed04dabee8a23329790e88ee"
@@ -1225,6 +1221,13 @@
   integrity sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==
   dependencies:
     "@types/minimatch" "*"
+    "@types/node" "*"
+
+"@types/jmuxer@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/jmuxer/-/jmuxer-2.0.2.tgz#e73fc91267caaae41894e0f0f0b26bbba5bafdc9"
+  integrity sha512-3ZU35muNaL9tKTpndaQxSYqO8nxsW0QjjRV78cCTHRJGwEw3dP//5Al3kJn3DdqZauc0UVZXevU8Ha8PQOvRJw==
+  dependencies:
     "@types/node" "*"
 
 "@types/json-schema@^7.0.9":
@@ -4103,6 +4106,11 @@ jest-worker@^26.2.1:
     "@types/node" "*"
     merge-stream "^2.0.0"
     supports-color "^7.0.0"
+
+jmuxer@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/jmuxer/-/jmuxer-2.0.4.tgz#623912bb9f57ac3557f383c7569fcfd229ea9967"
+  integrity sha512-deIhbfmKufhVVJA2ydXm12F/EXZyG7dxiU0hWvDjAd8J8j3Mzs0S48Uv2+iG5wsWjEFgLyQQ4wb4+EH2/eNXMA==
 
 joi@^17.6.0:
   version "17.6.0"

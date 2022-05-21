@@ -21,7 +21,7 @@ import {
   IChannel,
   IChannelUser,
   IFriend,
-  IHTMLAudioElement,
+  IHTMLMediaElement,
   ISocketHook,
   ISocketMessage,
 } from "./types";
@@ -37,6 +37,7 @@ import SoundStateUp from "../assets/sounds/state-change_confirm-up.ogg";
 import SoundStateDown from "../assets/sounds/state-change_confirm-down.ogg";
 import { store } from "../global/store";
 import axios from "axios";
+import JMuxer from "jmuxer";
 
 let updateCheck: string;
 let awayController: AbortController;
@@ -1272,17 +1273,8 @@ export class Socket {
 
         if (dataDecrypted.mt === CallRTCDataType.RemoteTrackOffer) {
           const pc = new RTCPeerConnection({ iceServers });
-          let ctx: AudioContext;
 
-          if (
-            [CallStreamType.Audio, CallStreamType.DisplayAudio].includes(
-              dataDecrypted.st
-            )
-          ) {
-            ctx = new AudioContext();
-          }
-
-          const send = (val: unknown) => {
+          const pcSend = (val: unknown) => {
             const jsonRaw = JSON.stringify(val);
             const json = JSON.parse(jsonRaw);
             console.debug("c_rtc/tx: %o", {
@@ -1312,90 +1304,109 @@ export class Socket {
             });
           };
 
-          const track = new MediaStreamTrackGenerator({
-            kind: {
-              [CallStreamType.Audio]: "audio",
-              [CallStreamType.Video]: "video",
-              [CallStreamType.DisplayVideo]: "video",
-              [CallStreamType.DisplayAudio]: "audio",
-            }[dataDecrypted.st],
-          });
+          let element: IHTMLMediaElement | undefined = undefined;
+          let writer: WritableStreamDefaultWriter | undefined = undefined;
+          let context: AudioContext | undefined = undefined;
+          let gain: GainNode | undefined = undefined;
+          let decoder: MediaDecoder | undefined = undefined;
+          let muxer: JMuxer | undefined = undefined;
+          let requestKeyFrame = false;
 
-          const writer = track.writable.getWriter();
+          if (
+            [CallStreamType.Audio, CallStreamType.DisplayAudio].includes(
+              dataDecrypted.st
+            )
+          ) {
+            const generator = new MediaStreamTrackGenerator({
+              kind: "audio",
+            });
 
-          const fps = 60; // TODO: dynamically adjust this.
-          const frames: MediaData[] = [];
+            writer = generator.writable.getWriter();
+            element = document.createElement("audio") as IHTMLMediaElement;
+            context = new AudioContext();
+            gain = context.createGain();
+            const dest = context.createMediaStreamDestination();
 
-          if (track.kind === "video") {
-            const render = async () => {
-              if (track.readyState === "ended") {
-                for (const frame of frames) {
-                  frame.close();
+            context
+              .createMediaStreamSource(new MediaStream([generator]))
+              .connect(gain);
+            gain.connect(dest);
+            gain.gain.value = store.config.audioOutputGain / 100;
+            element.srcObject = dest.stream;
+            element.volume = !store.call?.deaf ? 1 : 0;
+
+            try {
+              element.setSinkId(store.config.audioOutput);
+            } catch {
+              //
+            }
+
+            element.play();
+
+            const decoderInit = {
+              output(frame: MediaData) {
+                if (writer) {
+                  writer.write(frame);
                 }
-
-                return;
-              }
-
-              // setTimeout(
-              //   render,
-              //   frames.length >= 2
-              //     ? (frames[1].timestamp - frames[0].timestamp) / 1000
-              //     : 1000 / fps
-              // );
-
-              requestAnimationFrame(render);
-
-              while (frames.length > fps / 10) {
-                frames.shift()?.close();
-              }
-
-              const frame = frames.shift();
-
-              if (!frame) {
-                return;
-              }
-
-              if (document.visibilityState === "visible") {
-                writer.write(frame);
-              } else {
-                frame.close();
-              }
+              },
+              error() {
+                //
+              },
             };
 
-            render();
-          }
-
-          const decoderInit = {
-            output(frame: MediaData) {
-              if (track.kind === "audio") {
-                writer.write(frame);
-              }
-
-              if (track.kind === "video") {
-                frames.push(frame);
-              }
-            },
-            error() {
-              //
-            },
-          };
-
-          let decoder!: MediaDecoder;
-
-          if (track.kind === "video") {
-            decoder = new VideoDecoder(decoderInit);
-          }
-
-          if (track.kind === "audio") {
             decoder = new AudioDecoder(decoderInit);
           }
+
+          if (
+            [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
+              dataDecrypted.st
+            )
+          ) {
+            // decoder = new VideoDecoder(decoderInit);
+
+            const _element = document.createElement("video");
+            element = _element as unknown as IHTMLMediaElement;
+            element.autoplay = true;
+            muxer = new JMuxer({
+              node: _element,
+              mode: "video",
+              fps: 60, // TODO: dynamic FPS metadata.
+              flushingTime: 0,
+            });
+
+            const reset = muxer.reset.bind(muxer);
+            muxer.reset = () => {
+              reset();
+              requestKeyFrame = true;
+            };
+          }
+
+          if (!element) {
+            console.warn("SCalRTC->RemoteTrackOffer missing element");
+            return;
+          }
+
+          const stream =
+            store.call.remoteStreams[
+              store.call.remoteStreams.push({
+                userId: data.userId,
+                type: dataDecrypted.st,
+                element,
+                pc,
+                writer,
+                context,
+                gain,
+                decoder,
+                muxer,
+              }) - 1
+            ];
 
           pc.addEventListener("icecandidate", ({ candidate }) => {
             if (!candidate) {
               return;
             }
 
-            send({
+            pcSend({
               mt: CallRTCDataType.LocalTrackICECandidate,
               st: dataDecrypted.st,
               d: JSON.stringify(candidate),
@@ -1409,51 +1420,66 @@ export class Socket {
 
             dc.addEventListener("message", async ({ data }) => {
               if (typeof data === "string") {
-                const meta = JSON.parse(data);
+                const info = JSON.parse(data);
 
-                if (decoder.state === "closed") {
-                  pc.close();
-                  return;
+                stream.speaking = info.speaking;
+
+                if (decoder) {
+                  if (decoder.state === "closed") {
+                    pc.close();
+                    return;
+                  }
+
+                  if (
+                    decoderConfig !== info.decoderConfig ||
+                    decoder.state === "unconfigured"
+                  ) {
+                    decoderConfig = info.decoderConfig;
+                    const parsedDecoderConfig = JSON.parse(decoderConfig);
+
+                    decoder.configure({
+                      ...parsedDecoderConfig,
+                      hardwareAcceleration: "prefer-hardware",
+                      description:
+                        parsedDecoderConfig.description &&
+                        sodium.from_base64(parsedDecoderConfig.description),
+                      optimizeForLatency: true,
+                    });
+                  }
+
+                  const chunkInit: EncodedMediaChunkInit = {
+                    data: new Uint8Array(rxBuffer.buffer, 0, rxBufferPos),
+                    type: info.type,
+                    timestamp: info.timestamp,
+                    duration: info.duration,
+                  };
+
+                  let chunk!: EncodedMediaChunk;
+
+                  if (decoder instanceof AudioDecoder) {
+                    chunk = new EncodedAudioChunk(chunkInit);
+                  }
+
+                  if (decoder instanceof VideoDecoder) {
+                    chunk = new EncodedVideoChunk(chunkInit);
+                  }
+
+                  try {
+                    decoder.decode(chunk);
+                  } catch (e) {
+                    dc.send("");
+                  }
                 }
 
-                if (
-                  decoderConfig !== meta.decoderConfig ||
-                  decoder.state === "unconfigured"
-                ) {
-                  decoderConfig = meta.decoderConfig;
-                  const parsedDecoderConfig = JSON.parse(decoderConfig);
-
-                  decoder.configure({
-                    ...parsedDecoderConfig,
-                    hardwareAcceleration: "prefer-hardware",
-                    description:
-                      parsedDecoderConfig.description &&
-                      sodium.from_base64(parsedDecoderConfig.description),
-                    optimizeForLatency: true,
+                if (muxer) {
+                  muxer.feed({
+                    video: new Uint8Array(rxBuffer.buffer, 0, rxBufferPos),
                   });
-                }
 
-                const chunkInit: EncodedMediaChunkInit = {
-                  data: new Uint8Array(rxBuffer.buffer, 0, rxBufferPos),
-                  type: meta.type,
-                  timestamp: meta.timestamp,
-                  duration: meta.duration,
-                };
-
-                let chunk!: EncodedMediaChunk;
-
-                if (track.kind === "audio") {
-                  chunk = new EncodedAudioChunk(chunkInit);
-                }
-
-                if (track.kind === "video") {
-                  chunk = new EncodedVideoChunk(chunkInit);
-                }
-
-                try {
-                  decoder.decode(chunk);
-                } catch (e) {
-                  dc.send("");
+                  if (requestKeyFrame) {
+                    dc.send("");
+                    requestKeyFrame = false;
+                  }
                 }
 
                 rxBufferPos = 0;
@@ -1473,13 +1499,20 @@ export class Socket {
               console.debug("c_rtc/dc: remoteStream close");
               pc.close();
 
-              if (ctx) {
-                ctx.close();
+              if (stream.context) {
+                stream.context.close();
               }
 
-              if (stream.decoder.state !== "closed") {
+              if (stream.decoder && stream.decoder.state !== "closed") {
                 stream.decoder.close();
+              }
+
+              if (stream.writer && !stream.writer.closed) {
                 stream.writer.close();
+              }
+
+              if (stream.muxer) {
+                stream.muxer.destroy();
               }
 
               if (!store.call) {
@@ -1490,56 +1523,11 @@ export class Socket {
                 (stream) => stream.pc !== pc
               );
             });
-
-            if (ctx) {
-              const el2 = document.createElement("audio");
-
-              el2.onloadedmetadata = () => {
-                const gain = ctx.createGain();
-                const dest = ctx.createMediaStreamDestination();
-                const el = document.createElement("audio") as IHTMLAudioElement;
-
-                ctx
-                  .createMediaStreamSource(el2.srcObject as MediaStream)
-                  .connect(gain);
-                gain.connect(dest);
-                gain.gain.value = store.config.audioOutputGain / 100;
-                el.srcObject = dest.stream;
-                el.volume = !store.call?.deaf ? 1 : 0;
-
-                try {
-                  el.setSinkId(store.config.audioOutput);
-                } catch {
-                  //
-                }
-
-                el.play();
-
-                stream.config.el = el;
-                stream.config.gain = gain;
-              };
-
-              el2.srcObject = new MediaStream([track]);
-              el2.volume = 0;
-              el2.play();
-            }
           });
 
           pc.addEventListener("connectionstatechange", () => {
             console.debug(`c_rtc/peer: ${pc.connectionState}`);
           });
-
-          const stream: ICallRemoteStream = {
-            userId: data.userId,
-            type: dataDecrypted.st,
-            pc,
-            track,
-            config: {},
-            decoder,
-            writer,
-          };
-
-          store.call.remoteStreams.push(stream);
 
           await pc.setRemoteDescription(
             new RTCSessionDescription({
@@ -1549,7 +1537,7 @@ export class Socket {
           );
           await pc.setLocalDescription(await pc.createAnswer());
 
-          send({
+          pcSend({
             mt: CallRTCDataType.LocalTrackAnswer,
             st: dataDecrypted.st,
             d: pc.localDescription?.sdp,

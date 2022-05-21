@@ -94,10 +94,10 @@ import VideoOffIcon from "../icons/VideoOffIcon.vue";
 import AudioIcon from "../icons/AudioIcon.vue";
 import AudioOffIcon from "../icons/AudioOffIcon.vue";
 import { ref, computed, onMounted, Ref } from "vue";
-import { ICallTile } from "../global/types";
 import { CallStreamType, SocketMessageType } from "common";
 import { isDesktop } from "../global/helpers";
 import { useStore } from "../global/store";
+import { ICallTile } from "../global/types";
 
 const store = useStore();
 
@@ -107,7 +107,7 @@ const resizeHeight = ref(innerHeight * 0.45);
 let resizeY = 0;
 
 const getTileId = (tile: ICallTile) => {
-  return `${tile.user.id}:${tile.stream?.type}`;
+  return `${tile.user.id}:${tile.localStream?.type || tile.remoteStream?.type}`;
 };
 
 const getComputedStream = (type: CallStreamType) => {
@@ -137,23 +137,41 @@ const tiles = computed(() => {
 
   for (const user of channel.value.users.filter((user) => user.inCall)) {
     const userTiles: ICallTile[] = [];
-
-    for (const stream of store.call.remoteStreams.filter(
+    const streams = store.call.remoteStreams.filter(
       (stream) => stream.userId === user.id
-    )) {
-      if (
-        [CallStreamType.Video, CallStreamType.DisplayVideo].includes(
-          stream.type
-        )
-      ) {
-        userTiles.push({
-          user,
-          stream,
-        });
-      }
+    );
+    const audioStream = streams.find(
+      (stream) => stream.type === CallStreamType.Audio
+    );
+    const videoStream = streams.find(
+      (stream) => stream.type === CallStreamType.Video
+    );
+    const displayVideoStream = streams.find(
+      (stream) => stream.type === CallStreamType.DisplayVideo
+    );
+
+    if (videoStream) {
+      userTiles.push({
+        user,
+        remoteStream: videoStream,
+      });
     }
 
-    if (!userTiles.length) {
+    if (displayVideoStream) {
+      userTiles.push({
+        user,
+        remoteStream: displayVideoStream,
+      });
+    }
+
+    if (!videoStream && audioStream) {
+      userTiles.push({
+        user,
+        remoteStream: audioStream,
+      });
+    }
+
+    if (!videoStream && !audioStream) {
       userTiles.push({
         user,
       });
@@ -164,18 +182,38 @@ const tiles = computed(() => {
 
   const selfTiles: ICallTile[] = [];
 
-  for (const stream of store.call.localStreams) {
-    if (
-      [CallStreamType.Video, CallStreamType.DisplayVideo].includes(stream.type)
-    ) {
-      selfTiles.push({
-        user: store.user,
-        stream,
-      });
-    }
+  const audioStream = store.call.localStreams.find(
+    (stream) => stream.type === CallStreamType.Audio
+  );
+  const videoStream = store.call.localStreams.find(
+    (stream) => stream.type === CallStreamType.Video
+  );
+  const displayVideoStream = store.call.localStreams.find(
+    (stream) => stream.type === CallStreamType.DisplayVideo
+  );
+
+  if (videoStream) {
+    selfTiles.push({
+      user: store.user,
+      localStream: videoStream,
+    });
   }
 
-  if (!selfTiles.length) {
+  if (displayVideoStream) {
+    selfTiles.push({
+      user: store.user,
+      localStream: displayVideoStream,
+    });
+  }
+
+  if (!videoStream && audioStream) {
+    selfTiles.push({
+      user: store.user,
+      localStream: audioStream,
+    });
+  }
+
+  if (!videoStream && !audioStream) {
     selfTiles.push({
       user: store.user,
     });
