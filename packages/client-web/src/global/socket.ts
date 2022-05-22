@@ -1307,7 +1307,9 @@ export class Socket {
           let element: IHTMLMediaElement | undefined = undefined;
           let writer: WritableStreamDefaultWriter | undefined = undefined;
           let context: AudioContext | undefined = undefined;
-          let gain: GainNode | undefined = undefined;
+          let gainOutput: GainNode | undefined = undefined;
+          let gainUserGain: GainNode | undefined = undefined;
+          let gainUserMuted: GainNode | undefined = undefined;
           let decoder: MediaDecoder | undefined = undefined;
           let muxer: JMuxer | undefined = undefined;
           let requestKeyFrame = false;
@@ -1324,14 +1326,29 @@ export class Socket {
             writer = generator.writable.getWriter();
             element = document.createElement("audio") as IHTMLMediaElement;
             context = new AudioContext();
-            gain = context.createGain();
+            gainOutput = context.createGain();
+            gainUserGain = context.createGain();
+            gainUserMuted = context.createGain();
             const dest = context.createMediaStreamDestination();
+
+            const userGain =
+              (store.config[
+                `userGain:${user.id}:${dataDecrypted.st}`
+              ] as number) ?? 100;
+            const userMuted =
+              (store.config[
+                `userMuted:${user.id}:${dataDecrypted.st}`
+              ] as boolean) ?? false;
 
             context
               .createMediaStreamSource(new MediaStream([generator]))
-              .connect(gain);
-            gain.connect(dest);
-            gain.gain.value = store.config.audioOutputGain / 100;
+              .connect(gainOutput);
+            gainOutput.connect(gainUserGain);
+            gainUserGain.connect(gainUserMuted);
+            gainUserMuted.connect(dest);
+            gainOutput.gain.value = store.config.audioOutputGain / 100;
+            gainUserGain.gain.value = userGain / 100;
+            gainUserMuted.gain.value = userMuted ? 0 : 1;
             element.srcObject = dest.stream;
             element.volume = !store.call?.deaf ? 1 : 0;
 
@@ -1395,7 +1412,9 @@ export class Socket {
                 pc,
                 writer,
                 context,
-                gain,
+                gainOutput,
+                gainUserGain,
+                gainUserMuted,
                 decoder,
                 muxer,
               }) - 1

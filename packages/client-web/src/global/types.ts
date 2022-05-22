@@ -28,7 +28,9 @@ export interface IState {
   sideBarContent: SideBarContent;
 }
 
-export interface IConfig {
+export type IConfig = _IConfig & Record<string, unknown>;
+
+export interface _IConfig {
   colorTheme: ColorTheme;
   fontScale: number;
   grayscale: boolean;
@@ -87,8 +89,8 @@ export interface ICallLocalStream {
     writer?: WritableStreamDefaultWriter<MediaData>
   ): Promise<void>;
   context?: AudioContext;
-  gain?: GainNode;
-  gain2?: GainNode;
+  gainInput?: GainNode;
+  gainProc?: GainNode;
   requestKeyFrame?: boolean;
   speaking?: boolean;
 }
@@ -108,7 +110,9 @@ export interface ICallRemoteStream {
   decoder?: MediaDecoder;
   writer?: WritableStreamDefaultWriter; // allows us to close the MediaStreamTrackGenerator.
   muxer?: JMuxer;
-  gain?: GainNode;
+  gainOutput?: GainNode;
+  gainUserGain?: GainNode;
+  gainUserMuted?: GainNode;
   speaking?: boolean;
 }
 

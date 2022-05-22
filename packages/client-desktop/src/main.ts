@@ -10,6 +10,7 @@ import {
   shell,
   desktopCapturer,
   crashReporter,
+  nativeImage,
 } from "electron";
 import path from "path";
 import os from "os";
@@ -23,11 +24,11 @@ const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../../package.json")).toString()
 );
 
+let tray: Tray | null = null;
 let mainWindow: BrowserWindow | null = null;
-let quitting = false;
 
 if (!app.requestSingleInstanceLock() && !process.argv.includes("--dupe")) {
-  app.quit();
+  app.exit(0);
 }
 
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer"); // DO NOT FUCKING TOUCH THIS!
@@ -112,8 +113,19 @@ const setStartupSettings = async (opts: {
   }
 };
 
+const exit = () => {
+  if (tray) {
+    tray.destroy();
+  }
+
+  if (mainWindow) {
+    mainWindow.destroy();
+  }
+
+  app.exit(0);
+};
+
 const restart = () => {
-  quitting = true;
   app.releaseSingleInstanceLock();
   app.relaunch(
     mainWindow
@@ -122,11 +134,23 @@ const restart = () => {
         }
       : {}
   );
-  app.quit();
+  exit();
 };
 
 app.on("ready", async () => {
-  const tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
+  tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
+
+  const trayBounds = tray.getBounds();
+
+  const trayDefaultIcon = nativeImage
+    .createFromPath(path.join(__dirname, "../../assets/tray_default.png"))
+    .resize({
+      width: trayBounds.width,
+      height: trayBounds.height,
+      quality: "better",
+    });
+
+  tray.setImage(trayDefaultIcon);
 
   tray.setToolTip(`${pkg.name} ${pkg.version}`);
   tray.setContextMenu(
@@ -144,8 +168,7 @@ app.on("ready", async () => {
       {
         label: "Quit",
         click() {
-          quitting = true;
-          app.quit();
+          exit();
         },
       },
     ])
@@ -238,10 +261,8 @@ app.on("ready", async () => {
   }
 
   mainWindow.on("close", (e) => {
-    if (!quitting) {
-      e.preventDefault();
-      mainWindow?.hide();
-    }
+    e.preventDefault();
+    mainWindow?.hide();
   });
 
   mainWindow.webContents.on("before-input-event", (e, input) => {
@@ -296,6 +317,10 @@ app.on("web-contents-created", (e, contents) => {
   });
 });
 
+app.on("will-quit", () => {
+  exit();
+});
+
 ipcMain.handle("close", () => {
   mainWindow?.close();
 });
@@ -317,8 +342,7 @@ ipcMain.handle("restart", () => {
 });
 
 ipcMain.handle("quit", () => {
-  quitting = true;
-  app.quit();
+  exit();
 });
 
 ipcMain.handle("getSources", async () => {

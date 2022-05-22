@@ -99,10 +99,8 @@ export const useStore = defineStore("main", {
       this.socket = new Socket();
     },
     async writeConfig(k: string, v: unknown): Promise<unknown> {
-      this.config = (await idbSet("config", {
-        ...this.config,
-        [k]: v,
-      })) as IConfig;
+      this.config[k] = v;
+      await idbSet("config", { ...this.config }); // this.config is reactive, so it's technically a proxy.
 
       if (k === "colorTheme") {
         await updateIcon();
@@ -116,8 +114,8 @@ export const useStore = defineStore("main", {
 
       if (k === "audioOutputGain" && this.call) {
         for (const stream of this.call.remoteStreams) {
-          if (stream.gain) {
-            stream.gain.gain.value = this.config.audioOutputGain / 100;
+          if (stream.gainOutput) {
+            stream.gainOutput.gain.value = this.config.audioOutputGain / 100;
           }
         }
       }
@@ -160,6 +158,30 @@ export const useStore = defineStore("main", {
           type: CallStreamType.Video,
           silent: true,
         });
+      }
+
+      if (k.startsWith("userGain:") && this.call) {
+        const stream = this.call.remoteStreams.find(
+          (stream) =>
+            stream.userId === k.split(":")[1] &&
+            stream.type === +k.split(":")[2]
+        );
+
+        if (stream && stream.gainUserMuted) {
+          stream.gainUserMuted.gain.value = (v as number) / 100;
+        }
+      }
+
+      if (k.startsWith("userMuted:") && this.call) {
+        const stream = this.call.remoteStreams.find(
+          (stream) =>
+            stream.userId === k.split(":")[1] &&
+            stream.type === +k.split(":")[2]
+        );
+
+        if (stream && stream.gainUserMuted) {
+          stream.gainUserMuted.gain.value = v ? 0 : 1;
+        }
       }
 
       return v;
@@ -308,8 +330,8 @@ export const useStore = defineStore("main", {
 
       let stream: ICallLocalStream | undefined = undefined;
       let context: AudioContext | undefined = undefined;
-      let gain: GainNode | undefined = undefined;
-      let gain2: GainNode | undefined = undefined;
+      let gainInput: GainNode | undefined = undefined;
+      let gainProc: GainNode | undefined = undefined;
 
       if (!opts.track && opts.type === CallStreamType.Audio) {
         const _stream = await navigator.mediaDevices.getUserMedia({
@@ -326,8 +348,8 @@ export const useStore = defineStore("main", {
         });
 
         context = new AudioContext();
-        gain = context.createGain();
-        gain2 = context.createGain();
+        gainInput = context.createGain();
+        gainProc = context.createGain();
         const src = context.createMediaStreamSource(_stream);
         const dest = context.createMediaStreamDestination();
         const analyser = context.createAnalyser();
@@ -354,31 +376,31 @@ export const useStore = defineStore("main", {
 
           if (
             stream &&
-            gain2 &&
+            gainProc &&
             analyserData.reduce((a, b) => a + b) / analyserData.length >
               this.config.audioInputTrigger / 10
           ) {
-            gain2.gain.value = 1;
+            gainProc.gain.value = 1;
             stream.speaking = true;
 
             clearTimeout(closeTimeout);
             closeTimeout = +setTimeout(() => {
-              if (stream && gain2) {
-                gain2.gain.value = 0;
+              if (stream && gainProc) {
+                gainProc.gain.value = 0;
                 stream.speaking = false;
               } // this is irritating.
             }, 200);
           }
         };
 
-        gain.gain.value = this.config.audioInputGain / 100;
-        gain2.gain.value = 0;
+        gainInput.gain.value = this.config.audioInputGain / 100;
+        gainProc.gain.value = 0;
 
-        src.connect(gain);
-        gain.connect(worklet);
+        src.connect(gainInput);
+        gainInput.connect(worklet);
         worklet.connect(analyser);
-        worklet.connect(gain2);
-        gain2.connect(dest);
+        worklet.connect(gainProc);
+        gainProc.connect(dest);
 
         opts.track = dest.stream.getTracks()[0];
       }
@@ -490,7 +512,7 @@ export const useStore = defineStore("main", {
                   timestamp: chunk.timestamp,
                   duration: chunk.duration,
                   decoderConfig,
-                  speaking: gain2 && !!gain2.gain.value,
+                  speaking: gainProc && !!gainProc.gain.value,
                 })
               );
             } catch {
@@ -640,8 +662,8 @@ export const useStore = defineStore("main", {
             encoder,
             proc,
             context,
-            gain,
-            gain2,
+            gainInput,
+            gainProc,
             speaking: false,
           }) - 1
         ]; // keeps things reactive.
