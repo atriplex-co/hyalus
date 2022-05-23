@@ -1,10 +1,10 @@
 <template>
   <div
     ref="main"
-    class="group absolute flex h-full w-full items-center justify-center overflow-hidden transition"
+    class="group absolute flex h-full w-full items-center justify-center overflow-hidden rounded-md transition"
     :class="{
       'cursor-none': !controls,
-      'rounded-md border border-gray-600 shadow-lg': !isFullscreen,
+      'bg-black': isFullscreen,
       'ring-primary-600 ring ring-opacity-75': speaking,
       'bg-black':
         stream &&
@@ -45,7 +45,7 @@
         )
       "
       ref="video"
-      class="flex h-full w-full"
+      class="h-full w-full"
       :class="{
         'object-cover':
           !isFullscreen && stream?.type !== CallStreamType.DisplayVideo,
@@ -54,17 +54,17 @@
     <UserAvatar
       v-else
       :id="tile.user.avatarId"
-      class="aspect-square w-[25%] rounded-full shadow-lg"
+      class="h-24 w-24 rounded-full shadow-lg"
     />
     <div
       v-if="controls"
-      class="absolute -bottom-px -mx-px flex h-10 w-full items-end justify-between"
+      class="absolute bottom-0 flex h-8 w-full items-end justify-between"
     >
       <div
-        class="flex h-full items-center space-x-3 overflow-hidden rounded-tr-md border border-gray-600 bg-gray-800 px-4"
+        class="m-2 flex h-full items-center space-x-2 overflow-hidden rounded-md bg-black bg-opacity-25 px-2 backdrop-blur"
       >
-        <p class="text-sm font-bold">{{ tile.user.name }}</p>
-        <MicOffIcon v-if="muted" class="h-4 w-4 text-gray-300" />
+        <p class="text-sm">{{ tile.user.name }}</p>
+        <MicOffIcon v-if="muted" class="h-4 w-4" />
         <DisplayIcon
           v-if="stream?.type === CallStreamType.DisplayVideo"
           class="h-4 w-4 text-gray-300"
@@ -212,8 +212,10 @@ onMounted(() => {
     }
 
     if (element) {
-      element.play();
       // element.controls = true;
+      element.style.width = "100%";
+      element.style.height = "100%";
+      element.play();
       video.value.appendChild(element);
     }
 

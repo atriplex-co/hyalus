@@ -1,25 +1,45 @@
 <template>
   <div
     v-if="store.call"
-    class="relative flex flex-col bg-gray-900 p-2"
+    class="top-0 flex flex-col bg-gray-900"
     :style="`height: ${resizeHeight}px;`"
+    @mouseenter="controls = true"
+    @mouseleave="controls = false"
   >
-    <div ref="tileContainer" class="relative flex-1">
+    <ChannelHeader
+      :channel="channel"
+      class="absolute top-0 z-10 h-32 w-full bg-gradient-to-b from-gray-900 to-transparent transition"
+      :class="{
+        'opacity-0': !controls,
+        'opacity-100': controls,
+      }"
+    />
+    <div
+      ref="tileContainer"
+      class="relative flex-1 transition-all"
+      :class="{
+        'm-16': controls,
+      }"
+    >
       <ChannelCallTile
         v-for="tile in tiles"
         :key="getTileId(tile)"
-        class="absolute"
         :tile="tile"
       />
     </div>
-    <div class="flex items-center justify-center space-x-4 p-2">
+    <div
+      class="absolute bottom-0 flex h-32 w-full items-end justify-center space-x-4 bg-gradient-to-t from-gray-900 to-transparent py-4 transition"
+      :class="{
+        'opacity-0': !controls,
+        'opacity-100': controls,
+      }"
+    >
       <div @click="toggleStream(CallStreamType.Audio)($event)">
         <div
-          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
+          class="h-12 w-12 cursor-pointer rounded-full p-3.5 transition"
           :class="{
-            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
-              audioStream,
-            'border-gray-600 text-gray-400 hover:text-gray-300': !audioStream,
+            ' bg-white text-gray-600': audioStream,
+            ' bg-gray-800 text-gray-400 hover:text-gray-300': !audioStream,
           }"
         >
           <MicIcon v-if="audioStream" />
@@ -28,11 +48,10 @@
       </div>
       <div @click="toggleStream(CallStreamType.Video)($event)">
         <div
-          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
+          class="h-12 w-12 cursor-pointer rounded-full p-3.5 transition"
           :class="{
-            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
-              videoStream,
-            'border-gray-600 text-gray-400 hover:text-gray-300': !videoStream,
+            ' bg-white text-gray-600': videoStream,
+            ' bg-gray-800 text-gray-400 hover:text-gray-300': !videoStream,
           }"
         >
           <VideoIcon v-if="videoStream" />
@@ -46,23 +65,20 @@
       </div>
       <div @click="toggleStream(CallStreamType.DisplayVideo)($event)">
         <DisplayIcon
-          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
+          class="h-12 w-12 cursor-pointer rounded-full p-3.5 transition"
           :class="{
-            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
-              displayVideoStream,
-            'border-gray-600 text-gray-400 hover:text-gray-300':
+            ' bg-white text-gray-600': displayVideoStream,
+            ' bg-gray-800 text-gray-400 hover:text-gray-300':
               !displayVideoStream,
           }"
         />
       </div>
       <div @click="toggleDeaf">
         <div
-          class="h-12 w-12 cursor-pointer rounded-full border-2 p-3 transition"
+          class="h-12 w-12 cursor-pointer rounded-full p-3.5 transition"
           :class="{
-            'border-transparent bg-gray-600 text-white hover:bg-gray-600':
-              store.call.deaf,
-            'border-gray-600 text-gray-400 hover:text-gray-300':
-              !store.call.deaf,
+            ' bg-white text-gray-600': store.call.deaf,
+            ' bg-gray-800 text-gray-400 hover:text-gray-300': !store.call.deaf,
           }"
         >
           <AudioOffIcon v-if="store.call" />
@@ -98,12 +114,14 @@ import { CallStreamType, SocketMessageType } from "common";
 import { isDesktop } from "../global/helpers";
 import { useStore } from "../global/store";
 import { ICallTile } from "../global/types";
+import ChannelHeader from "./ChannelHeader.vue";
 
 const store = useStore();
 
+const controls = ref(false);
 const desktopCaptureModal = ref(false);
 const tileContainer: Ref<HTMLDivElement | null> = ref(null);
-const resizeHeight = ref(innerHeight * 0.45);
+const resizeHeight = ref(innerHeight * 0.5);
 let resizeY = 0;
 
 const getTileId = (tile: ICallTile) => {

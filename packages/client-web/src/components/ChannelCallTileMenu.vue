@@ -2,7 +2,7 @@
   <div
     v-if="show"
     ref="root"
-    class="fixed z-10 w-64 space-y-2 rounded-md border border-gray-700 bg-gray-900 p-4 text-sm shadow-md"
+    class="fixed z-10 w-56 space-y-2 rounded-md border border-gray-700 bg-gray-800 p-4 text-sm shadow-md"
     @mouseup.stop
   >
     <template v-if="tile.user.id === store.user?.id">

@@ -8,80 +8,12 @@
     @dragstart.prevent
     @dragsend.prevent
   >
-    <div class="z-10 border-b border-gray-700 shadow-xl">
-      <div class="flex h-16 justify-between">
-        <div class="flex min-w-0 items-center">
-          <router-link
-            v-if="isMobile"
-            class="ml-2 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"
-            to="/app"
-          >
-            <ArrowLeftIcon />
-          </router-link>
-          <div
-            class="flex h-16 w-16 items-center justify-center"
-            :class="{ 'cursor-pointer': channel.owner }"
-            @click="setAvatar"
-          >
-            <UserAvatar
-              v-if="avatarId || channel.type === ChannelType.Private"
-              :id="avatarId"
-              :status="
-                channel.type === ChannelType.Private
-                  ? channel.users[0].status
-                  : undefined
-              "
-              class="h-10 w-10 rounded-full"
-            />
-            <EmptyAvatar v-else :name="name" class="h-10 w-10" />
-          </div>
-          <div class="min-w-0 flex-1">
-            <p
-              class="truncate text-lg font-bold"
-              :class="{ 'cursor-pointer': channel.owner }"
-              @click="setName"
-            >
-              {{ name }}
-            </p>
-            <p class="-mt-1 text-sm text-gray-400">{{ description }}</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2 px-2 text-gray-300">
-          <div v-if="voiceUsers.length" class="mr-2 flex -space-x-2">
-            <UserAvatar
-              v-for="user in voiceUsersShown"
-              :id="user.avatarId"
-              :key="user.id"
-              class="h-7 w-7 rounded-full border border-gray-900"
-            />
-            <div
-              v-if="voiceUsers.length !== voiceUsersShown.length"
-              class="bg-primary-500 flex h-7 w-7 items-center justify-center rounded-full border border-gray-900 text-xs font-bold text-white"
-            >
-              <p>+{{ voiceUsers.length - voiceUsersShown.length }}</p>
-            </div>
-          </div>
-          <div
-            class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
-            @click="callStart"
-          >
-            <PhoneIcon />
-          </div>
-          <div class="relative">
-            <div
-              class="h-8 w-8 cursor-pointer rounded-full bg-gray-600 p-2 transition hover:bg-gray-500"
-              @click="showInfo = !showInfo"
-            >
-              <DotsIcon />
-            </div>
-            <ChannelInfo
-              v-if="showInfo"
-              :channel="channel"
-              @close="showInfo = false"
-            />
-          </div>
-        </div>
-      </div>
+    <div
+      class="relative z-10 w-full border-b border-gray-700 shadow-xl"
+      :class="{
+        'bg-black': inCall,
+      }"
+    >
       <transition
         enter-active-class="transition transform ease-out duration-100 origin-top"
         enter-from-class="opacity-0 scale-y-95"
@@ -92,6 +24,7 @@
       >
         <ChannelCall v-if="inCall" />
       </transition>
+      <ChannelHeader v-if="!inCall" :channel="channel" />
       <p
         v-if="!writable"
         class="border-b border-gray-700 bg-gray-900 px-4 py-2 text-sm"
@@ -102,16 +35,10 @@
     <div class="relative flex min-h-0 w-full flex-1">
       <div v-if="typingStatus" class="absolute z-10 w-full p-2">
         <div
-          :class="{
-            'pr-80': showInfo,
-          }"
+          class="flex w-full items-center space-x-4 rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-sm shadow-lg"
         >
-          <div
-            class="flex w-full items-center space-x-4 rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-sm shadow-lg"
-          >
-            <PencilIcon class="h-4 w-4 text-gray-400" />
-            <p>{{ typingStatus }}</p>
-          </div>
+          <PencilIcon class="h-4 w-4 text-gray-400" />
+          <p>{{ typingStatus }}</p>
         </div>
       </div>
       <div
@@ -155,25 +82,14 @@
         </div>
       </div>
     </div>
-    <GroupNameModal
-      :show="groupNameModal"
-      :channel="channel"
-      @close="groupNameModal = false"
-    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import UserAvatar from "../components/UserAvatar.vue";
-import EmptyAvatar from "../components/EmptyAvatar.vue";
-import PhoneIcon from "../icons/PhoneIcon.vue";
-import DotsIcon from "../icons/DotsIcon.vue";
 import PaperclipIcon from "../icons/PaperclipIcon.vue";
 import AirplaneIcon from "../icons/AirplaneIcon.vue";
 import MessageItem from "../components/MessageItem.vue";
-import GroupNameModal from "../components/GroupNameModal.vue";
 import PencilIcon from "../icons/PencilIcon.vue";
-import ChannelInfo from "../components/ChannelInfo.vue";
 import {
   ref,
   computed,
@@ -184,27 +100,21 @@ import {
   watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { processMessage, isMobile } from "../global/helpers";
+import { processMessage } from "../global/helpers";
 import { idbSet } from "../global/idb";
-import {
-  CallStreamType,
-  ChannelType,
-  MessageType,
-  SocketMessageType,
-} from "common";
+import { ChannelType, MessageType, SocketMessageType } from "common";
 import sodium from "libsodium-wrappers";
 import ChannelCall from "../components/ChannelCall.vue";
-import ArrowLeftIcon from "../icons/ArrowLeftIcon.vue";
 import { MaxFileSize, MaxFileChunkSize } from "../global/config";
 import axios from "axios";
 import { useStore } from "../global/store";
+import ChannelHeader from "../components/ChannelHeader.vue";
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 const messageBoxText = ref("");
-const groupNameModal = ref(false);
-const showInfo = ref(false);
+
 const messageBox: Ref<HTMLTextAreaElement | null> = ref(null);
 const messageList: Ref<HTMLDivElement | null> = ref(null);
 const messageListBefore: Ref<HTMLDivElement | null> = ref(null);
@@ -231,48 +141,6 @@ const name = computed(() => {
 
   return channel.value.name;
 });
-
-const avatarId = computed(() => {
-  if (!channel.value) {
-    return "Unknown";
-  }
-
-  if (channel.value.type === ChannelType.Private) {
-    return channel.value.users[0].avatarId;
-  }
-
-  return channel.value.avatarId;
-});
-
-const description = computed(() => {
-  if (!channel.value) {
-    return "Unknown";
-  }
-
-  if (channel.value.type === ChannelType.Private) {
-    return `@${channel.value.users[0].username}`;
-  }
-
-  if (channel.value.type === ChannelType.Group) {
-    const users = channel.value.users.filter((user) => !user.hidden);
-
-    return `${users.length + 1} member${users.length ? "s" : ""}`;
-  }
-
-  return "";
-});
-
-const voiceUsers = computed(() => {
-  if (!channel.value) {
-    return [];
-  }
-
-  return channel.value.users.filter((user) => user.inCall);
-});
-
-const voiceUsersShown = computed(() =>
-  voiceUsers.value.slice(0, voiceUsers.value.length > 4 ? 3 : 4)
-);
 
 const writable = computed(() => {
   if (!channel.value) {
@@ -458,61 +326,6 @@ const messageBoxKeydown = (e: KeyboardEvent) => {
   if (e.code === "Enter" && !e.shiftKey) {
     e.preventDefault();
     messageBoxSubmit();
-  }
-};
-
-const setAvatar = () => {
-  if (!channel.value || !channel.value.owner) {
-    return;
-  }
-
-  const el = document.createElement("input");
-
-  el.addEventListener("input", async () => {
-    if (!channel.value || !channel.value.owner || !el.files) {
-      return;
-    }
-
-    const form = new FormData();
-    form.append("avatar", el.files[0]);
-
-    await axios.post(`/api/channels/${channel.value.id}/avatar`, form, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  });
-
-  el.type = "file";
-  el.click();
-};
-
-const setName = () => {
-  if (channel.value && channel.value.owner) {
-    groupNameModal.value = true;
-  }
-};
-
-const callStart = async (e: MouseEvent) => {
-  if (!channel.value) {
-    return;
-  }
-
-  if (store.call) {
-    await store.callReset();
-
-    store.socket?.send({
-      t: SocketMessageType.CCallStop,
-    });
-  }
-
-  await store.callStart(channel.value.id);
-
-  if (!e.shiftKey) {
-    await store.callAddLocalStream({
-      type: CallStreamType.Audio,
-      silent: true,
-    });
   }
 };
 
