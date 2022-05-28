@@ -191,9 +191,28 @@ const speaking = computed(() => {
   return false;
 });
 
+const ensureStreamEnabled = () => {
+  if (props.tile.remoteStream?.muxer) {
+    props.tile.remoteStream.muxer.reset();
+  }
+};
+
+const ensureStreamDisabled = () => {
+  if (
+    props.tile.remoteStream?.muxer &&
+    props.tile.remoteStream.dc?.readyState === "open"
+  ) {
+    props.tile.remoteStream.dc.send("disable");
+  }
+};
+
 const onVisibilityChange = () => {
   if (document.visibilityState === "visible") {
-    props.tile.remoteStream?.muxer?.reset();
+    ensureStreamEnabled();
+  }
+
+  if (document.visibilityState === "hidden") {
+    ensureStreamDisabled();
   }
 };
 
@@ -212,7 +231,6 @@ onMounted(() => {
     }
 
     if (element) {
-      // element.controls = true;
       element.style.width = "100%";
       element.style.height = "100%";
       element.play();
@@ -221,9 +239,13 @@ onMounted(() => {
 
     addEventListener("visibilitychange", onVisibilityChange);
   }
+
+  ensureStreamEnabled();
 });
 
 onUnmounted(() => {
   removeEventListener("visibilitychange", onVisibilityChange);
+
+  ensureStreamDisabled();
 });
 </script>

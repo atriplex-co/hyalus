@@ -1383,7 +1383,6 @@ export class Socket {
 
             const _element = document.createElement("video");
             element = _element as unknown as IHTMLMediaElement;
-            element.autoplay = true;
             muxer = new JMuxer({
               node: _element,
               mode: "video",
@@ -1394,7 +1393,10 @@ export class Socket {
             const reset = muxer.reset.bind(muxer);
             muxer.reset = () => {
               reset();
-              requestKeyFrame = true;
+
+              if (stream.dc) {
+                stream.dc.send("enable");
+              }
             };
           }
 
@@ -1433,9 +1435,17 @@ export class Socket {
           });
 
           pc.addEventListener("datachannel", ({ channel: dc }) => {
+            stream.dc = dc;
+
             const rxBuffer = new Uint8Array(2 * 1024 * 1024);
             let rxBufferPos = 0;
             let decoderConfig = "";
+
+            dc.addEventListener("open", () => {
+              if ([CallStreamType.Audio].includes(stream.type)) {
+                dc.send("enable");
+              }
+            });
 
             dc.addEventListener("message", async ({ data }) => {
               if (typeof data === "string") {

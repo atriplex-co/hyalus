@@ -264,6 +264,7 @@ export const useStore = defineStore("main", {
         userId,
         pc,
         dc,
+        enabled: false,
       };
 
       stream.peers.push(peer);
@@ -288,12 +289,17 @@ export const useStore = defineStore("main", {
         }
       });
 
-      dc.addEventListener("open", () => {
-        stream.requestKeyFrame = true;
-      });
-
       dc.addEventListener("message", () => {
-        stream.requestKeyFrame = true;
+        dc.addEventListener("message", ({ data }) => {
+          if (data === "enable") {
+            peer.enabled = true;
+            stream.requestKeyFrame = true;
+          }
+
+          if (data === "disable") {
+            peer.enabled = false;
+          }
+        });
       });
 
       dc.addEventListener("close", async () => {

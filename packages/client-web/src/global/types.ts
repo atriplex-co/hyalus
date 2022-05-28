@@ -99,12 +99,14 @@ export interface ICallLocalStreamPeer {
   userId: string;
   pc: RTCPeerConnection;
   dc: RTCDataChannel;
+  enabled: boolean;
 }
 
 export interface ICallRemoteStream {
   userId: string;
   type: CallStreamType;
   pc: RTCPeerConnection;
+  dc?: RTCDataChannel;
   element: IHTMLMediaElement; // TS won't let us put IHTMLAudioElement in an interface for whatever fucking reason.
   context?: AudioContext;
   decoder?: MediaDecoder;
