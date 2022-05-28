@@ -63,11 +63,11 @@
       <div
         class="m-2 flex h-full items-center space-x-2 overflow-hidden rounded-md bg-black bg-opacity-25 px-2 backdrop-blur"
       >
-        <p class="text-sm">{{ tile.user.name }}</p>
-        <MicOffIcon v-if="muted" class="h-4 w-4" />
+        <p class="truncate text-sm">{{ tile.user.name }}</p>
+        <MicOffIcon v-if="muted" class="h-4 w-4 flex-shrink-0" />
         <DisplayIcon
           v-if="stream?.type === CallStreamType.DisplayVideo"
-          class="h-4 w-4 text-gray-300"
+          class="h-4 w-4 flex-shrink-0 text-gray-300"
         />
       </div>
       <div
