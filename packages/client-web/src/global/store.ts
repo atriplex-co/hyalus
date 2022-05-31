@@ -289,17 +289,15 @@ export const useStore = defineStore("main", {
         }
       });
 
-      dc.addEventListener("message", () => {
-        dc.addEventListener("message", ({ data }) => {
-          if (data === "enable") {
-            peer.enabled = true;
-            stream.requestKeyFrame = true;
-          }
+      dc.addEventListener("message", ({ data }) => {
+        if (data === "enable") {
+          peer.enabled = true;
+          stream.requestKeyFrame = true;
+        }
 
-          if (data === "disable") {
-            peer.enabled = false;
-          }
-        });
+        if (data === "disable") {
+          peer.enabled = false;
+        }
       });
 
       dc.addEventListener("close", async () => {

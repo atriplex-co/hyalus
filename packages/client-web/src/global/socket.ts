@@ -15,6 +15,7 @@ import {
   Status,
 } from "common";
 import {
+  ICallLocalStream,
   ICallPersist,
   ICallRemoteStream,
   ICallRTCData,
@@ -1388,13 +1389,16 @@ export class Socket {
               mode: "video",
               fps: 60, // TODO: dynamic FPS metadata.
               flushingTime: 0,
+              onReady() {
+                _element.play();
+              },
             });
 
             const reset = muxer.reset.bind(muxer);
             muxer.reset = () => {
               reset();
 
-              if (stream.dc) {
+              if (stream?.dc) {
                 stream.dc.send("enable");
               }
             };
