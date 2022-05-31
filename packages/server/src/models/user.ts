@@ -37,6 +37,7 @@ export const UserSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   name: {
     type: String,
