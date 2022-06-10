@@ -84,10 +84,8 @@ export interface ICallLocalStream {
   track: MediaStreamTrack;
   peers: ICallLocalStreamPeer[];
   encoder: MediaEncoder;
-  proc(
-    data: MediaData,
-    writer?: WritableStreamDefaultWriter<MediaData>
-  ): Promise<void>;
+  proc(val: MediaData): Promise<void>;
+  submit(val: Uint8Array | EncodedMediaChunk): void;
   context?: AudioContext;
   gainInput?: GainNode;
   gainProc?: GainNode;

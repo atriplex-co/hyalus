@@ -24,6 +24,7 @@
       menuY = $event.y;
       menuShow = true;
     "
+    @dblclick="expand"
   >
     <!-- <video
         v-if="srcObject"
@@ -70,12 +71,6 @@
           class="h-4 w-4 flex-shrink-0 text-gray-300"
         />
       </div>
-      <div
-        class="flex h-full w-12 cursor-pointer items-center justify-center rounded-tl-md border border-gray-600 bg-gray-800 text-gray-300 opacity-0 shadow-md transition hover:text-white group-hover:opacity-100"
-        @click="expand"
-      >
-        <FullscreenIcon class="h-4 w-4" />
-      </div>
     </div>
     <ChannelCallTileMenu
       :show="menuShow"
@@ -89,7 +84,6 @@
 
 <script lang="ts" setup>
 import UserAvatar from "./UserAvatar.vue";
-import FullscreenIcon from "../icons/FullscreenIcon.vue";
 import DisplayIcon from "../icons/DisplayIcon.vue";
 import MicOffIcon from "../icons/MicOffIcon.vue";
 import { ref, PropType, Ref, computed, onMounted, onUnmounted } from "vue";

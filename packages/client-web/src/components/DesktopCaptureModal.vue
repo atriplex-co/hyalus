@@ -85,14 +85,24 @@ const submit = async () => {
     return;
   }
 
-  const height = +store.config.videoMode.split("p")[0];
-  const fps = +store.config.videoMode.split("p")[1];
-  const width = {
-    360: 640,
-    480: 854,
-    720: 1280,
-    1080: 1920,
-  }[height];
+  const videoHeight = +store.config.videoMode.split("p")[0] || 1280;
+  const videoWidth =
+    {
+      360: 640,
+      480: 854,
+      720: 1280,
+      1080: 1920,
+    }[videoHeight] || 720;
+  const videoFps = +store.config.videoMode.split("p")[1] || 60;
+  const videoBitrate =
+    {
+      ["480p30"]: 3000000,
+      ["480p60"]: 3000000,
+      ["720p30"]: 3000000,
+      ["720p60"]: 4500000,
+      ["1080p30"]: 4500000,
+      ["1080p60"]: 6000000,
+    }[store.config.videoMode] || 4500000;
 
   const getStream = async (audio: boolean): Promise<MediaStream> => {
     return await navigator.mediaDevices.getUserMedia({
@@ -100,9 +110,9 @@ const submit = async () => {
         mandatory: {
           chromeMediaSource: "desktop",
           chromeMediaSourceId: selectedSourceId.value,
-          maxWidth: width,
-          maxHeight: height,
-          maxFrameRate: fps,
+          maxWidth: videoWidth,
+          maxHeight: videoHeight,
+          maxFrameRate: videoFps,
         },
       },
       audio: audio && {
@@ -114,37 +124,21 @@ const submit = async () => {
   };
 
   if (win32CaptureAvailable) {
-    let videoWriter: WritableStreamDefaultWriter<VideoFrame>;
-    let audioWriter: WritableStreamDefaultWriter<AudioData>;
-    let videoStream: ICallLocalStream | undefined;
+    const videoStream = await store.callAddLocalStream({
+      type: CallStreamType.DisplayVideo,
+      track: (await getStream(false)).getTracks()[0],
+      submitOverride: true,
+    });
+
     let audioStream: ICallLocalStream | undefined;
-
-    if (selectedSourceId.value.startsWith("screen:")) {
-      await store.callAddLocalStream({
-        type: CallStreamType.DisplayVideo,
-        track: (await getStream(false)).getTracks()[0],
-      });
-    }
-
-    if (selectedSourceId.value.startsWith("window:")) {
-      const videoGenerator = new MediaStreamTrackGenerator({
-        kind: "video",
-      });
-
-      videoWriter = videoGenerator.writable.getWriter();
-      videoStream = await store.callAddLocalStream({
-        type: CallStreamType.DisplayVideo,
-        track: videoGenerator,
-        procOverride: true,
-      });
-    }
+    // const audioWriter: WritableStreamDefaultWriter<AudioData>; // TODO: fix this shit.
 
     if (selectedAudio.value) {
       const audioGenerator = new MediaStreamTrackGenerator({
         kind: "audio",
       });
 
-      audioWriter = audioGenerator.writable.getWriter();
+      // audioWriter = audioGenerator.writable.getWriter();
       audioStream = await store.callAddLocalStream({
         type: CallStreamType.DisplayAudio,
         track: audioGenerator,
@@ -153,54 +147,40 @@ const submit = async () => {
       });
     }
 
-    let buffer: SharedArrayBuffer | null = null;
-    const bufferMessageListener = (e: MessageEvent) => {
-      removeEventListener("message", bufferMessageListener);
-      buffer = e.data;
+    const opts = {
+      id: selectedSourceId.value,
+      video: !!videoStream,
+      videoWidth,
+      videoHeight,
+      videoFps,
+      videoBitrate,
+      audio: !!audioStream,
     };
-    addEventListener("message", bufferMessageListener);
 
-    window.HyalusDesktop?.startWin32Capture(
-      {
-        id: selectedSourceId.value,
-        fps,
-        video: !!videoStream,
-        audio: !!audioStream,
-      },
-      async (data) => {
-        if (!data) {
-          return;
-        }
+    console.log(JSON.stringify(opts, null, 2));
 
-        if (!buffer) {
-          return;
-        }
-
-        if (videoStream && data.t === "video") {
-          const frame = new VideoFrame(new Uint8Array(buffer), {
-            format: "BGRA",
-            codedWidth: data.d.width,
-            codedHeight: data.d.height,
-            timestamp: data.d.timestamp,
-          });
-
-          await videoStream.proc(frame, videoWriter);
-        }
-
-        if (audioStream && data.t === "audio") {
-          const frame = new AudioData({
-            format: "f32",
-            sampleRate: data.d.sampleRate,
-            numberOfFrames: data.d.frames,
-            numberOfChannels: data.d.channels,
-            timestamp: data.d.timestamp,
-            data: new Uint8Array(buffer, data.d.offset),
-          });
-
-          await audioStream.proc(frame, audioWriter);
-        }
+    window.HyalusDesktop?.startWin32Capture(opts, async (data) => {
+      if (!data) {
+        return;
       }
-    );
+
+      if (videoStream && data.t === "video") {
+        videoStream.submit(new Uint8Array(data.d.data));
+      }
+
+      if (audioStream && data.t === "audio") {
+        const frame = new AudioData({
+          format: "f32",
+          sampleRate: data.d.sampleRate,
+          numberOfFrames: data.d.frames,
+          numberOfChannels: data.d.channels,
+          timestamp: data.d.timestamp,
+          data: new Uint8Array(data.d.data),
+        });
+
+        await audioStream.proc(frame);
+      }
+    });
 
     emit("close");
     return;

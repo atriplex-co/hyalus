@@ -230,21 +230,22 @@ declare function registerProcessor(name: string, proc: unknown): void;
 
 declare interface HyalusWin32CaptureOpts {
   id: string;
-  fps: number;
-  audio: boolean;
   video: boolean;
+  videoWidth: number;
+  videoHeight: number;
+  videoFps: number;
+  videoBitrate: number;
+  audio: boolean;
 }
 
 declare interface HyalusWin32CaptureData {
   t: string;
   d: {
-    width: number;
-    height: number;
     channels: number;
     sampleSize: number;
     sampleRate: number;
     frames: number;
-    offset: number;
     timestamp: number;
+    data: ArrayBuffer;
   };
 }

@@ -3,6 +3,12 @@
     <div class="draggable flex flex-1 select-none items-center space-x-2 px-2">
       <AppIcon class="h-4 w-4" />
       <p class="text-gray-200">{{ title }}</p>
+      <p
+        v-if="isDev"
+        class="bg-primary-600 rounded-full px-2 font-bold text-white"
+      >
+        Dev
+      </p>
     </div>
     <div class="flex">
       <div
@@ -62,6 +68,8 @@ const maximize = () => {
 const minimize = () => {
   window.HyalusDesktop?.minimize();
 };
+
+const isDev = import.meta.env.DEV;
 
 updateTitleInterval = +setInterval(updateTitle, 100);
 

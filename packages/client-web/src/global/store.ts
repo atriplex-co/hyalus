@@ -326,6 +326,7 @@ export const useStore = defineStore("main", {
       track?: MediaStreamTrack;
       silent?: boolean;
       procOverride?: boolean;
+      submitOverride?: boolean;
     }): Promise<ICallLocalStream | undefined> {
       if (!this.call) {
         console.warn("callAddLocalStream missing call");
@@ -472,91 +473,74 @@ export const useStore = defineStore("main", {
         return;
       }
 
-      const txBuffer = new Uint8Array(2 * 1024 * 1024);
       let decoderConfig = "";
-
-      const encoderInit = {
-        output(chunk: EncodedMediaChunk, info: MediaEncoderOutputInfo) {
-          if (!stream) {
-            return;
-          }
-
-          if (info.decoderConfig) {
-            decoderConfig = JSON.stringify({
-              ...info.decoderConfig,
-              description:
-                info.decoderConfig.description &&
-                sodium.to_base64(
-                  new Uint8Array(info.decoderConfig.description)
-                ),
-            });
-          }
-
-          chunk.copyTo(txBuffer);
-
-          for (const peer of stream.peers) {
-            if (peer.dc.readyState !== "open") {
-              continue;
-            }
-
-            try {
-              for (let i = 0; i < chunk.byteLength; i += RTCMaxMessageSize) {
-                peer.dc.send(
-                  new Uint8Array(
-                    txBuffer.buffer,
-                    i,
-                    Math.min(RTCMaxMessageSize, chunk.byteLength - i)
-                  )
-                );
-              }
-
-              peer.dc.send(
-                JSON.stringify({
-                  type: chunk.type,
-                  timestamp: chunk.timestamp,
-                  duration: chunk.duration,
-                  decoderConfig,
-                  speaking: gainProc && !!gainProc.gain.value,
-                })
-              );
-            } catch {
-              //
-            }
-          }
-        },
-        error() {
-          //
-        },
-      };
-
-      let encoder!: MediaEncoder;
-
-      if (opts.track.kind === "audio") {
-        encoder = new AudioEncoder(encoderInit);
-      }
-
-      if (opts.track.kind === "video") {
-        encoder = new VideoEncoder(encoderInit);
-      }
-
       let lastWidth = 0;
       let lastHeight = 0;
 
-      const proc = async (
-        data: MediaData,
-        writer?: WritableStreamDefaultWriter<MediaData>
-      ) => {
+      const submit = (val: Uint8Array | EncodedMediaChunk) => {
+        let data: Uint8Array | null = null;
+        let chunk: EncodedMediaChunk | null = null;
+
+        if (val instanceof Uint8Array) {
+          data = val;
+        }
+
+        if (
+          val instanceof EncodedVideoChunk ||
+          val instanceof EncodedAudioChunk
+        ) {
+          chunk = val;
+          data = new Uint8Array(val.byteLength);
+          val.copyTo(data);
+        }
+
+        if (!data || !stream) {
+          return;
+        }
+
+        for (const peer of stream.peers) {
+          if (peer.dc.readyState !== "open") {
+            continue;
+          }
+
+          try {
+            for (let i = 0; i < data.length; i += RTCMaxMessageSize) {
+              peer.dc.send(
+                new Uint8Array(
+                  data.buffer,
+                  i,
+                  Math.min(RTCMaxMessageSize, data.length - i)
+                )
+              );
+            }
+
+            peer.dc.send(
+              JSON.stringify({
+                type: chunk?.type,
+                timestamp: chunk?.timestamp,
+                duration: chunk?.duration,
+                decoderConfig,
+                speaking: gainProc && !!gainProc.gain.value,
+              })
+            );
+          } catch {
+            //
+          }
+        }
+      };
+
+      const proc = async (val: MediaData) => {
         if (!stream) {
           return;
         }
 
         if (encoder.encodeQueueSize > 32) {
           console.log("dropping frame @ encoder");
-          data.close();
+          val.close();
           return;
         }
 
-        if (data instanceof AudioData && encoder.state === "unconfigured") {
+        if (val instanceof AudioData && encoder.state === "unconfigured") {
           encoder.configure({
             codec: "opus",
             bitrate: 128e3,
@@ -566,10 +550,10 @@ export const useStore = defineStore("main", {
         }
 
         if (
-          data instanceof VideoFrame &&
+          val instanceof VideoFrame &&
           (encoder.state === "unconfigured" ||
-            lastWidth !== data.codedWidth ||
-            lastHeight !== data.codedHeight)
+            lastWidth !== val.codedWidth ||
+            lastHeight !== val.codedHeight)
         ) {
           const maxScaledHeight = +this.config.videoMode.split("p")[0];
           const maxScaledWidth =
@@ -581,8 +565,8 @@ export const useStore = defineStore("main", {
             }[maxScaledHeight] || maxScaledHeight;
           const maxFps = +this.config.videoMode.split("p")[1];
 
-          let scaledWidth = data.codedWidth;
-          let scaledHeight = data.codedHeight;
+          let scaledWidth = val.codedWidth;
+          let scaledHeight = val.codedHeight;
 
           if (scaledWidth > maxScaledWidth) {
             scaledHeight = Math.floor(
@@ -636,12 +620,12 @@ export const useStore = defineStore("main", {
             },
           });
 
-          lastWidth = data.codedWidth;
-          lastHeight = data.codedHeight;
+          lastWidth = val.codedWidth;
+          lastHeight = val.codedHeight;
         }
 
         try {
-          encoder.encode(data, {
+          encoder.encode(val, {
             keyFrame: stream.requestKeyFrame,
           });
 
@@ -650,12 +634,42 @@ export const useStore = defineStore("main", {
           console.log(e);
         }
 
-        if (writer && document.visibilityState === "visible") {
-          writer.write(data);
-        } else {
-          data.close();
-        }
+        val.close();
       };
+
+      const encoderInit = {
+        output(chunk: EncodedMediaChunk, info: MediaEncoderOutputInfo) {
+          if (!stream) {
+            return;
+          }
+
+          if (info.decoderConfig) {
+            decoderConfig = JSON.stringify({
+              ...info.decoderConfig,
+              description:
+                info.decoderConfig.description &&
+                sodium.to_base64(
+                  new Uint8Array(info.decoderConfig.description)
+                ),
+            });
+          }
+
+          submit(chunk);
+        },
+        error() {
+          //
+        },
+      };
+
+      let encoder!: MediaEncoder;
+
+      if (opts.track.kind === "audio") {
+        encoder = new AudioEncoder(encoderInit);
+      }
+
+      if (opts.track.kind === "video") {
+        encoder = new VideoEncoder(encoderInit);
+      }
 
       stream =
         this.call.localStreams[
@@ -664,11 +678,12 @@ export const useStore = defineStore("main", {
             track: opts.track,
             peers: [],
             encoder,
-            proc,
             context,
             gainInput,
             gainProc,
             speaking: false,
+            proc,
+            submit,
           }) - 1
         ]; // keeps things reactive.
 
@@ -692,7 +707,7 @@ export const useStore = defineStore("main", {
         });
       });
 
-      if (!opts.procOverride) {
+      if (!opts.procOverride && !opts.submitOverride) {
         // allows us to return and throw this somewhere else on the event loop.
         (async () => {
           const reader = new MediaStreamTrackProcessor({
@@ -706,7 +721,7 @@ export const useStore = defineStore("main", {
               break;
             }
 
-            await proc(value);
+            proc(value);
           }
         })();
       }

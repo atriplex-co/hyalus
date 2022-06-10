@@ -1,31 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 import os from "os";
 
-interface IWin32CaptureUserOpts {
-  id: string;
-  fps: number;
-  video: boolean;
-  audio: boolean;
-}
-
-interface IWin32CaptureInternalOpts {
-  id: string;
-  fps: number;
-  video: boolean;
-  audio: boolean;
-  buffer: Uint8Array;
-}
-
 let win32Capture:
   | {
-      startCapture(
-        opts: IWin32CaptureInternalOpts,
-        cb: (data: unknown) => void
-      ): void;
+      startCapture(...args: unknown[]): void;
       stopCapture(): void;
     }
   | undefined;
-let win32CaptureBuffer;
 
 const stopWin32Capture = () => {
   if (win32Capture) {
@@ -33,31 +14,12 @@ const stopWin32Capture = () => {
   }
 };
 
-const startWin32Capture = (
-  opts: IWin32CaptureUserOpts,
-  cb: (data: unknown) => void
-) => {
+const startWin32Capture = (...args: unknown[]) => {
   if (!win32Capture) {
     win32Capture = require("@atriplex-co/hyalus-win32-utils");
   }
 
-  win32CaptureBuffer = new SharedArrayBuffer(32 * 1024 * 1024); // 32MB
-  postMessage(win32CaptureBuffer);
-
-  win32Capture.startCapture(
-    {
-      ...opts,
-      buffer: new Uint8Array(win32CaptureBuffer),
-    },
-    (data) => {
-      if (!data) {
-        win32CaptureBuffer = null;
-        return;
-      }
-
-      cb(data);
-    }
-  );
+  win32Capture.startCapture(...args);
 };
 
 addEventListener("beforeunload", () => {
@@ -76,6 +38,6 @@ contextBridge.exposeInMainWorld("HyalusDesktop", {
     ipcRenderer.invoke("setStartupSettings", val),
   osPlatform: os.platform(),
   osRelease: os.release(),
-  stopWin32Capture,
   startWin32Capture,
+  stopWin32Capture,
 });
