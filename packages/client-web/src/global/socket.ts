@@ -15,7 +15,6 @@ import {
   Status,
 } from "common";
 import {
-  ICallLocalStream,
   ICallPersist,
   ICallRemoteStream,
   ICallRTCData,
@@ -1393,15 +1392,6 @@ export class Socket {
                 _element.play();
               },
             });
-
-            const reset = muxer.reset.bind(muxer);
-            muxer.reset = () => {
-              reset();
-
-              if (stream?.dc) {
-                stream.dc.send("enable");
-              }
-            };
           }
 
           if (!element) {

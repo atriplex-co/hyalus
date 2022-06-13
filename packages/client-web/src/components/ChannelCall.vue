@@ -21,11 +21,7 @@
         'm-16': controls,
       }"
     >
-      <ChannelCallTile
-        v-for="tile in tiles"
-        :key="getTileId(tile)"
-        :tile="tile"
-      />
+      <ChannelCallTile v-for="tile in tiles" :key="tile.id" :tile="tile" />
     </div>
     <div
       class="absolute bottom-0 flex h-32 w-full items-end justify-center space-x-4 bg-gradient-to-t from-gray-900 to-transparent py-4 transition"
@@ -124,10 +120,6 @@ const tileContainer: Ref<HTMLDivElement | null> = ref(null);
 const resizeHeight = ref(innerHeight * 0.5);
 let resizeY = 0;
 
-const getTileId = (tile: ICallTile) => {
-  return `${tile.user.id}:${tile.localStream?.type || tile.remoteStream?.type}`;
-};
-
 const getComputedStream = (type: CallStreamType) => {
   return computed(() => {
     if (!store.call) {
@@ -170,6 +162,7 @@ const tiles = computed(() => {
 
     if (videoStream) {
       userTiles.push({
+        id: "",
         user,
         remoteStream: videoStream,
       });
@@ -177,6 +170,7 @@ const tiles = computed(() => {
 
     if (displayVideoStream) {
       userTiles.push({
+        id: "",
         user,
         remoteStream: displayVideoStream,
       });
@@ -184,6 +178,7 @@ const tiles = computed(() => {
 
     if (!videoStream && audioStream) {
       userTiles.push({
+        id: "",
         user,
         remoteStream: audioStream,
       });
@@ -191,6 +186,7 @@ const tiles = computed(() => {
 
     if (!videoStream && !audioStream) {
       userTiles.push({
+        id: "",
         user,
       });
     }
@@ -212,6 +208,7 @@ const tiles = computed(() => {
 
   if (videoStream) {
     selfTiles.push({
+      id: "",
       user: store.user,
       localStream: videoStream,
     });
@@ -219,6 +216,7 @@ const tiles = computed(() => {
 
   if (displayVideoStream) {
     selfTiles.push({
+      id: "",
       user: store.user,
       localStream: displayVideoStream,
     });
@@ -226,6 +224,7 @@ const tiles = computed(() => {
 
   if (!videoStream && audioStream) {
     selfTiles.push({
+      id: "",
       user: store.user,
       localStream: audioStream,
     });
@@ -233,12 +232,18 @@ const tiles = computed(() => {
 
   if (!videoStream && !audioStream) {
     selfTiles.push({
+      id: "",
       user: store.user,
     });
   }
 
   tiles.push(...selfTiles);
-  tiles.sort((a, b) => (getTileId(a) > getTileId(b) ? 1 : -1));
+  tiles.map((tile) => {
+    tile.id = `${tile.user.id}:${
+      tile.localStream?.type || tile.remoteStream?.type
+    }`;
+  });
+  tiles.sort((a, b) => (a.id > b.id ? 1 : -1));
 
   return tiles;
 });

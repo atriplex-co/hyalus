@@ -86,7 +86,15 @@
 import UserAvatar from "./UserAvatar.vue";
 import DisplayIcon from "../icons/DisplayIcon.vue";
 import MicOffIcon from "../icons/MicOffIcon.vue";
-import { ref, PropType, Ref, computed, onMounted, onUnmounted } from "vue";
+import {
+  ref,
+  PropType,
+  Ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+} from "vue";
 import { ICallTile, IHTMLMediaElement } from "../global/types";
 import { CallStreamType } from "common";
 import ChannelCallTileMenu from "./ChannelCallTileMenu.vue";
@@ -186,8 +194,12 @@ const speaking = computed(() => {
 });
 
 const ensureStreamEnabled = () => {
-  if (props.tile.remoteStream?.muxer) {
+  if (
+    props.tile.remoteStream?.muxer &&
+    props.tile.remoteStream.dc?.readyState === "open"
+  ) {
     props.tile.remoteStream.muxer.reset();
+    props.tile.remoteStream.dc.send("enable");
   }
 };
 
@@ -220,7 +232,6 @@ onMounted(() => {
     }
 
     if (video.value && props.tile.remoteStream?.element) {
-      props.tile.remoteStream.muxer?.reset();
       element = props.tile.remoteStream.element;
     }
 
@@ -230,16 +241,21 @@ onMounted(() => {
       element.play();
       video.value.appendChild(element);
     }
-
-    addEventListener("visibilitychange", onVisibilityChange);
   }
 
+  addEventListener("visibilitychange", onVisibilityChange);
   ensureStreamEnabled();
 });
 
 onUnmounted(() => {
   removeEventListener("visibilitychange", onVisibilityChange);
-
   ensureStreamDisabled();
 });
+
+watch(
+  () => props.tile.remoteStream?.dc?.readyState,
+  () => {
+    onVisibilityChange(); // this is a bit weird but it works great.
+  }
+);
 </script>

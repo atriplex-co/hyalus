@@ -117,6 +117,7 @@ export interface ICallRemoteStream {
 }
 
 export interface ICallTile {
+  id: string;
   user: IChannelUser | IUser;
   localStream?: ICallLocalStream;
   remoteStream?: ICallRemoteStream;

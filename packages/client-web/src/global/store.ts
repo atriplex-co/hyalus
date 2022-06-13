@@ -499,7 +499,7 @@ export const useStore = defineStore("main", {
         }
 
         for (const peer of stream.peers) {
-          if (peer.dc.readyState !== "open") {
+          if (peer.dc.readyState !== "open" || !peer.enabled) {
             continue;
           }
 
