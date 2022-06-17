@@ -140,17 +140,15 @@ const restart = () => {
 app.on("ready", async () => {
   tray = new Tray(path.join(__dirname, "../../assets/icon.png"));
 
-  const trayBounds = tray.getBounds();
-
-  const trayDefaultIcon = nativeImage
-    .createFromPath(path.join(__dirname, "../../assets/tray_default.png"))
-    .resize({
-      width: trayBounds.width,
-      height: trayBounds.height,
-      quality: "better",
-    });
-
-  tray.setImage(trayDefaultIcon);
+  // const trayBounds = tray.getBounds();
+  // const trayDefaultIcon = nativeImage
+  //   .createFromPath(path.join(__dirname, "../../assets/icon.png"))
+  //   .resize({
+  //     width: trayBounds.width,
+  //     height: trayBounds.height,
+  //     quality: "best",
+  //   });
+  // tray.setImage(trayDefaultIcon);
 
   tray.setToolTip(`${pkg.name} ${pkg.version}`);
   tray.setContextMenu(

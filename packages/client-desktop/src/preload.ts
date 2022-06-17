@@ -1,16 +1,19 @@
 import { contextBridge, ipcRenderer } from "electron";
 import os from "os";
 
+declare const addEventListener: (arg0: string, arg1: () => void) => void; // gets TS to shut up.
+
 let win32Capture:
   | {
       startCapture(...args: unknown[]): void;
-      stopCapture(): void;
+      stopCapture(...args: unknown[]): void;
+      msgCapture(...args: unknown[]): void;
     }
   | undefined;
 
-const stopWin32Capture = () => {
+const stopWin32Capture = (...args: unknown[]) => {
   if (win32Capture) {
-    win32Capture.stopCapture();
+    win32Capture.stopCapture(...args);
   }
 };
 
@@ -19,7 +22,15 @@ const startWin32Capture = (...args: unknown[]) => {
     win32Capture = require("@atriplex-co/hyalus-win32-utils");
   }
 
-  win32Capture.startCapture(...args);
+  if (win32Capture) {
+    win32Capture.startCapture(...args);
+  }
+};
+
+const msgWin32Capture = (...args: unknown[]) => {
+  if (win32Capture) {
+    win32Capture.msgCapture(...args);
+  }
 };
 
 addEventListener("beforeunload", () => {
@@ -40,4 +51,5 @@ contextBridge.exposeInMainWorld("HyalusDesktop", {
   osRelease: os.release(),
   startWin32Capture,
   stopWin32Capture,
+  msgWin32Capture,
 });
