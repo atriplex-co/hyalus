@@ -8,7 +8,7 @@
     "test": "vue-tsc"
   },
   "devDependencies": {
-    "@atriplex-co/hyalus-rnnoise": "github:atriplex-co/hyalus-rnnoise#667cdd24bb8e7ddfd3c54aaf595e88ce3e05a56d",
+    "@atriplex-co/hyalus-rnnoise": "^0.0.6",
     "@types/emscripten": "^1.39.6",
     "@types/jmuxer": "^2.0.2",
     "@types/libsodium-wrappers": "^0.7.9",

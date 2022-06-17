@@ -24,13 +24,15 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@atriplex-co/hyalus-rnnoise@github:atriplex-co/hyalus-rnnoise#667cdd24bb8e7ddfd3c54aaf595e88ce3e05a56d":
-  version "0.0.5"
-  resolved "https://codeload.github.com/atriplex-co/hyalus-rnnoise/tar.gz/667cdd24bb8e7ddfd3c54aaf595e88ce3e05a56d"
+"@atriplex-co/hyalus-rnnoise@^0.0.6":
+  version "0.0.6"
+  resolved "https://npm.pkg.github.com/download/@atriplex-co/hyalus-rnnoise/0.0.6/3ab1d4aa2de8e11aa8c957c2b78398c73622e5c4904cd7dd2c7a0d33610dc0eb#26c4ba2bb40d1dcb69cb99624582a9528b25eaa9"
+  integrity sha512-kX1R72M500t1l5MNSzunYy547gXzIJQKwSsKB5JZ7QlH0fGuBBcOaz3xgAR+EMACgSyykZjKF+av+41HF6CXqg==
 
-"@atriplex-co/hyalus-win32-utils@atriplex-co/hyalus-win32-utils#d859156e0ae17c6fed04dabee8a23329790e88ee":
-  version "0.0.0"
-  resolved "https://codeload.github.com/atriplex-co/hyalus-win32-utils/tar.gz/d859156e0ae17c6fed04dabee8a23329790e88ee"
+"@atriplex-co/hyalus-win32-utils@^0.0.1":
+  version "0.0.1"
+  resolved "https://npm.pkg.github.com/download/@atriplex-co/hyalus-win32-utils/0.0.1/61ce35225c097edb7409ea89e4dd5f18db0cdd8a71631300d984118b66bdb6e2#1667d447a83970e19dda0ba87fdb01799cee4748"
+  integrity sha512-l+0h8apC5Lm1mxplnLZ2jUvMTRhSLChD14rV6YiZpAjLZMwf4fKQYc55R+NC5/t6voHOQcr09yyP7VacPRI3Wg==
 
 "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.7":
   version "7.16.7"
