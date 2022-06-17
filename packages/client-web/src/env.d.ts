@@ -50,6 +50,7 @@ declare interface IHyalusDesktop {
     cb: (data?: HyalusWin32CaptureData) => void
   ): void;
   stopWin32Capture(): void;
+  msgWin32Capture(msg: string): void;
   getStartupSettings(): Promise<IHyalusDesktopStartupSettings>;
   setStartupSettings(val: IHyalusDesktopStartupSettings): Promise<void>;
 }

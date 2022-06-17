@@ -1436,7 +1436,11 @@ export class Socket {
             let decoderConfig = "";
 
             dc.addEventListener("open", () => {
-              if ([CallStreamType.Audio].includes(stream.type)) {
+              if (
+                [CallStreamType.Audio, CallStreamType.DisplayAudio].includes(
+                  stream.type
+                )
+              ) {
                 dc.send("enable");
               }
             });

@@ -166,6 +166,11 @@ const submit = async () => {
 
       if (videoStream && data.t === "video") {
         videoStream.submit(new Uint8Array(data.d.data));
+
+        if (videoStream.requestKeyFrame) {
+          videoStream.requestKeyFrame = false;
+          window.HyalusDesktop?.msgWin32Capture("video_request_key_frame");
+        }
       }
 
       if (audioStream && data.t === "audio") {
