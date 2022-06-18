@@ -1,6 +1,6 @@
 
 FROM alpine:latest as base
-RUN apk add nodejs yarn git ffmpeg
+RUN apk add nodejs yarn ffmpeg
 WORKDIR /app
 COPY package.json yarn.lock .npmrc ./
 COPY packages/common/package.json ./packages/common/package.json
@@ -13,6 +13,10 @@ RUN echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" >> .npmrc
 RUN --mount=type=cache,target=/usr/local/share/.cache yarn --frozen-lockfile
 
 FROM deps as build
+ARG VITE_GIT_BRANCH
+ARG VITE_GIT_COMMIT_HASH
+ARG VITE_GIT_COMMIT_TIME
+ARG VITE_GIT_COMMIT_MSG
 COPY packages/common ./packages/common
 COPY packages/server ./packages/server
 COPY packages/client-web ./packages/client-web

@@ -5,6 +5,10 @@ services:
       context: "."
       args:
         GH_TOKEN: ${GH_TOKEN}
+        VITE_GIT_BRANCH: ${VITE_GIT_BRANCH}
+        VITE_GIT_COMMIT_HASH: ${VITE_GIT_COMMIT_HASH}
+        VITE_GIT_COMMIT_TIME: ${VITE_GIT_COMMIT_TIME}
+        VITE_GIT_COMMIT_MSG: ${VITE_GIT_COMMIT_MSG}
     restart: always
     ports:
       - ${PORT}:3000

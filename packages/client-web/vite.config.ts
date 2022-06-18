@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { getManifest } from "workbox-build";
 import fs from "fs";
-import child_process from "child_process";
 
 export default defineConfig({
   plugins: [
@@ -59,10 +58,5 @@ export default defineConfig({
     // assetsInlineLimit: 0,
     polyfillModulePreload: false,
     reportCompressedSize: false,
-  },
-  define: {
-    __app_commit: JSON.stringify(
-      child_process.execSync("git rev-parse --short HEAD").toString().trim()
-    ),
   },
 });

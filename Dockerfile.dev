@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk add nodejs yarn git ffmpeg
+RUN apk add nodejs yarn ffmpeg git
 RUN yes | adduser app
 USER app
 WORKDIR /home/app/app
