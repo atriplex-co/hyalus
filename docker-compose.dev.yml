@@ -10,6 +10,7 @@ services:
     volumes:
       - ".:/home/app/app"
       - "$HOME/.cache:/home/app/.cache"
+      - "$HOME/.npmrc:/home/app/.npmrc"
     environment:
       - VAPID_SUBJECT=${VAPID_SUBJECT}
       - VAPID_PUBLIC=${VAPID_PUBLIC}
