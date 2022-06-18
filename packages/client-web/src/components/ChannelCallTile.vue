@@ -238,7 +238,6 @@ onMounted(() => {
     if (element) {
       element.style.width = "100%";
       element.style.height = "100%";
-      element.controls = true;
       element.play();
       video.value.appendChild(element);
     }
