@@ -2,13 +2,13 @@
 FROM alpine:latest as base
 RUN apk add nodejs yarn ffmpeg
 WORKDIR /app
-COPY package.json yarn.lock .npmrc ./
+COPY package.json yarn.lock ./
 COPY packages/common/package.json ./packages/common/package.json
 COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client-web/package.json ./packages/client-web/package.json
 
 FROM base as deps
-RUN mv .npmrc2 .npmrc
+COPY .npmrc2 ./.npmrc
 RUN --mount=type=cache,target=/usr/local/share/.cache yarn --frozen-lockfile
 RUN rm -f .npmrc
 
