@@ -8,9 +8,9 @@ COPY packages/server/package.json ./packages/server/package.json
 COPY packages/client-web/package.json ./packages/client-web/package.json
 
 FROM base as deps
-ARG GH_TOKEN
-RUN echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" >> .npmrc
+RUN mv .npmrc2 .npmrc
 RUN --mount=type=cache,target=/usr/local/share/.cache yarn --frozen-lockfile
+RUN rm -f .npmrc
 
 FROM deps as build
 ARG VITE_GIT_BRANCH

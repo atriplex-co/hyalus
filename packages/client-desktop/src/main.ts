@@ -10,7 +10,6 @@ import {
   shell,
   desktopCapturer,
   crashReporter,
-  nativeImage,
 } from "electron";
 import path from "path";
 import os from "os";

@@ -4,10 +4,10 @@
       <AppIcon class="h-4 w-4" />
       <p class="text-gray-200">{{ title }}</p>
       <p
-        v-if="isDev"
+        v-if="gitBranch === 'dev'"
         class="bg-primary-600 rounded-full px-2 font-bold text-white"
       >
-        Dev
+        Dev ({{ gitCommitHash }})
       </p>
     </div>
     <div class="flex">
@@ -49,6 +49,9 @@
 import AppIcon from "../icons/AppIcon.vue";
 import { onUnmounted, ref } from "vue";
 
+const gitBranch = import.meta.env.VITE_GIT_BRANCH;
+const gitCommitHash = import.meta.env.VITE_GIT_COMMIT_HASH;
+
 const title = ref("");
 
 let updateTitleInterval: number;
@@ -68,8 +71,6 @@ const maximize = () => {
 const minimize = () => {
   window.HyalusDesktop?.minimize();
 };
-
-const isDev = import.meta.env.DEV;
 
 updateTitleInterval = +setInterval(updateTitle, 100);
 

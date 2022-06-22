@@ -3,34 +3,26 @@ import os from "os";
 
 declare const addEventListener: (arg0: string, arg1: () => void) => void; // gets TS to shut up.
 
-let win32Capture:
-  | {
-      startCapture(...args: unknown[]): void;
-      stopCapture(...args: unknown[]): void;
-      msgCapture(...args: unknown[]): void;
-    }
-  | undefined;
+let win32Utils: {
+  startCapture(...args: unknown[]): void;
+  stopCapture(...args: unknown[]): void;
+  msgCapture(...args: unknown[]): void;
+} | null = null;
 
 const stopWin32Capture = (...args: unknown[]) => {
-  if (win32Capture) {
-    win32Capture.stopCapture(...args);
-  }
+  win32Utils?.stopCapture(...args);
 };
 
 const startWin32Capture = (...args: unknown[]) => {
-  if (!win32Capture) {
-    win32Capture = require("@atriplex-co/hyalus-win32-utils");
+  if (!win32Utils) {
+    win32Utils = require("@atriplex-co/hyalus-win32-utils");
   }
 
-  if (win32Capture) {
-    win32Capture.startCapture(...args);
-  }
+  win32Utils?.startCapture(...args);
 };
 
 const msgWin32Capture = (...args: unknown[]) => {
-  if (win32Capture) {
-    win32Capture.msgCapture(...args);
-  }
+  win32Utils?.msgCapture(...args);
 };
 
 addEventListener("beforeunload", () => {
