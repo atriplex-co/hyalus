@@ -1,24 +1,36 @@
 <template>
   <router-link
-    class="flex w-full cursor-pointer items-center space-x-3 p-2 transition hover:bg-gray-900"
+    class="flex w-full cursor-pointer items-center space-x-4 rounded-md p-3 transition hover:bg-gray-600 hover:bg-opacity-50"
     :class="{
-      'bg-gray-800': selected,
+      'bg-gray-600 bg-opacity-75': selected,
     }"
     :to="`/channels/${channel.id}`"
   >
-    <UserAvatar
-      v-if="avatarId || channel.type === ChannelType.Private"
-      :id="avatarId"
-      :status="status"
-      class="h-8 w-8 rounded-full"
-    />
-    <EmptyAvatar v-else :name="name" class="h-8 w-8" />
+    <div class="h-10 w-10">
+      <UserAvatar
+        v-if="avatarId || channel.type === ChannelType.Private"
+        :id="avatarId"
+        :status="status"
+        class="h-full w-full rounded-full"
+      />
+      <EmptyAvatar v-else :name="name" class="h-full w-full" />
+    </div>
     <div class="min-w-0 flex-1">
       <div class="flex w-full items-center justify-between">
-        <p class="truncate text-sm font-bold">{{ name }}</p>
-        <p class="text-xs text-gray-400">{{ lastMessageTime }}</p>
+        <div class="flex min-w-0 items-center space-x-2 pr-2">
+          <p class="truncate text-sm font-bold">{{ name }}</p>
+          <GroupIcon
+            v-if="channel.type === ChannelType.Group"
+            class="h-3 w-3 flex-shrink-0 text-gray-400"
+          />
+        </div>
+        <p class="text-xs text-gray-300">
+          {{ lastMessageTime }}
+        </p>
       </div>
-      <p class="truncate pr-2 text-sm text-gray-300">{{ lastMessage }}</p>
+      <p class="truncate pr-2 text-sm text-gray-300">
+        {{ lastMessage }}
+      </p>
     </div>
   </router-link>
 </template>
@@ -32,6 +44,7 @@ import { IChannel, IChannelUser, IUser } from "../global/types";
 import { useRoute } from "vue-router";
 import { ChannelType, MessageType } from "common";
 import { useStore } from "../global/store";
+import GroupIcon from "../icons/GroupIcon.vue";
 
 const store = useStore();
 

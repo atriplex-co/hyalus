@@ -62,12 +62,13 @@
         'mx-2': !embedded,
       }"
     >
-      <UserAvatar
-        v-if="lastInChunk || embedded"
-        :id="user.avatarId"
-        class="h-8 w-8 flex-shrink-0 rounded-full"
-      />
-      <div v-else class="p-4"></div>
+      <div class="h-8 w-8">
+        <UserAvatar
+          v-if="lastInChunk || embedded"
+          :id="user.avatarId"
+          class="h-8 w-8 flex-shrink-0 rounded-full"
+        />
+      </div>
       <div class="flex max-w-full flex-1 flex-col items-start space-y-1">
         <p
           v-if="firstInChunk && channel.type === ChannelType.Group && !embedded"
@@ -79,9 +80,9 @@
           <div
             class="flex flex-1 flex-col overflow-hidden break-words rounded-md text-sm"
             :class="{
-              'from-primary-500 to-primary-600 border-primary-600 border bg-gradient-to-br':
+              'from-primary-500 to-primary-600 bg-gradient-to-br':
                 sentByMe && !previewUrl,
-              'border border-gray-600 bg-gray-700': !sentByMe && !previewUrl,
+              'bg-gray-700': !sentByMe && !previewUrl,
             }"
           >
             <!-- eslint-disable vue/no-v-html -->
@@ -121,14 +122,14 @@
                 <img
                   v-if="file.type.split('/')[0] === 'image'"
                   :src="previewUrl"
-                  class="max-h-96 cursor-pointer rounded-md border border-gray-600"
+                  class="max-h-96 cursor-pointer rounded-md"
                   @error="delPreview"
                   @click="imageView = true"
                 />
                 <video
                   v-if="file.type.split('/')[0] === 'video'"
                   :src="previewUrl"
-                  class="max-h-96 rounded-md border border-gray-600"
+                  class="max-h-96 rounded-md"
                   controls
                   @error="delPreview"
                 />
@@ -697,3 +698,111 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+
+<style>
+/* 
+pre {
+  @apply -m-2 bg-gray-800 p-2;
+}
+
+pre code {
+  @apply border-none p-0;
+}
+
+code {
+  @apply rounded-md border border-gray-600 bg-gray-800 py-1 px-2 text-gray-200;
+}
+*/
+
+pre {
+  @apply border-primary-500 m-[-6px] rounded-md bg-gray-800 p-2;
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-variable.language_ {
+  color: #ff7b72;
+}
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__,
+.hljs-title.function_ {
+  color: #d2a8ff;
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-literal,
+.hljs-meta,
+.hljs-number,
+.hljs-operator,
+.hljs-variable,
+.hljs-selector-attr,
+.hljs-selector-class,
+.hljs-selector-id {
+  color: #79c0ff;
+}
+
+.hljs-regexp,
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+
+.hljs-built_in,
+.hljs-symbol {
+  color: #ffa657;
+}
+
+.hljs-comment,
+.hljs-code,
+.hljs-formula {
+  /* color: #8b949e; */
+  @apply text-white;
+}
+
+.hljs-name,
+.hljs-quote,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+  color: #7ee787;
+}
+
+.hljs-subst {
+  color: #c9d1d9;
+}
+
+.hljs-section {
+  color: #1f6feb;
+  font-weight: bold;
+}
+
+.hljs-bullet {
+  color: #f2cc60;
+}
+
+.hljs-emphasis {
+  color: #c9d1d9;
+  font-style: italic;
+}
+
+.hljs-strong {
+  color: #c9d1d9;
+  font-weight: bold;
+}
+
+.hljs-addition {
+  color: #aff5b4;
+  background-color: #033a16;
+}
+
+.hljs-deletion {
+  color: #ffdcd7;
+  background-color: #67060c;
+}
+</style>

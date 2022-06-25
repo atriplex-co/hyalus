@@ -9,9 +9,7 @@
   >
     <div class="flex w-16 flex-col justify-between bg-gray-900">
       <div>
-        <div
-          class="mt-px flex h-16 items-center justify-center border-b border-gray-700"
-        >
+        <div class="mt-px flex h-16 items-center justify-center">
           <div class="relative" @mouseup.stop>
             <UserAvatar
               :id="store.user.avatarId"

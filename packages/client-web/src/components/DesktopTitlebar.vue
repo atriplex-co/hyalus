@@ -57,7 +57,9 @@ const title = ref("");
 let updateTitleInterval: number;
 
 const updateTitle = () => {
-  title.value = document.title;
+  if (document.visibilityState == "visible") {
+    title.value = document.title;
+  }
 };
 
 const close = () => {

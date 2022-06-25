@@ -13,15 +13,12 @@
         </div>
       </template>
     </div>
-    <div
-      class="flex-1 divide-y divide-gray-600 overflow-auto border-t border-gray-600"
-    >
+    <div class="flex-1 overflow-auto px-2">
       <SideBarChannel
         v-for="channel in channels"
         :key="channel.id"
         :channel="channel"
       />
-      <div />
     </div>
     <GroupCreateModal
       :show="groupCreateModal"

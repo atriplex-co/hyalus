@@ -9,7 +9,7 @@
     @dragsend.prevent
   >
     <div
-      class="relative z-10 w-full border-b border-gray-700 shadow-xl"
+      class="relative z-10 w-full bg-gray-700"
       :class="{
         'bg-black': inCall,
       }"

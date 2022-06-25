@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex h-16 w-full justify-between">
-      <div class="flex min-w-0 items-center space-x-2">
+      <div class="flex min-w-0 items-center space-x-4 px-4">
         <router-link
           v-if="isMobile"
           class="ml-2 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"
@@ -10,7 +10,7 @@
           <ArrowLeftIcon />
         </router-link>
         <div
-          class="flex h-16 w-16 items-center justify-center"
+          class="flex h-10 w-10 items-center justify-center"
           :class="{ 'cursor-pointer': channel.owner }"
           @click="setAvatar"
         >
@@ -22,9 +22,9 @@
                 ? channel.users[0].status
                 : undefined
             "
-            class="h-10 w-10 rounded-full"
+            class="h-full w-full rounded-full"
           />
-          <EmptyAvatar v-else :name="name" class="h-10 w-10" />
+          <EmptyAvatar v-else :name="name" class="h-full w-full" />
         </div>
         <div class="min-w-0 flex-1">
           <p
