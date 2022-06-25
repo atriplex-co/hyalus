@@ -2,7 +2,7 @@
   <BetaBanner v-if="store.config.betaBanner" />
   <div class="flex h-full flex-1 items-center justify-center bg-gray-900">
     <div
-      class="flex w-full max-w-sm flex-col rounded-md border border-gray-700 bg-gray-800 shadow-2xl"
+      class="flex w-full max-w-sm flex-col rounded-md bg-gray-800 shadow-2xl"
     >
       <div
         class="flex flex-col items-center space-y-4 border-b border-gray-700 py-6"

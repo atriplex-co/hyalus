@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex h-16 w-full justify-between">
-      <div class="flex min-w-0 items-center space-x-4 px-4">
+    <div class="flex h-16 w-full justify-between px-4">
+      <div class="flex min-w-0 items-center space-x-4">
         <router-link
           v-if="isMobile"
           class="ml-2 h-8 w-8 rounded-full bg-gray-600 p-1.5 text-gray-300 transition hover:bg-gray-500"

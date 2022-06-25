@@ -9,31 +9,31 @@
   >
     <div
       v-if="show"
-      class="absolute z-10 my-2 w-32 select-none rounded-md border border-gray-600 bg-gray-800 text-sm shadow-md"
+      class="absolute z-10 my-2 w-32 select-none rounded-md bg-gray-800 bg-opacity-75 text-sm shadow-md backdrop-blur-xl"
     >
       <div
-        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
+        class="flex items-center space-x-3 p-3 transition hover:bg-white hover:bg-opacity-5"
         @click="submit(Status.Online)"
       >
         <div class="rounded-full bg-green-500 p-2" />
         <p>Online</p>
       </div>
       <div
-        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
+        class="flex items-center space-x-3 p-3 transition hover:bg-white hover:bg-opacity-5"
         @click="submit(Status.Away)"
       >
         <div class="rounded-full bg-amber-500 p-2" />
         <p>Away</p>
       </div>
       <div
-        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
+        class="flex items-center space-x-3 p-3 transition hover:bg-white hover:bg-opacity-5"
         @click="submit(Status.Busy)"
       >
         <div class="rounded-full bg-rose-500 p-2" />
         <p>Busy</p>
       </div>
       <div
-        class="flex items-center space-x-3 py-2 px-3 transition hover:bg-gray-700"
+        class="flex items-center space-x-3 p-3 transition hover:bg-white hover:bg-opacity-5"
         @click="submit(Status.Offline)"
       >
         <div class="rounded-full bg-gray-400 p-2" />
