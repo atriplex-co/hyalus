@@ -21,7 +21,7 @@
       <img
         v-show="!animateReady"
         :src="`/api/avatars/${id}/${AvatarType.WEBP}`"
-        class="h-full w-full object-cover"
+        class="h-full w-full rounded-full object-cover object-center"
         :class="{
           'border border-transparent': status !== undefined,
         }"
@@ -30,7 +30,7 @@
         v-if="animate"
         v-show="animateReady"
         :src="`/api/avatars/${id}/${AvatarType.MP4}`"
-        class="h-full w-full object-cover"
+        class="h-full w-full rounded-full object-cover object-center"
         :class="{
           'border border-transparent': status !== undefined,
         }"
