@@ -29,10 +29,10 @@
   resolved "https://npm.pkg.github.com/download/@atriplex-co/hyalus-rnnoise/0.0.6/3ab1d4aa2de8e11aa8c957c2b78398c73622e5c4904cd7dd2c7a0d33610dc0eb#26c4ba2bb40d1dcb69cb99624582a9528b25eaa9"
   integrity sha512-kX1R72M500t1l5MNSzunYy547gXzIJQKwSsKB5JZ7QlH0fGuBBcOaz3xgAR+EMACgSyykZjKF+av+41HF6CXqg==
 
-"@atriplex-co/hyalus-win32-utils@^0.0.3":
-  version "0.0.3"
-  resolved "https://npm.pkg.github.com/download/@atriplex-co/hyalus-win32-utils/0.0.3/3eb75ca36340b52c92d2b0a4e00452f343957fbe1a5dd21ad52357d0253906b6#33ddb42b9b6c31f9fef1218db04ade192b198377"
-  integrity sha512-f42t/8HCRHaLh3+T35SreCMJW0GxvtGbIbxi76/AtmN9GUQu5XN81ooKJmEiiZFkyXMsADS/cheuLdfRumYz2Q==
+"@atriplex-co/hyalus-win32-utils@0.0.5":
+  version "0.0.5"
+  resolved "https://npm.pkg.github.com/download/@atriplex-co/hyalus-win32-utils/0.0.5/f604856a80c80bc6b8e9cdfe721ed584216b9eba76b780133e10ce2f8d6fa1e7#ba84f1c0d3b6dc104f31a5d96bcfd6602248348a"
+  integrity sha512-QaqLqWaNVGpfDR3Fq/Eg4XZCmle8q/qce8/SPGTHd3e/KzpSlqhWqZ+3yL8URa8p9NAeen/iIs7j4fsKuWBTAw==
 
 "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.7":
   version "7.16.7"

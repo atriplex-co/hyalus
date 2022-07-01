@@ -35,3 +35,4 @@ directories:
   buildResources: assets/dev
   output: dist/packaged
 compression: store
+
