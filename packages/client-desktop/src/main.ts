@@ -283,6 +283,10 @@ app.on("ready", async () => {
   mainWindow.webContents.on("did-fail-load", () => {
     mainWindow?.loadFile(path.join(__dirname, "../public/error.html"));
   });
+
+  mainWindow.webContents.on("crashed", () => {
+    restart();
+  });
 });
 
 app.on("second-instance", () => {
